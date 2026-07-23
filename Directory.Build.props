@@ -1,0 +1,9 @@
+<Project>
+  <!-- Propriétés communes à tous les projets (src + tests).
+       Analyzers .NET : analyse statique gratuite à chaque build (fiabilité, perf, usage des API),
+       zéro impact sur l'exe produit. -->
+  <PropertyGroup>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+</Project>

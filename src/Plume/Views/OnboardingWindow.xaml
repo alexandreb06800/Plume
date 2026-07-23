@@ -1,0 +1,96 @@
+<Window x:Class="Plume.Views.OnboardingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Bienvenue dans Plume"
+        Width="540" Height="620" ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource BgBrush}"
+        FontFamily="{StaticResource UiFont}">
+    <Grid Margin="32,26,32,22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- En-tête -->
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Bienvenue dans Plume" FontFamily="{StaticResource DisplayFont}"
+                       FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource InkBrush}"/>
+            <TextBlock x:Name="StepLabel" FontSize="13" Foreground="{DynamicResource SecondaryBrush}" Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <!-- Étape 1 : clé API Groq -->
+        <StackPanel x:Name="StepKey" Grid.Row="1" Margin="0,20,0,0">
+            <TextBlock TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource InkBrush}"
+                       Text="Plume utilise Groq (gratuit) pour transcrire ta voix. Il te faut une clé API :"/>
+            <TextBlock FontSize="13" Foreground="{DynamicResource SecondaryBrush}" Margin="0,10,0,0" TextWrapping="Wrap"
+                       Text="①  Crée un compte sur console.groq.com"/>
+            <TextBlock FontSize="13" Foreground="{DynamicResource SecondaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap"
+                       Text="②  Ouvre le menu « API Keys » puis « Create API Key »"/>
+            <TextBlock FontSize="13" Foreground="{DynamicResource SecondaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap"
+                       Text="③  Copie la clé et colle-la ci-dessous"/>
+            <TextBlock Margin="0,10,0,0" FontSize="13">
+                <Hyperlink x:Name="GroqLink" Foreground="{DynamicResource VioletBrush}">Ouvrir console.groq.com/keys</Hyperlink>
+            </TextBlock>
+
+            <DockPanel Margin="0,16,0,0">
+                <Button x:Name="TestKeyButton" DockPanel.Dock="Right" Content="Tester la clé"
+                        Style="{StaticResource PrimaryButton}" Margin="8,0,0,0"/>
+                <PasswordBox x:Name="KeyBox" FontSize="13" VerticalContentAlignment="Center" Padding="8,6"/>
+            </DockPanel>
+            <TextBlock x:Name="KeyStatus" FontSize="12" TextWrapping="Wrap" Margin="0,8,0,0"
+                       Foreground="{DynamicResource SecondaryBrush}"/>
+
+            <TextBlock Margin="0,18,0,0" FontSize="12">
+                <Hyperlink x:Name="OpenRouterToggle" Foreground="{DynamicResource TertiaryBrush}">J'ai plutôt une clé OpenRouter</Hyperlink>
+            </TextBlock>
+            <StackPanel x:Name="OpenRouterPanel" Visibility="Collapsed" Margin="0,8,0,0">
+                <TextBlock Margin="0,0,0,8" FontSize="12">
+                    <Hyperlink x:Name="OpenRouterLink" Foreground="{DynamicResource VioletBrush}">Ouvrir openrouter.ai/keys</Hyperlink>
+                </TextBlock>
+                <PasswordBox x:Name="OpenRouterBox" FontSize="13" VerticalContentAlignment="Center" Padding="8,6"/>
+                <TextBlock FontSize="12" Foreground="{DynamicResource TertiaryBrush}" Margin="0,6,0,0" TextWrapping="Wrap"
+                           Text="Elle sera enregistrée quand tu cliqueras sur « Continuer »."/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Étape 2 : micro -->
+        <StackPanel x:Name="StepMic" Grid.Row="1" Margin="0,20,0,0" Visibility="Collapsed">
+            <TextBlock TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource InkBrush}"
+                       Text="Vérifions que Plume t'entend."/>
+            <StackPanel x:Name="MicDevicePanel" Visibility="Collapsed" Margin="0,14,0,0">
+                <TextBlock Text="Micro" Style="{StaticResource RowTitle}"/>
+                <ComboBox x:Name="MicDeviceBox" MinWidth="260" HorizontalAlignment="Left" Margin="0,6,0,0"/>
+            </StackPanel>
+            <Border Height="16" CornerRadius="8" Background="{DynamicResource IconBoxBrush}" Margin="0,20,0,0">
+                <Grid x:Name="LevelTrack" ClipToBounds="True">
+                    <Border x:Name="LevelFill" Width="0" HorizontalAlignment="Left" CornerRadius="8"
+                            Background="{DynamicResource GreenBrush}"/>
+                </Grid>
+            </Border>
+            <TextBlock x:Name="MicStatus" FontSize="12" TextWrapping="Wrap" Margin="0,12,0,0"
+                       Foreground="{DynamicResource SecondaryBrush}"/>
+        </StackPanel>
+
+        <!-- Étape 3 : première dictée guidée -->
+        <StackPanel x:Name="StepDictation" Grid.Row="1" Margin="0,20,0,0" Visibility="Collapsed">
+            <TextBlock x:Name="DictationInstruction" TextWrapping="Wrap" FontSize="13"
+                       Foreground="{DynamicResource InkBrush}"/>
+            <TextBox x:Name="DictationTarget" Style="{StaticResource FieldTextBox}" Margin="0,16,0,0"
+                     Height="130" TextWrapping="Wrap" AcceptsReturn="True"
+                     VerticalScrollBarVisibility="Auto" VerticalContentAlignment="Top"/>
+            <TextBlock x:Name="DictationSuccess" FontSize="13" Foreground="{DynamicResource GreenBrush}"
+                       Margin="0,12,0,0" TextWrapping="Wrap" Visibility="Collapsed"
+                       Text="🎉  Bravo, Plume est prêt ! La dictée fonctionne partout : Word, Outlook, Teams, navigateur…"/>
+        </StackPanel>
+
+        <!-- Pied : navigation -->
+        <Grid Grid.Row="2" Margin="0,18,0,0">
+            <Button x:Name="LaterButton" Content="Plus tard" Style="{StaticResource SecondaryButton}"
+                    HorizontalAlignment="Left"/>
+            <Button x:Name="NextButton" Content="Continuer" Style="{StaticResource PrimaryButton}"
+                    HorizontalAlignment="Right" MinWidth="110"/>
+        </Grid>
+    </Grid>
+</Window>

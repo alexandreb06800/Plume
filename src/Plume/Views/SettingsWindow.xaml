@@ -1,0 +1,106 @@
+<Window x:Class="Plume.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:panels="clr-namespace:Plume.Views.SettingsPanels"
+        Title="Plume — Paramètres" Width="800" Height="760" MinWidth="600" MinHeight="480"
+        WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
+        SizeToContent="Manual"
+        FontFamily="{StaticResource UiFont}" Background="{DynamicResource BgBrush}">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="188"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Sidebar -->
+        <Border Grid.Column="0" Background="{DynamicResource SidebarBrush}"
+                BorderBrush="{DynamicResource HairlineBrush}" BorderThickness="0,0,1,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <ListBox Grid.Row="0" x:Name="NavList" Margin="10,12" Background="Transparent"
+                         BorderThickness="0" ItemContainerStyle="{StaticResource NavItem}"
+                         SelectedIndex="0">
+                    <ListBoxItem>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource NavIcon}" Text="&#xE713;"/>
+                            <TextBlock Text="Général" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource NavIcon}" Text="&#xE82D;"/>
+                            <TextBlock Text="Dictionnaire" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource NavIcon}" Text="&#xE70F;"/>
+                            <TextBlock Text="Styles" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource NavIcon}" Text="&#xE946;"/>
+                            <TextBlock Text="À propos" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ListBoxItem>
+                </ListBox>
+
+                <!-- Pied de sidebar : stats compactes + période + Inviter (remplace l'onglet Statistiques) -->
+                <StackPanel Grid.Row="1" Margin="14,0,14,12">
+                    <Border Height="1" Background="{DynamicResource HairlineBrush}" Margin="0,0,0,10"/>
+                    <TextBlock x:Name="SideStatTime" Text="~0 min" FontSize="17" FontWeight="SemiBold"
+                               Foreground="{DynamicResource InkBrush}"/>
+                    <TextBlock Text="temps gagné" FontSize="10.5" Foreground="{DynamicResource SecondaryBrush}"/>
+                    <TextBlock x:Name="SideStatDetail" Text="0 dictée · 0 mot" FontSize="10.5" Margin="0,4,0,8"
+                               Foreground="{DynamicResource SecondaryBrush}"/>
+
+                    <!-- Sélecteur de période : 3 segments -->
+                    <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="7" Padding="2">
+                        <UniformGrid Rows="1" Columns="3">
+                            <RadioButton x:Name="PeriodWeek"  Content="Sem"  Style="{StaticResource SegmentButton}"/>
+                            <RadioButton x:Name="PeriodMonth" Content="Mois" Style="{StaticResource SegmentButton}"/>
+                            <RadioButton x:Name="PeriodTotal" Content="Tot"  Style="{StaticResource SegmentButton}" IsChecked="True"/>
+                        </UniformGrid>
+                    </Border>
+
+                    <Button x:Name="InviteButton" Margin="0,10,0,0" Style="{StaticResource SecondaryButton}"
+                            HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE716;" FontSize="12"
+                                       Margin="0,0,6,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Inviter un collègue"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Contenu -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <Grid Margin="20,18,20,18">
+                <panels:GeneralPanel x:Name="PanelGeneral"/>
+                <panels:DictionnairePanel x:Name="PanelDico" Visibility="Collapsed"/>
+                <panels:StylePanel x:Name="PanelStyle" Visibility="Collapsed"/>
+                <panels:AProposPanel x:Name="PanelAbout" Visibility="Collapsed"/>
+            </Grid>
+            </ScrollViewer>
+
+            <!-- Pied : enregistrement automatique -->
+            <Border Grid.Row="1" BorderBrush="{DynamicResource HairlineBrush}" BorderThickness="0,1,0,0" Padding="20,10">
+                <TextBlock Text="Enregistré automatiquement" Foreground="{DynamicResource TertiaryBrush}"
+                           FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

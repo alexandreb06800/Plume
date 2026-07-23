@@ -1,0 +1,600 @@
+<UserControl x:Class="Plume.Views.SettingsPanels.GeneralPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:Plume.Converters"
+             MaxWidth="600" HorizontalAlignment="Left">
+    <UserControl.Resources>
+        <conv:StarRatingConverter x:Key="Stars"/>
+
+        <!-- Élément du menu déroulant de modèle : nom + (prix · coût) + étoiles -->
+        <DataTemplate x:Key="ModelItemTemplate">
+            <Grid Margin="2,3" Width="300">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="{Binding DisplayName}" FontSize="13" FontWeight="Medium"
+                               Foreground="{DynamicResource InkBrush}"/>
+                    <TextBlock FontSize="11" Foreground="{DynamicResource SecondaryBrush}" Margin="0,1,0,0">
+                        <Run Text="{Binding PriceLabel, Mode=OneWay}"/>
+                        <Run Text=" · "/>
+                        <Run Text="{Binding CostPerDictationLabel, Mode=OneWay}"/>
+                    </TextBlock>
+                </StackPanel>
+                <TextBlock Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0" FontSize="12"
+                           Foreground="{DynamicResource VioletBrush}"
+                           Text="{Binding Reliability, Converter={StaticResource Stars}}"/>
+            </Grid>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <StackPanel>
+        <TextBlock Text="Général" Style="{StaticResource PageTitle}"/>
+
+        <!-- ===== Dictée (le cœur de l'app en premier) ===== -->
+        <TextBlock Text="Dictée" Style="{StaticResource GroupLabel}"/>
+        <Border Style="{StaticResource GroupBorder}">
+            <StackPanel>
+                <!-- Raccourci de dictée -->
+                <StackPanel Margin="12,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource IconBox}">
+                            <TextBlock Style="{StaticResource RowIcon}" Text="&#xE765;"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                            <TextBlock Style="{StaticResource RowTitle}" Text="Raccourci de dictée"/>
+                            <TextBlock Style="{StaticResource RowSubtitle}" Text="Appuie pour parler, le texte s'insère au curseur"/>
+                        </StackPanel>
+                        <Button Grid.Column="2" x:Name="DictationHotkeyButton" Content="Aucun" MinWidth="180" Height="30"
+                                HorizontalContentAlignment="Left" VerticalAlignment="Center" Style="{StaticResource SecondaryButton}"/>
+                    </Grid>
+                    <TextBlock x:Name="DictationHotkeyError" Foreground="{DynamicResource ErrorBrush}" TextWrapping="Wrap"
+                               FontSize="11" Margin="54,4,0,0"/>
+                </StackPanel>
+                <Border Height="1" Background="{DynamicResource HairlineBrush}" Margin="54,0,0,0"/>
+
+                <!-- Déclenchement -->
+                <Grid Margin="12,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource IconBox}">
+                        <TextBlock Style="{StaticResource RowIcon}" Text="&#xE7C9;"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource RowTitle}" Text="Déclenchement"/>
+                        <TextBlock Style="{StaticResource RowSubtitle}" Text="Appui simple pour démarrer/arrêter, ou maintien enfoncé"/>
+                    </StackPanel>
+                    <ComboBox Grid.Column="2" x:Name="ModeBox" MinWidth="200" VerticalAlignment="Center">
+                        <ComboBoxItem Content="Toggle (appui pour démarrer/arrêter)"/>
+                        <ComboBoxItem Content="Maintien enfoncé (push-to-talk)"/>
+                    </ComboBox>
+                </Grid>
+                <Border Height="1" Background="{DynamicResource HairlineBrush}" Margin="54,0,0,0"/>
+
+                <!-- Durée maximale d'écoute -->
+                <Grid Margin="12,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource IconBox}">
+                        <TextBlock Style="{StaticResource RowIcon}" Text="&#xE823;"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource RowTitle}" Text="Durée maximale d'écoute"/>
+                        <TextBlock Style="{StaticResource RowSubtitle}" Text="Coupure automatique après ce délai"/>
+                    </StackPanel>
+                    <ComboBox Grid.Column="2" x:Name="MaxDurationBox" MinWidth="150" VerticalAlignment="Center">
+                        <ComboBoxItem Content="30 secondes"/>
+                        <ComboBoxItem Content="1 minute"/>
+                        <ComboBoxItem Content="2 minutes"/>
+                        <ComboBoxItem Content="5 minutes"/>
+                    </ComboBox>
+                </Grid>
+                <Border Height="1" Background="{DynamicResource HairlineBrush}" Margin="54,0,0,0"/>
+
+                <!-- Microphone -->
+                <Grid Margin="12,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource IconBox}">
+                        <TextBlock Style="{StaticResource RowIcon}" Text="&#xE720;"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource RowTitle}" Text="Microphone"/>
+                        <TextBlock Style="{StaticResource RowSubtitle}" Text="Périphérique utilisé pour la dictée"/>
+                    </StackPanel>
+                    <ComboBox Grid.Column="2" x:Name="MicBox" MinWidth="200" VerticalAlignment="Center"/>
+                </Grid>
+                <Border Height="1" Background="{DynamicResource HairlineBrush}" Margin="54,0,0,0"/>
+
+                <!-- Créativité du nettoyage -->
+                <StackPanel Margin="12,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource IconBox}">
+                            <TextBlock Style="{StaticResource RowIcon}" Text="&#xE790;"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                            <TextBlock Style="{StaticResource RowTitle}" Text="Créativité du nettoyage"/>
+                            <TextBlock Style="{StaticResource RowSubtitle}" Text="0 = fidèle, 1 = plus libre"/>
+                        </StackPanel>
+                        <TextBlock Grid.Column="2" x:Name="DictationTempValue" Text="0,2" FontSize="12"
+                                   VerticalAlignment="Center" Foreground="{DynamicResource SecondaryBrush}"/>
+                    </Grid>
+                    <Slider x:Name="DictationTempSlider" Minimum="0" Maximum="1" Value="0.2" Margin="54,6,12,0"
+                            TickFrequency="0.1" IsSnapToTickEnabled="True" SmallChange="0.1" LargeChange="0.2"/>
+                </StackPanel>
+                <Border Height="1" Background="{DynamicResource HairlineBrush}" Margin="54,0,0,0"/>
+
+                <!-- Instructions de nettoyage (prompt de la dictée) -->
+                <StackPanel Margin="12,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource IconBox}">
+                            <TextBlock Style="{StaticResource RowIcon}" Text="&#xE70F;"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Style="{StaticResource RowTitle}" Text="Instructions de nettoyage"/>
+                            <TextBlock Style="{StaticResource RowSubtitle}" Text="Le prompt envoyé au modèle pour corriger et mettre en forme le texte dicté"/>
+                        </StackPanel>
+                    </Grid>
+                    <TextBox x:Name="DictationPromptBox" Style="{StaticResource FieldTextBox}"
+                             AcceptsReturn="True" TextWrapping="Wrap" Height="140"
+                             VerticalScrollBarVisibility="Auto" Margin="54,8,12,0"/>
+                    <Button x:Name="DictationResetButton" Content="Réinitialiser au défaut"
+                            HorizontalAlignment="Left" Margin="54,6,0,0" Style="{StaticResource SecondaryButton}"/>
+                </StackPanel>
+                <Border Height="1" Background="{DynamicResource HairlineBrush}" Margin="54,0,0,0"/>
+
+                <!-- Copier le dernier texte -->
+                <Grid Margin="12,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource IconBox}">
+                        <TextBlock Style="{StaticResource RowIcon}" Text="&#xE8C8;"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource RowTitle}" Text="Copier le dernier texte"/>
+                        <TextBlock Style="{StaticResource RowSubtitle}" Text="Récupère la dernière dictée sans la refaire"/>
+                    </StackPanel>
+                    <Button Grid.Column="2" x:Name="CopyLastButton" HorizontalContentAlignment="Left" MinWidth="180"
+                            VerticalAlignment="Center" Content="Copier le dernier texte" Style="{StaticResource SecondaryButton}"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- ===== Sons (V8-K) ===== -->
+        <TextBlock Text="Sons" Style="{StaticResource GroupLabel}"/>
+        <Border Style="{StaticResource GroupBorder}">
+            <StackPanel>
+                <!-- Activer/désactiver -->
+                <Grid Margin="12,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource IconBox}">
+                        <TextBlock Style="{StaticResource RowIcon}" Text="&#xE995;"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource RowTitle}" Text="Sons de dictée"/>
+                        <TextBlock Style="{StaticResource RowSubtitle}" Text="Tops discrets au début et à la fin de l'écoute"/>
+                    </StackPanel>
+                    <CheckBox Grid.Column="2" x:Name="TickSoundsBox" VerticalAlignment="Center"
+                              Style="{StaticResource ToggleSwitch}"/>
+                </Grid>
+                <Border Height="1" Background="{DynamicResource HairlineBrush}" Margin="54,0,0,0"/>
+
+                <!-- Son de début -->
+                <Grid Margin="12,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource IconBox}">
+                        <TextBlock Style="{StaticResource RowIcon}" Text="&#xE768;"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource RowTitle}" Text="Son de début"/>
+                        <TextBlock Style="{StaticResource RowSubtitle}" Text="Joué quand le micro devient prêt"/>
+                    </StackPanel>
+                    <ComboBox Grid.Column="2" x:Name="StartTickBox" MinWidth="150" VerticalAlignment="Center"/>
+                </Grid>
+                <Border Height="1" Background="{DynamicResource HairlineBrush}" Margin="54,0,0,0"/>
+
+                <!-- Son de fin -->
+                <Grid Margin="12,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource IconBox}">
+                        <TextBlock Style="{StaticResource RowIcon}" Text="&#xE71A;"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource RowTitle}" Text="Son de fin"/>
+                        <TextBlock Style="{StaticResource RowSubtitle}" Text="Joué quand une dictée est insérée"/>
+                    </StackPanel>
+                    <ComboBox Grid.Column="2" x:Name="EndTickBox" MinWidth="150" VerticalAlignment="Center"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- ===== Diagnostic (V8-H2) ===== -->
+        <TextBlock Text="Diagnostic" Style="{StaticResource GroupLabel}"/>
+        <Border Style="{StaticResource GroupBorder}">
+            <StackPanel>
+                <Grid Margin="12,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource IconBox}"
+                            ToolTip="À activer seulement pour diagnostiquer un problème : trace les durées et erreurs de vos dictées, jamais le texte dicté ni vos clés API.">
+                        <TextBlock Style="{StaticResource RowIcon}" Text="&#xE9CE;"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource RowTitle}" Text="Journal de diagnostic"/>
+                        <TextBlock Style="{StaticResource RowSubtitle}" Text="Trace les étapes de chaque dictée pour aider au support (jamais le texte dicté ni les clés)"/>
+                    </StackPanel>
+                    <CheckBox Grid.Column="2" x:Name="DiagLogBox" VerticalAlignment="Center"
+                              Style="{StaticResource ToggleSwitch}"/>
+                </Grid>
+                <Border Height="1" Background="{DynamicResource HairlineBrush}" Margin="54,0,0,0"/>
+                <Grid Margin="12,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource IconBox}">
+                        <TextBlock Style="{StaticResource RowIcon}" Text="&#xE8A7;"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource RowTitle}" Text="Ouvrir le journal"/>
+                        <TextBlock Style="{StaticResource RowSubtitle}" Text="%LOCALAPPDATA%\Plume\diag.log"/>
+                    </StackPanel>
+                    <Button Grid.Column="2" x:Name="OpenDiagLogButton" HorizontalContentAlignment="Left" MinWidth="150"
+                            VerticalAlignment="Center" Content="Ouvrir le journal" Style="{StaticResource SecondaryButton}"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- ===== Assistant vocal (Ctrl+Alt+A) ===== -->
+        <TextBlock Text="Assistant vocal" Style="{StaticResource GroupLabel}"/>
+        <Border Style="{StaticResource GroupBorder}">
+            <StackPanel>
+                <!-- Activer -->
+                <Grid Margin="12,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource IconBox}">
+                        <TextBlock Style="{StaticResource RowIcon}" Text="&#xE720;"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource RowTitle}" Text="Activer l'assistant vocal"/>
+                        <TextBlock Style="{StaticResource RowSubtitle}" Text="Pose une question à la voix, la réponse s'affiche dans une fenêtre"/>
+                    </StackPanel>
+                    <CheckBox Grid.Column="2" x:Name="AgentEnabledBox" VerticalAlignment="Center"
+                              Style="{StaticResource ToggleSwitch}"/>
+                </Grid>
+                <Border Height="1" Background="{DynamicResource HairlineBrush}" Margin="54,0,0,0"/>
+
+                <!-- Raccourci -->
+                <StackPanel Margin="12,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource IconBox}">
+                            <TextBlock Style="{StaticResource RowIcon}" Text="&#xE765;"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                            <TextBlock Style="{StaticResource RowTitle}" Text="Raccourci"/>
+                            <TextBlock Style="{StaticResource RowSubtitle}" Text="Combinaison de touches pour lancer l'assistant"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button x:Name="AgentHotkeyButton" Content="Aucun" MinWidth="150" Height="30"
+                                    HorizontalContentAlignment="Left" Style="{StaticResource SecondaryButton}"/>
+                            <Button x:Name="AgentHotkeyClearButton" Content="Effacer" Margin="8,0,0,0"
+                                    Style="{StaticResource SecondaryButton}"/>
+                        </StackPanel>
+                    </Grid>
+                    <TextBlock x:Name="AgentHotkeyError" Foreground="{DynamicResource ErrorBrush}" TextWrapping="Wrap"
+                               FontSize="11" Margin="54,4,0,0"/>
+                </StackPanel>
+                <Border Height="1" Background="{DynamicResource HairlineBrush}" Margin="54,0,0,0"/>
+
+                <!-- Modèle IA de l'assistant -->
+                <Grid Margin="12,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource IconBox}">
+                        <TextBlock Style="{StaticResource RowIcon}" Text="&#xE753;"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource RowTitle}" Text="Modèle IA de l'assistant"/>
+                        <TextBlock Style="{StaticResource RowSubtitle}" Text="« Par défaut » utilise le modèle de nettoyage global"/>
+                    </StackPanel>
+                    <ComboBox Grid.Column="2" x:Name="AgentModelBox" MinWidth="200" VerticalAlignment="Center"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- ===== Modèles & connexion (la plomberie) ===== -->
+        <TextBlock Text="Modèles &amp; connexion" Style="{StaticResource GroupLabel}"/>
+        <Border Style="{StaticResource GroupBorder}">
+            <StackPanel>
+                <!-- Clé Groq -->
+                <StackPanel Margin="12,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource IconBox}">
+                            <TextBlock Style="{StaticResource RowIcon}" Text="&#xE72E;"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                            <TextBlock Style="{StaticResource RowTitle}" Text="Clé Groq"/>
+                            <TextBlock Style="{StaticResource RowSubtitle}">
+                                <Run Text="Transcription rapide (recommandé) — gratuite :"/>
+                                <Hyperlink Click="OpenGroqKeysLink" Foreground="{DynamicResource VioletBrush}">console.groq.com/keys</Hyperlink>
+                            </TextBlock>
+                        </StackPanel>
+
+                        <!-- État « configurée » : indication + Modifier -->
+                        <StackPanel Grid.Column="2" x:Name="GroqKeySetPanel" Orientation="Horizontal"
+                                    VerticalAlignment="Center" Visibility="Collapsed">
+                            <TextBlock Text="Clé configurée ✓" Foreground="{DynamicResource GreenBrush}"
+                                       FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <Button x:Name="GroqKeyEditButton" Content="Modifier" Style="{StaticResource SecondaryButton}"/>
+                        </StackPanel>
+
+                        <!-- État « édition » : saisie + Annuler -->
+                        <Grid Grid.Column="2" x:Name="GroqKeyEditPanel" MinWidth="230" VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <PasswordBox Grid.Column="0" x:Name="GroqKeyBox" VerticalContentAlignment="Center" MinHeight="28"/>
+                            <Button Grid.Column="1" x:Name="GroqKeyCancelButton" Content="Annuler" Margin="8,0,0,0"
+                                    Visibility="Collapsed" Style="{StaticResource SecondaryButton}"/>
+                        </Grid>
+                    </Grid>
+                </StackPanel>
+                <Border Height="1" Background="{DynamicResource HairlineBrush}" Margin="54,0,0,0"/>
+
+                <!-- Clé OpenRouter -->
+                <StackPanel Margin="12,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource IconBox}">
+                            <TextBlock Style="{StaticResource RowIcon}" Text="&#xE72E;"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                            <TextBlock Style="{StaticResource RowTitle}" Text="Clé OpenRouter"/>
+                            <TextBlock Style="{StaticResource RowSubtitle}">
+                                <Run Text="Nettoyage du texte, et transcription en repli — créer une clé :"/>
+                                <Hyperlink Click="OpenOpenRouterKeysLink" Foreground="{DynamicResource VioletBrush}">openrouter.ai/keys</Hyperlink>
+                            </TextBlock>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" x:Name="ApiKeySetPanel" Orientation="Horizontal"
+                                    VerticalAlignment="Center" Visibility="Collapsed">
+                            <TextBlock Text="Clé configurée ✓" Foreground="{DynamicResource GreenBrush}"
+                                       FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <Button x:Name="ApiKeyEditButton" Content="Modifier" Style="{StaticResource SecondaryButton}"/>
+                        </StackPanel>
+
+                        <Grid Grid.Column="2" x:Name="ApiKeyEditPanel" MinWidth="230" VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <PasswordBox Grid.Column="0" x:Name="ApiKeyBox" VerticalContentAlignment="Center" MinHeight="28"/>
+                            <Button Grid.Column="1" x:Name="ApiKeyCancelButton" Content="Annuler" Margin="8,0,0,0"
+                                    Visibility="Collapsed" Style="{StaticResource SecondaryButton}"/>
+                        </Grid>
+                    </Grid>
+                    <TextBlock Text="Transcription rapide et gratuite via Groq (console.groq.com). Sans clé Groq, la transcription passe par OpenRouter."
+                               Foreground="{DynamicResource TertiaryBrush}" FontSize="11" TextWrapping="Wrap"
+                               Margin="54,6,12,0"/>
+                </StackPanel>
+                <Border Height="1" Background="{DynamicResource HairlineBrush}" Margin="54,0,0,0"/>
+
+                <!-- Modèle de transcription -->
+                <Grid Margin="12,10" Background="Transparent" PreviewMouseLeftButtonUp="SttRow_Click">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource IconBox}">
+                        <TextBlock Style="{StaticResource RowIcon}" Text="&#xE753;"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource RowTitle}" Text="Modèle de transcription"/>
+                        <TextBlock Style="{StaticResource RowSubtitle}" Text="Convertit la voix en texte"/>
+                    </StackPanel>
+                    <ComboBox Grid.Column="2" x:Name="SttCombo" IsEditable="True" MinWidth="200"
+                              VerticalAlignment="Center" TextSearch.TextPath="DisplayName"
+                              ItemTemplate="{StaticResource ModelItemTemplate}"/>
+                </Grid>
+                <Border Height="1" Background="{DynamicResource HairlineBrush}" Margin="54,0,0,0"/>
+
+                <!-- Modèle de nettoyage -->
+                <Grid Margin="12,10" Background="Transparent" PreviewMouseLeftButtonUp="CleanupRow_Click">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource IconBox}">
+                        <TextBlock Style="{StaticResource RowIcon}" Text="&#xE753;"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource RowTitle}" Text="Modèle de nettoyage"/>
+                        <TextBlock Style="{StaticResource RowSubtitle}" Text="Corrige et met en forme le texte"/>
+                    </StackPanel>
+                    <ComboBox Grid.Column="2" x:Name="CleanupCombo" IsEditable="True" MinWidth="200"
+                              VerticalAlignment="Center" TextSearch.TextPath="DisplayName"
+                              ItemTemplate="{StaticResource ModelItemTemplate}"/>
+                </Grid>
+                <Border Height="1" Background="{DynamicResource HairlineBrush}" Margin="54,0,0,0"/>
+
+                <!-- Vérifier les modèles -->
+                <StackPanel Margin="12,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource IconBox}">
+                            <TextBlock Style="{StaticResource RowIcon}" Text="&#xE72C;"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                            <TextBlock Style="{StaticResource RowTitle}" Text="Vérifier les modèles"/>
+                            <TextBlock Style="{StaticResource RowSubtitle}" Text="Détecte une version plus récente chez Groq"/>
+                        </StackPanel>
+                        <Button Grid.Column="2" x:Name="CheckUpdatesButton" Style="{StaticResource SecondaryButton}"
+                                Height="30" Padding="14,0" VerticalAlignment="Center"
+                                Content="Vérifier"/>
+                    </Grid>
+                    <TextBlock x:Name="UpdatesStatus" FontSize="12" Margin="54,8,0,0"
+                               Foreground="{DynamicResource SecondaryBrush}"
+                               TextWrapping="Wrap" Visibility="Collapsed"/>
+                    <StackPanel x:Name="UpdatesPanel" Margin="54,2,0,0"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- ===== Apparence & système ===== -->
+        <TextBlock Text="Apparence &amp; système" Style="{StaticResource GroupLabel}"/>
+        <Border Style="{StaticResource GroupBorder}">
+            <StackPanel>
+                <!-- Thème -->
+                <Grid Margin="12,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource IconBox}">
+                        <TextBlock Style="{StaticResource RowIcon}" Text="&#xE793;"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource RowTitle}" Text="Thème"/>
+                        <TextBlock Style="{StaticResource RowSubtitle}" Text="Clair, sombre, ou suit Windows"/>
+                    </StackPanel>
+                    <ComboBox Grid.Column="2" x:Name="ThemeBox" MinWidth="200" VerticalAlignment="Center">
+                        <ComboBoxItem Content="Automatique (selon Windows)"/>
+                        <ComboBoxItem Content="Clair"/>
+                        <ComboBoxItem Content="Sombre"/>
+                    </ComboBox>
+                </Grid>
+                <Border Height="1" Background="{DynamicResource HairlineBrush}" Margin="54,0,0,0"/>
+
+                <!-- Pastille flottante -->
+                <Grid Margin="12,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource IconBox}">
+                        <TextBlock Style="{StaticResource RowIcon}" Text="&#xE718;"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource RowTitle}" Text="Pastille flottante"/>
+                        <TextBlock Style="{StaticResource RowSubtitle}" Text="Bouton Plume toujours visible : clic = menu des styles, double-clic = dictée"/>
+                    </StackPanel>
+                    <CheckBox Grid.Column="2" x:Name="ShowBadgeBox" VerticalAlignment="Center"
+                              Style="{StaticResource ToggleSwitch}"/>
+                </Grid>
+                <Border Height="1" Background="{DynamicResource HairlineBrush}" Margin="54,0,0,0"/>
+
+                <!-- Pastille sur plusieurs écrans -->
+                <Grid Margin="12,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource IconBox}">
+                        <TextBlock Style="{StaticResource RowIcon}" Text="&#xE7F4;"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource RowTitle}" Text="Écrans"/>
+                        <TextBlock Style="{StaticResource RowSubtitle}" Text="Une pastille par écran, ou une seule sur l'écran principal"/>
+                    </StackPanel>
+                    <ComboBox Grid.Column="2" x:Name="BadgeScreensBox" MinWidth="220" VerticalAlignment="Center">
+                        <ComboBoxItem Content="Sur tous les écrans"/>
+                        <ComboBoxItem Content="Écran principal uniquement"/>
+                    </ComboBox>
+                </Grid>
+                <Border Height="1" Background="{DynamicResource HairlineBrush}" Margin="54,0,0,0"/>
+
+                <!-- Démarrer avec Windows -->
+                <Grid Margin="12,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource IconBox}">
+                        <TextBlock Style="{StaticResource RowIcon}" Text="&#xE7E8;"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource RowTitle}" Text="Démarrer avec Windows"/>
+                        <TextBlock Style="{StaticResource RowSubtitle}" Text="Plume se lance en arrière-plan à l'ouverture de session"/>
+                    </StackPanel>
+                    <CheckBox Grid.Column="2" x:Name="StartupBox" VerticalAlignment="Center"
+                              Style="{StaticResource ToggleSwitch}"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

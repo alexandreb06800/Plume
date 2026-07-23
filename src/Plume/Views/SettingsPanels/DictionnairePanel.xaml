@@ -1,0 +1,152 @@
+<UserControl x:Class="Plume.Views.SettingsPanels.DictionnairePanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             MaxWidth="600" HorizontalAlignment="Left">
+    <StackPanel>
+        <TextBlock Text="Dictionnaire" Style="{StaticResource PageTitle}"/>
+
+        <!-- Vocabulaire : nuage de jetons (ajout par Entrée, suppression par le × du jeton) -->
+        <TextBlock Text="Vocabulaire à bien reconnaître" Style="{StaticResource GroupLabel}"/>
+        <TextBlock Text="Tes noms propres et acronymes, respectés par la transcription"
+                   Style="{StaticResource RowSubtitle}" Margin="2,-5,0,8"/>
+        <Border Style="{StaticResource GroupBorder}">
+            <StackPanel Margin="12,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="VocabInput" Style="{StaticResource FieldTextBox}"/>
+                    <Button x:Name="VocabAdd" Grid.Column="1" Content="Ajouter" Width="80" Margin="8,0,0,0"
+                            Style="{StaticResource SecondaryButton}"/>
+                </Grid>
+                <TextBlock x:Name="VocabEmpty"
+                           Text="Aucun mot pour l'instant. Ajoute un nom propre ou un acronyme : il sera transcrit tel quel."
+                           Style="{StaticResource RowSubtitle}" Margin="2,10,0,2"/>
+                <ItemsControl x:Name="VocabChips" Margin="0,10,0,0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource VocabChip}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding}" VerticalAlignment="Center" FontSize="12.5"
+                                               Foreground="{DynamicResource InkBrush}"/>
+                                    <Button Content="&#xE711;" Tag="{Binding}" Click="VocabChipRemove_Click"
+                                            Style="{StaticResource ChipRemoveButton}"
+                                            ToolTip="Retirer ce mot"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+
+        <!-- Remplacements : formulaire en carte + lignes-cartes (cohérent avec l'onglet Styles) -->
+        <TextBlock Text="Remplacements" Style="{StaticResource GroupLabel}"/>
+        <TextBlock Text="Dicte le raccourci, Plume insère le texte complet — ex. emevem → exemple.fr"
+                   Style="{StaticResource RowSubtitle}" Margin="2,-5,0,8"/>
+        <Border Style="{StaticResource GroupBorder}" Margin="0,0,0,8">
+            <Grid Margin="12,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Raccourci dicté" Style="{StaticResource RowSubtitle}" Margin="2,0,0,4"/>
+                <TextBlock Grid.Column="2" Text="Texte inséré (Ctrl+Entrée pour ajouter)"
+                           Style="{StaticResource RowSubtitle}" Margin="2,0,0,4"/>
+                <TextBox x:Name="ReplFrom" Grid.Row="1" Style="{StaticResource FieldTextBox}"
+                         VerticalAlignment="Top"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="→" Margin="10,6"
+                           Foreground="{DynamicResource TertiaryBrush}" VerticalAlignment="Top"/>
+                <TextBox x:Name="ReplTo" Grid.Row="1" Grid.Column="2" MinHeight="56"
+                         Style="{StaticResource FieldTextBox}" AcceptsReturn="True" TextWrapping="Wrap"
+                         VerticalScrollBarVisibility="Auto"/>
+                <Button x:Name="ReplAdd" Grid.Row="2" Grid.Column="2" Content="Ajouter" Width="80"
+                        Margin="0,8,0,0" HorizontalAlignment="Right"
+                        Style="{StaticResource SecondaryButton}"/>
+            </Grid>
+        </Border>
+        <TextBlock x:Name="ReplEmpty"
+                   Text="Aucune règle pour l'instant. Une règle remplace un mot dicté par le texte de ton choix (site, signature…)."
+                   Style="{StaticResource RowSubtitle}" Margin="2,0,0,6"/>
+        <ListBox x:Name="ReplList" BorderThickness="0" Background="Transparent" MaxHeight="240"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Setter Property="Margin" Value="0,0,0,6"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListBoxItem">
+                                <Border x:Name="Bd" CornerRadius="10" Padding="11,8"
+                                        Background="{DynamicResource SurfaceBrush}"
+                                        BorderBrush="{DynamicResource HairlineBrush}" BorderThickness="1">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding From}" FontWeight="SemiBold" FontSize="13"
+                                                   Foreground="{DynamicResource InkBrush}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Text="→" Margin="10,0"
+                                                   Foreground="{DynamicResource TertiaryBrush}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding ToPreview}" FontSize="12.5"
+                                                   Foreground="{DynamicResource SecondaryBrush}" VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <Button x:Name="RemoveBtn" Grid.Column="3" Content="&#xE711;" Tag="{Binding}"
+                                                Click="ReplRowRemove_Click" Style="{StaticResource ChipRemoveButton}"
+                                                ToolTip="Supprimer cette règle" Visibility="Collapsed"/>
+                                    </Grid>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="RemoveBtn" Property="Visibility" Value="Visible"/>
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource VioletBrush}"/>
+                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ProfileSelectedBgBrush}"/>
+                                        <Setter TargetName="RemoveBtn" Property="Visibility" Value="Visible"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.ItemContainerStyle>
+        </ListBox>
+
+        <TextBlock Text="Commandes vocales" Style="{StaticResource GroupLabel}"/>
+        <Border Style="{StaticResource GroupBorder}">
+            <Grid Margin="12,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource IconBox}">
+                    <TextBlock Style="{StaticResource RowIcon}" Text="&#xE70F;"/>
+                </Border>
+                <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                    <TextBlock Style="{StaticResource RowTitle}" Text="Commandes de saut de ligne"/>
+                    <TextBlock Style="{StaticResource RowSubtitle}"
+                               Text="« à la ligne », « nouveau paragraphe »… deviennent de vrais retours à la ligne"/>
+                </StackPanel>
+                <CheckBox Grid.Column="2" x:Name="LineBreakCommandsBox" VerticalAlignment="Center"
+                          Style="{StaticResource ToggleSwitch}"/>
+            </Grid>
+        </Border>
+    </StackPanel>
+</UserControl>

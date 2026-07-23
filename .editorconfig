@@ -1,0 +1,40 @@
+# Style de code Plume — volontairement minimal (le style en place fait foi).
+root = true
+
+[*]
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{cs,xaml,csproj,props}]
+indent_style = space
+indent_size = 4
+
+[*.cs]
+# Choix assumés du projet (jamais des erreurs) :
+# CA1707 — underscores dans les noms : convention xUnit « Méthode_Scénario_Résultat » + constantes Win32 (MOD_ALT…).
+dotnet_diagnostic.CA1707.severity = none
+
+# Existant toléré, visible dans l'IDE en suggestion (pas de bruit au build) — à résorber au fil de l'eau :
+# CA1305 — culture explicite : cas persistés corrigés (DailyUsageService) ; restant = affichage UI fr-FR assumé
+# (SettingsWindow, ToString("0.0") de température) — laissé en suggestion pour ne pas forcer une culture sur l'UI.
+dotnet_diagnostic.CA1305.severity = suggestion
+# CA1310 — comparaisons de chaînes : tous les cas existants précisent déjà StringComparison ; passé en warning
+# pour empêcher toute régression future.
+dotnet_diagnostic.CA1310.severity = warning
+# CA1001 — champs IDisposable dans des types à vie d'application (contrôleur, services singletons).
+dotnet_diagnostic.CA1001.severity = suggestion
+# CA1068 — CancellationToken pas en dernier paramètre (signatures internes stables, churn inutile).
+dotnet_diagnostic.CA1068.severity = suggestion
+# CA1805/CA1806/CA1816/CA1822/CA1846/CA1861/CA2020 — micro-optimisations et cosmétique.
+dotnet_diagnostic.CA1805.severity = suggestion
+dotnet_diagnostic.CA1806.severity = suggestion
+dotnet_diagnostic.CA1816.severity = suggestion
+dotnet_diagnostic.CA1822.severity = suggestion
+dotnet_diagnostic.CA1846.severity = suggestion
+dotnet_diagnostic.CA1861.severity = suggestion
+dotnet_diagnostic.CA2020.severity = suggestion
+
+[*.{md,json,yml,ps1}]
+indent_style = space
+indent_size = 2

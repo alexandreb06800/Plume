@@ -1,0 +1,199 @@
+<UserControl x:Class="Plume.Views.SettingsPanels.AProposPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             MaxWidth="600" HorizontalAlignment="Left">
+    <StackPanel>
+        <TextBlock Text="À propos" Style="{StaticResource PageTitle}"/>
+        <StackPanel HorizontalAlignment="Center" Margin="0,2,0,16">
+            <TextBlock Text="Plume" FontFamily="{StaticResource DisplayFont}"
+                       FontSize="24" FontWeight="SemiBold" Foreground="{DynamicResource InkBrush}"
+                       HorizontalAlignment="Center"/>
+            <TextBlock x:Name="VersionText" Foreground="{DynamicResource SecondaryBrush}"
+                       FontSize="13" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+            <TextBlock Text="Dictée vocale française. Légère, instantanée, dans la barre des tâches."
+                       Foreground="{DynamicResource TertiaryBrush}" FontSize="12" TextWrapping="Wrap"
+                       TextAlignment="Center" MaxWidth="260" Margin="0,8,0,0"/>
+        </StackPanel>
+
+        <Button x:Name="ReplayOnboardingButton" Content="Revoir la prise en main"
+                Style="{StaticResource SecondaryButton}" HorizontalAlignment="Center"
+                Margin="0,0,0,16"/>
+
+        <TextBlock Text="Nouveautés" Style="{StaticResource GroupLabel}"/>
+        <Border Style="{StaticResource GroupBorder}" Padding="14,10">
+            <StackPanel>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.3.9" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Réglages → Général → Apparence &amp; système : choix « Sur tous les écrans » ou « Écran principal uniquement » pour la pastille flottante sur les configurations multi-écrans."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.3.8" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Correctifs de l'audit complet : la première dictée fonctionne désormais avec la seule clé Groq de la prise en main (nettoyage basculé sur un modèle Groq gratuit) · si un modèle est retiré par le fournisseur, le message d'erreur guide vers les Réglages · les dictées longues ne sont plus perdues sur une connexion lente (délai adapté à la durée) · correction d'un blocage rarissime quand un écran est branché/débranché pendant une dictée."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.3.7" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Liens directs vers les sites de création de clés API : console.groq.com/keys et openrouter.ai/keys sont maintenant cliquables dans Réglages → Général et dans la prise en main."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.3.6" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  « Inviter un collègue » fait peau neuve : l'email présente vraiment Plume (gains concrets, prise en main) et joint directement l'installateur — brouillon Outlook prêt à envoyer (sans Outlook : email simple, sans pièce jointe)."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.3.5" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Onglet À propos allégé : la section « À venir » est retirée — tout ce qu'elle annonçait est livré ou a été écarté. Plume est complet ; les évolutions futures se décideront à la demande."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.3.4" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Dette technique (aucun changement visible) : les clés de date des statistiques journalières sont désormais écrites/lues en culture invariante (jamais affectées par la locale Windows), et les analyzers .NET signalent maintenant toute nouvelle comparaison de chaînes ambiguë."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.3.3" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Dette technique (aucun changement visible) : les plus gros fichiers du dépôt sont découpés par responsabilité — DictationController en classes partielles par flux, Réglages en un onglet par UserControl. Lisibilité et rapidité de maintenance améliorées, comportement strictement identique."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.3.2" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Fiabilité : Échap annule désormais aussi l'application d'un style écrit (plus de spinner bloqué si le réseau rame), et deux dictées très rapprochées ne peuvent plus emmêler la restauration du presse-papiers."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.3.1" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Première dictée après une pause plus rapide : la connexion au service de nettoyage est désormais préchauffée comme celle de la transcription (~0,5 s de gagnée)."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.3.0" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Double-clic sur la pastille = dictée au clavier libre : l'écoute démarre sans toucher au clavier, un clic sur la pastille l'arrête, et le texte s'insère là où était ton curseur (le focus n'est jamais volé). Le menu des styles s'ouvre désormais après le délai de double-clic (~0,5 s)."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.2.4" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Fiabilité : plus de blocage possible sur une annulation suivie d'une relance rapide, micro qui ne lève plus jamais d'exception, écritures de la configuration et des statistiques désormais atomiques (jamais de fichier corrompu en cas de coupure). Retentatives automatiques si le presse-papiers est momentanément occupé. Dictée utilisable avec une seule clé Groq (plus besoin d'OpenRouter si tout tourne dessus). Pastille et menu des styles bien placés sur les écrans à échelle d'affichage différente. Éditeur de styles : les modifications sont désormais enregistrées automatiquement. Onglet Dictionnaire redessiné : vocabulaire en jetons, règles de remplacement en lignes claires, suppression d'un clic."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.2.3" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Assistant de prise en main au premier lancement : colle ta clé Groq, teste ton micro et réussis ta première dictée en 3 étapes guidées. À revoir quand tu veux via À propos → « Revoir la prise en main »."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.2.2" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Plume s'installe désormais en un double-clic : installateur PlumeSetup à partager aux collègues (raccourci menu Démarrer, désinstallation propre, installation automatique du composant .NET 8 s'il manque)."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.2.1" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Robustesse : message clair si le presse-papiers est occupé pendant une dictée (le texte reste récupérable via « Copier le dernier texte »), détection propre d'un micro débranché en cours d'écoute, garde-fous supplémentaires contre les blocages en cas d'erreur imprévue."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.2.0" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Allègement mémoire : l'icône de la barre des tâches n'utilise plus Windows Forms (15 à 25 Mo économisés, démarrage plus rapide), logo décodé à la taille utile, mémoire rendue plus vite au système, historique de l'assistant borné aux 20 derniers échanges."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.1.16" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Retrait de « Réviser la dernière dictée » et « En tirer une leçon » (menu tray, règles apprises) : fonctionnalité qui ne correspondait pas à un usage réel."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.1.13" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Confidentialité : les clés API sont désormais chiffrées sur disque (DPAPI, migration automatique) ; nouveau journal de diagnostic optionnel (Général → Diagnostic, désactivé par défaut) pour aider au support sans jamais tracer le texte dicté ni les clés."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.1.12" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Pastille multi-écrans : une pastille sur chaque écran connecté, synchronisées, clic et menu des styles depuis n'importe laquelle ; plus jamais de pastille perdue après un débranchement/rebranchement d'écran."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.1.11" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Commandes vocales de saut de ligne : dicte « à la ligne » ou « nouveau paragraphe » pour un vrai retour à la ligne (désactivable dans Dictionnaire) ; le champ « Vers » des règles perso accepte désormais le multi-ligne (signatures)."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.1.10" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Bouton « Copier » de la fenêtre de réponse fiabilisé : nouvelles tentatives si le presse-papiers est occupé + retour visuel (« Copié ✓ » ou « Échec de la copie »), plus jamais d'échec silencieux."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.1.9" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Styles email : le modèle ne recopie plus la signature Outlook présente dans le fil (elle est ajoutée automatiquement à l'envoi)."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.1.8" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  « Démarrer avec Windows » fiabilisé : l'entrée est réparée automatiquement à chaque lancement et pointe toujours vers l'exe installé (jamais un chemin OneDrive)."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.1.7" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Nouveaux styles par défaut à l'installation : Commande vocale, Affiner, Email pro (fenêtre), Ton plus professionnel, Basculer tutoiement/vouvoiement, Finaliser l'email."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.1.6" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Styles intégrés adaptés à Llama 3.3 : sortie en texte brut garantie (jamais de ** ou # collés dans le document). Prompts jamais personnalisés mis à jour automatiquement."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.1.5" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Copie riche depuis la fenêtre de réponse : le gras et les listes sont conservés au collage dans Outlook/Word."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.1.4" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Option par style « Résultat dans une fenêtre » : le résultat s'ouvre dans une fenêtre (Copier / Insérer) au lieu de remplacer la sélection — idéal pour un style « Email pro » nourri de tout l'historique."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.1.3" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Sons discrets de début et fin d'écoute (Général → Sons, désactivés par défaut)."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.1.2" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Reconnexion à Groq préchauffée à chaque dictée (pas seulement au démarrage) : moins de latence après une pause."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.1.1" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Les barres vertes de la pastille bougent désormais selon le niveau de ta voix pendant l'écoute."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.1.0" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Refonte design sombre (barre de titre, ascenseur, réglages réorganisés) ; la pastille intègre l'écoute et le traitement (plus de popup) et reste toujours au premier plan ; statistiques dans la sidebar (Sem/Mois/Tot)."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.0.1" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Retour visuel instantané à l'appui du raccourci · prompts de dictée durcis (tutoiement/vouvoiement, vocabulaire) · presse-papiers (images, fichiers) préservé pendant une dictée · dictée exclue de l'historique du presse-papiers Windows"/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="4.5" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Assistant vocal : réponses mises en forme (gras, listes…) et bouton « Coller la réponse » pour l'insérer dans ton document"/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="4.4" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Assistant vocal : pose une question à la voix (Ctrl+Alt+A par défaut), lis la réponse dans une fenêtre, avec dialogue de suivi"/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="4.3" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Profil restreint à une application (Outlook, Teams, navigateur) · créativité du nettoyage réglable par profil · durée d'écoute max configurable + son à la coupure"/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="4.2" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Profils indépendants : chaque profil a son type (Assistant vocal, Commande écrite ou Commande vocale), son raccourci et un interrupteur Activé/Désactivé"/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="4.0" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Reformuler la sélection : sélectionne un texte, presse le raccourci d'un profil « Commande écrite », Plume le réécrit selon ce style"/>
+                    <LineBreak/>
+                    <Run Text="  Commande vocale : sélectionne un texte, presse le raccourci d'un profil « Commande vocale », dicte ton instruction (« mets en liste »…), Plume l'applique et remplace la sélection"/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="3.5.3" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  « Copier le dernier message » dans le menu de la barre des tâches · vérification d'un modèle Groq plus récent"/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="3.5" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Mode sombre (suit Windows) · overlay épuré · enregistrement auto · statistiques · raccourci par profil · démarrage auto"/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="3.0" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Profils de style · prompt de nettoyage éditable"/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="2.5" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Refonte visuelle · sélecteur de modèles (prix &amp; fiabilité) · onglet À propos · fenêtre unique"/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="2.0" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Dictionnaire personnel · push-to-talk · choix du micro"/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap">
+                    <Run Text="1.0" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Dictée Alt+Espace → transcription → nettoyage → insertion"/>
+                </TextBlock>
+            </StackPanel>
+        </Border>
+
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,28 @@
+# --- .NET ---
+bin/
+obj/
+*.user
+*.suo
+
+# --- Secrets / config locale (ne JAMAIS committer) ---
+.env
+**/config.json
+
+# --- Sortie de publication ---
+publish/
+*.exe
+installer/output/
+
+# --- Raccourci de démarrage Windows (généré localement) ---
+*.lnk
+
+# --- IDE / éditeurs ---
+.vs/
+.idea/
+.vscode/
+*.swp
+
+# --- Journaux de développement internes (historique détaillé, non nécessaire à la distribution) ---
+docs/superpowers/plans/
+docs/superpowers/specs/
+docs/audits/

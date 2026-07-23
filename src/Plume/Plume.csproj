@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AssemblyName>Plume</AssemblyName>
+    <RootNamespace>Plume</RootNamespace>
+    <Version>5.3.9</Version>
+    <ApplicationIcon>Resources\plume.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NAudio" Version="2.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Resources\plume.ico" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Resources\plume-logo.png" CopyToOutputDirectory="PreserveNewest" Condition="Exists('Resources\plume-logo.png')" />
+  </ItemGroup>
+
+</Project>
