@@ -132,8 +132,12 @@ public partial class DictationController : IDisposable
         _ = WarmUpAsync();
 
         // Micro prêt → pastille en état « Écoute » (barres vertes, animées selon le niveau capté).
-        _audio.CaptureStarted += () => Application.Current.Dispatcher.Invoke(() =>
+        // BeginInvoke (asynchrone) et non Invoke : l'événement arrive sur le thread de capture NAudio, et un Invoke
+        // bloquant l'immobilisait pendant qu'un arrêt simultané (thread UI) attend justement la fin de ce thread
+        // (AudioCaptureService.StopAndWait) — attente mutuelle jusqu'au délai max, puis libération risquée.
+        _audio.CaptureStarted += () => Application.Current.Dispatcher.BeginInvoke(new Action(() =>
         {
+            if (_state != State.Listening) return; // arrêt/annulation déjà passés : ne pas repasser la pastille en écoute
             var micMs = _micStopwatch?.ElapsedMilliseconds;
             LogTiming($"Premier buffer audio : {micMs} ms");
             SetVisual(DictationVisual.Listening);
@@ -141,7 +145,7 @@ public partial class DictationController : IDisposable
             _ = _diagLog.Log(cfg.DiagnosticsLogEnabled, "Micro prêt", $"{micMs} ms");
             // Top sonore « micro prêt » (V8-K), tous modes d'écoute confondus.
             if (cfg.TickSoundsEnabled) TickSoundService.Play(cfg.StartTickSound);
-        });
+        }));
         _audio.LevelChanged += level => LevelChanged?.Invoke(level);
         // BeginInvoke (asynchrone) et non Invoke : l'événement arrive sur le thread de capture NAudio, et un
         // Invoke bloquant disposerait le WaveInEvent pendant que son DataAvailable s'exécute encore.

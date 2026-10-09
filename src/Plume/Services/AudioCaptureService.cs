@@ -17,6 +17,11 @@ public class AudioCaptureService : IDisposable
     private bool _maxReached;
     private bool _startedNotified;
     private int _maxSeconds = DefaultMaxSeconds; // durée max effective de la capture en cours
+    // Signalé quand le thread d'enregistrement NAudio est sorti de sa boucle (arrêt volontaire OU micro perdu) :
+    // aucune libération avant ce signal (voir StopAndWait).
+    private ManualResetEventSlim? _threadDone;
+    // Signalé au premier bloc audio : le thread d'enregistrement tourne réellement (voir StopAndWait).
+    private ManualResetEventSlim? _threadStarted;
 
     public event Action<float>? LevelChanged;
     public event Action? MaxDurationReached;
@@ -45,7 +50,12 @@ public class AudioCaptureService : IDisposable
                 DeviceNumber = ResolveDevice(deviceName),
                 BufferMilliseconds = 40 // défaut NAudio 100 ms : buffers plus courts = 1er buffer (CaptureStarted) ~2x plus tôt
             };
+            var done = _threadDone = new ManualResetEventSlim(false);
+            _threadStarted = new ManualResetEventSlim(false);
             _waveIn.DataAvailable += OnData;
+            // Jamais désabonné : suit le thread jusqu'au bout. Protégé : après une attente expirée, l'événement a
+            // pu être libéré — une exception ici, sur le thread NAudio, tuerait le process.
+            _waveIn.RecordingStopped += (_, _) => { try { done.Set(); } catch { } };
             _waveIn.RecordingStopped += OnRecordingStopped;
             _waveIn.StartRecording();
             return true;
@@ -90,6 +100,7 @@ public class AudioCaptureService : IDisposable
         if (!_startedNotified)
         {
             _startedNotified = true;
+            try { _threadStarted?.Set(); } catch { }
             CaptureStarted?.Invoke(); // micro prêt → la pastille passe au vert
         }
 
@@ -121,7 +132,7 @@ public class AudioCaptureService : IDisposable
         if (_waveIn is null || _buffer is null) return Array.Empty<byte>();
         // Désabonner AVANT StopRecording : un arrêt volontaire ne doit jamais se traduire par DeviceLost.
         try { _waveIn.RecordingStopped -= OnRecordingStopped; } catch { }
-        try { _waveIn.StopRecording(); } catch { }
+        StopAndWait(_waveIn, _threadStarted, _threadDone);
         try { _waveIn.DataAvailable -= OnData; } catch { }
 
         byte[] pcm;
@@ -136,15 +147,46 @@ public class AudioCaptureService : IDisposable
         catch { return Array.Empty<byte>(); }
     }
 
+    /// <summary>Délai max d'attente de la fin du thread d'enregistrement NAudio (mesuré : quelques ms).</summary>
+    private const int StopWaitMs = 500;
+
+    /// <summary>Délai max d'attente du démarrage effectif de la capture (1er bloc : ~40-90 ms mesurés).</summary>
+    private const int StartWaitMs = 300;
+
+    /// <summary>Arrête la capture et ATTEND que le thread d'enregistrement de NAudio soit sorti de sa boucle
+    /// (événement RecordingStopped) avant toute libération. StopRecording ne fait que signaler l'arrêt : libérer
+    /// aussitôt (Dispose) laissait le thread remettre en service un tampon déjà libéré (WaveInBuffer.Reuse →
+    /// waveInPrepareHeader) → AccessViolationException qui tue le process — plantage du 2026-09-15, reproduit
+    /// 4 fois sur 5 par 300 démarrages/arrêts rapides. RecordingStopped est levé sur le thread d'enregistrement
+    /// (WaveInEvent créé hors thread UI, sans SynchronizationContext) : attendre ici ne peut pas l'interbloquer.
+    /// Si le thread est déjà sorti (micro perdu), le signal est déjà posé : aucune attente. Attente bornée : au
+    /// pire, comportement d'avant. Ne lève jamais.
+    /// Arrêt demandé avant le démarrage effectif du thread (2e appui pendant l'ouverture du micro) : NAudio
+    /// repasse alors en capture en démarrant et ignore l'arrêt (attente expirée dans 1 arrêt précoce sur ~10
+    /// mesuré) — on attend d'abord le premier bloc audio, borné à StartWaitMs.</summary>
+    private static void StopAndWait(WaveInEvent waveIn, ManualResetEventSlim? threadStarted, ManualResetEventSlim? threadDone)
+    {
+        try { if (threadDone is { IsSet: false }) threadStarted?.Wait(StartWaitMs); } catch { }
+        try { waveIn.StopRecording(); } catch { /* périphérique déjà retiré */ }
+        try { threadDone?.Wait(StopWaitMs); } catch { }
+    }
+
     private void Cleanup()
     {
         if (_waveIn is not null)
         {
-            try { _waveIn.DataAvailable -= OnData; } catch { }
             try { _waveIn.RecordingStopped -= OnRecordingStopped; } catch { }
+            // Capture encore active (annulation, fermeture de l'app) : même course que Stop(). OnData reste abonné
+            // pendant l'attente (il signale le démarrage effectif), désabonné juste après.
+            StopAndWait(_waveIn, _threadStarted, _threadDone);
+            try { _waveIn.DataAvailable -= OnData; } catch { }
             try { _waveIn.Dispose(); } catch { /* périphérique déjà retiré : rien à libérer */ }
             _waveIn = null;
         }
+        try { _threadDone?.Dispose(); } catch { }
+        _threadDone = null;
+        try { _threadStarted?.Dispose(); } catch { }
+        _threadStarted = null;
         try { _buffer?.Dispose(); } catch { }
         _buffer = null;
     }

@@ -4,6 +4,13 @@
 
 ---
 
+## 5.4.3 — Plantage à l'arrêt du micro corrigé ✅ (livrée le 2026-10-10)
+Constat (journal d'événements Windows) : plantage de Plume le 2026-09-15 (5.3.9) — `AccessViolationException` dans `NAudio.Wave.WaveInBuffer.Reuse` → `waveInPrepareHeader`, sur le thread d'enregistrement. Cause : `AudioCaptureService.Stop()` appelait `StopRecording()` (qui ne fait que SIGNALER l'arrêt) puis `Dispose()` aussitôt ; le thread NAudio pouvait encore remettre en service un tampon déjà libéré. **Reproduit** : 300 démarrages/arrêts rapides du micro → 4 plantages sur 5 passes.
+- `AudioCaptureService.StopAndWait` : aucune libération avant que le thread d'enregistrement soit sorti de sa boucle (`RecordingStopped`, suivi dès le démarrage par `_threadDone` — déjà posé si le micro a été perdu, donc sans attente). Attente bornée à 500 ms.
+- Seconde course NAudio : un arrêt demandé avant le démarrage effectif du thread (2e appui pendant l'ouverture du micro) était ignoré (NAudio repasse en capture) → attente du premier bloc audio (`_threadStarted`, borné à 300 ms) avant d'arrêter.
+- `CaptureStarted` passé en `BeginInvoke` (garde : écoute toujours en cours) : l'`Invoke` bloquant immobilisait le thread NAudio pendant qu'un arrêt simultané attendait sa fin.
+- Vérifié : 5 × 300 cycles → 0 plantage, 0 attente expirée. Coût : arrêt du micro ~35 ms médian (contre ~10 ms), une fois par dictée — imperceptible face au réseau (RÈGLE PRIMORDIALE : impact négligeable, assumé contre un plantage).
+
 ## 5.4.2 — Presse-papiers restauré hors historique ✅ (livrée le 2026-10-09)
 Repris de la version d'origine (5.4.0 du 2026-07-28, constat de confidentialité « gravité haute »), en le fusionnant avec la restauration multi-formats de la 5.4.0 perso : un gestionnaire de mots de passe marque le texte copié hors historique (`ExcludeClipboardContentFromMonitorProcessing`…). La restauration multi-formats ne recopiait pas ces marqueurs (WPF les relit souvent vides) → un mot de passe copié juste avant une dictée entrait dans l'historique Win+V et le presse-papiers infonuagique après restauration.
 - `ClipboardSnapshot` : marqueurs exclus de la capture (`PlanFormats`) et **toujours reposés** à la restauration (`AddExclusionMarkers`, multi-formats comme texte seul via `WriteTextExcluded`, repli `SetText` si le marquage échoue). `SetTextExcludedFromHistory` factorisé sans reprise imbriquée.
