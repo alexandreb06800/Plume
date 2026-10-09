@@ -50,6 +50,19 @@ public class ClipboardSnapshotTests
     }
 
     [Fact]
+    public void MotDePasseCopie_MarqueursNonCopiesCarToujoursReposes()
+    {
+        // Un coffre de mots de passe marque le texte hors historique : les marqueurs ne sont pas relus
+        // (WPF les rend souvent vides) mais systématiquement reposés à la restauration (BuildDataObject).
+        var plan = ClipboardSnapshot.PlanFormats(new[]
+        {
+            "UnicodeText", "ExcludeClipboardContentFromMonitorProcessing",
+            "CanIncludeInClipboardHistory", "CanUploadToCloudClipboard",
+        });
+        Assert.Equal(new[] { "UnicodeText" }, plan);
+    }
+
+    [Fact]
     public void FormatsVidesOuEnDouble_Ignores()
     {
         var plan = ClipboardSnapshot.PlanFormats(new[] { "", "UnicodeText", "unicodetext" });

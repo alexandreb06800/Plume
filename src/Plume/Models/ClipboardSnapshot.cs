@@ -60,6 +60,9 @@ public sealed class ClipboardSnapshot
         "Bitmap", "EnhancedMetafile", "MetaFilePict", "Palette",
         "Embed Source", "Link Source", "Link Source Descriptor", "Object Descriptor",
         "Native", "OwnerLink", "ObjectLink", "Ole Private Data", "DataObject",
+        // Marqueurs d'exclusion de l'historique : jamais copiés tels quels (WPF les relit souvent vides),
+        // toujours reposés par BuildDataObject — voir Restore.
+        "ExcludeClipboardContentFromMonitorProcessing", "CanIncludeInClipboardHistory", "CanUploadToCloudClipboard",
     };
 
     // Images bitmap transportables en flux (DIB, DIBV5).
@@ -178,7 +181,9 @@ public sealed class ClipboardSnapshot
 
     /// <summary>Restaure ce contenu dans le presse-papiers (le vide si rien n'avait été capturé), avec
     /// reprises : perdre le presse-papiers ORIGINAL de l'utilisateur sur un verrou transitoire serait
-    /// définitif. Ne lève jamais.</summary>
+    /// définitif. Ne lève jamais. Le contenu restauré est TOUJOURS marqué hors historique : le presse-papiers
+    /// d'origine peut contenir un mot de passe copié depuis un coffre, qui l'avait exclu de l'historique Win+V
+    /// et du presse-papiers infonuagique — le restaurer sans marquage l'y ferait entrer.</summary>
     public void Restore()
     {
         try
@@ -188,7 +193,10 @@ public sealed class ClipboardSnapshot
                 switch (_kind)
                 {
                     case Kind.Formats: Clipboard.SetDataObject(BuildDataObject(), true); break;
-                    case Kind.Text: Clipboard.SetText(_text ?? ""); break;
+                    case Kind.Text:
+                        try { WriteTextExcluded(_text ?? ""); }
+                        catch { Clipboard.SetText(_text ?? ""); } // perdre le presse-papiers serait pire
+                        break;
                     case Kind.Image: Clipboard.SetImage(_image!); break;
                     case Kind.Files: Clipboard.SetFileDropList(_files!); break;
                     default: Clipboard.Clear(); break;
@@ -199,7 +207,8 @@ public sealed class ClipboardSnapshot
         {
             // Restauration multi-formats refusée (format inattendu) : au moins le texte, s'il existe.
             if (_kind == Kind.Formats && FirstText() is string t)
-                try { WithRetry(() => Clipboard.SetText(t)); } catch { }
+                try { WithRetry(() => WriteTextExcluded(t)); }
+                catch { try { WithRetry(() => Clipboard.SetText(t)); } catch { } }
         }
     }
 
@@ -212,6 +221,7 @@ public sealed class ClipboardSnapshot
             try { obj.SetData(format, value is byte[] b ? new MemoryStream(b) : value, false); }
             catch { /* format refusé par WPF : on restaure les autres */ }
         }
+        AddExclusionMarkers(obj);
         return obj;
     }
 
@@ -230,24 +240,27 @@ public sealed class ClipboardSnapshot
     /// tentatives échouent (presse-papiers verrouillé), comme <see cref="Clipboard.SetText"/>.</summary>
     public static void SetTextExcludedFromHistory(string text)
     {
-        try
-        {
-            WithRetry(() =>
-            {
-                var data = new DataObject();
-                data.SetText(text);
-                // Formats reconnus par le moniteur d'historique/synchro de Windows (mêmes que ceux utilisés par
-                // Chrome en navigation privée) : la seule présence du premier suffit, les deux autres sont une
-                // ceinture-et-bretelles pour les versions de Windows qui ne reconnaîtraient que l'un des trois.
-                data.SetData("ExcludeClipboardContentFromMonitorProcessing", new MemoryStream(new byte[] { 1 }));
-                data.SetData("CanIncludeInClipboardHistory", new MemoryStream(BitConverter.GetBytes(0)));
-                data.SetData("CanUploadToCloudClipboard", new MemoryStream(BitConverter.GetBytes(0)));
-                Clipboard.SetDataObject(data, true);
-            });
-        }
-        catch
-        {
-            WithRetry(() => Clipboard.SetText(text));
-        }
+        try { WithRetry(() => WriteTextExcluded(text)); }
+        catch { WithRetry(() => Clipboard.SetText(text)); }
+    }
+
+    /// <summary>Écrit `text` avec les marqueurs d'exclusion, SANS reprise : les appelants apportent la leur
+    /// (imbriquer deux <see cref="WithRetry"/> porterait le pire cas à ~480 ms).</summary>
+    private static void WriteTextExcluded(string text)
+    {
+        var data = new DataObject();
+        data.SetText(text);
+        AddExclusionMarkers(data);
+        Clipboard.SetDataObject(data, true);
+    }
+
+    /// <summary>Formats reconnus par le moniteur d'historique/synchro de Windows (mêmes que ceux utilisés par
+    /// Chrome en navigation privée) : la seule présence du premier suffit, les deux autres sont une
+    /// ceinture-et-bretelles pour les versions de Windows qui ne reconnaîtraient que l'un des trois.</summary>
+    private static void AddExclusionMarkers(DataObject data)
+    {
+        data.SetData("ExcludeClipboardContentFromMonitorProcessing", new MemoryStream(new byte[] { 1 }));
+        data.SetData("CanIncludeInClipboardHistory", new MemoryStream(BitConverter.GetBytes(0)));
+        data.SetData("CanUploadToCloudClipboard", new MemoryStream(BitConverter.GetBytes(0)));
     }
 }

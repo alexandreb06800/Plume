@@ -4,6 +4,11 @@
 
 ---
 
+## 5.4.2 — Presse-papiers restauré hors historique ✅ (livrée le 2026-10-09)
+Repris de la version d'origine (5.4.0 du 2026-07-28, constat de confidentialité « gravité haute »), en le fusionnant avec la restauration multi-formats de la 5.4.0 perso : un gestionnaire de mots de passe marque le texte copié hors historique (`ExcludeClipboardContentFromMonitorProcessing`…). La restauration multi-formats ne recopiait pas ces marqueurs (WPF les relit souvent vides) → un mot de passe copié juste avant une dictée entrait dans l'historique Win+V et le presse-papiers infonuagique après restauration.
+- `ClipboardSnapshot` : marqueurs exclus de la capture (`PlanFormats`) et **toujours reposés** à la restauration (`AddExclusionMarkers`, multi-formats comme texte seul via `WriteTextExcluded`, repli `SetText` si le marquage échoue). `SetTextExcludedFromHistory` factorisé sans reprise imbriquée.
+- Vérifié sur le vrai presse-papiers : mot de passe marqué → restauré marqué (historique + cloud) ; texte simple, cellules Excel et gras Word toujours restitués.
+
 ## 5.4.1 — Catalogue des modèles de nettoyage révisé ✅ (livrée le 2026-10-09)
 Constat : **`llama-3.3-70b-versatile` et `llama-3.1-8b-instant` arrêtés par Groq le 16/08/2026** (404 ; page officielle des retraits Groq) — une config « nettoyage Llama » insérait depuis le texte brut à chaque dictée (bulle « Nettoyage indisponible »), et l'assistant vocal était en panne. **`google/gemini-2.0-flash-001`** : 404 sur OpenRouter (« No endpoints found »). Les Whisper restent servis par OpenRouter `/audio/transcriptions` (testé 200) bien qu'absents de `/models`.
 - `ModelCatalog.Cleanup` : **Qwen 3.8 27B (Groq)** en tête (= modèle retenu par la prise en main sans clé OpenRouter, `CleanupModelUtilisable`), **GPT-OSS 120B (Groq)**, **GPT-4o mini (OpenRouter)**. Retirés : les deux Llama, Gemini 2.0 Flash.
