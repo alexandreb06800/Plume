@@ -377,7 +377,15 @@ public class ConfigServiceTests
     [Fact]
     public void CleanupModelUtilisable_DejaSurGroq_NeChangeRien()
     {
-        Assert.Equal("groq/llama-3.1-8b-instant",
-            ConfigService.CleanupModelUtilisable("groq/llama-3.1-8b-instant", hasOpenRouterKey: false));
+        Assert.Equal("groq/openai/gpt-oss-120b",
+            ConfigService.CleanupModelUtilisable("groq/openai/gpt-oss-120b", hasOpenRouterKey: false));
+    }
+
+    [Fact]
+    public void CleanupModelUtilisable_SansOpenRouter_BasculeSurQwenGroq()
+    {
+        // Prise en main « 100 % Groq » : le défaut OpenRouter bascule sur le premier modèle Groq du catalogue.
+        Assert.Equal("groq/qwen/qwen3.8-27b",
+            ConfigService.CleanupModelUtilisable("openai/gpt-4o-mini", hasOpenRouterKey: false));
     }
 }

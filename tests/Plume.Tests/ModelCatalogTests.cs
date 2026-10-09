@@ -54,10 +54,10 @@ public class ModelCatalogTests
     [Fact]
     public void Cleanup_ContientLesModelesRetenus()
     {
-        // Catalogue volontairement restreint : Llama (Groq) ×2, GPT-4o mini, Gemini Flash.
+        // Catalogue volontairement restreint : Qwen 3.8 et GPT-OSS 120B (Groq), GPT-4o mini (OpenRouter).
         Assert.NotNull(ModelCatalog.Find("openai/gpt-4o-mini"));
-        Assert.NotNull(ModelCatalog.Find("google/gemini-2.0-flash-001"));
-        Assert.Equal(4, ModelCatalog.Cleanup.Count);
+        Assert.NotNull(ModelCatalog.Find("groq/qwen/qwen3.8-27b"));
+        Assert.Equal(3, ModelCatalog.Cleanup.Count);
     }
 
     [Fact]
@@ -67,14 +67,18 @@ public class ModelCatalogTests
         Assert.Null(ModelCatalog.Find("deepseek/deepseek-chat"));
         Assert.Null(ModelCatalog.Find("moonshotai/kimi-k2"));
         Assert.Null(ModelCatalog.Find("qwen/qwen-2.5-72b-instruct"));
+        // Arrêtés par leurs fournisseurs (vérifié le 2026-10-09 : 404) : ne plus les proposer.
+        Assert.Null(ModelCatalog.Find("groq/llama-3.3-70b-versatile"));
+        Assert.Null(ModelCatalog.Find("groq/llama-3.1-8b-instant"));
+        Assert.Null(ModelCatalog.Find("google/gemini-2.0-flash-001"));
     }
 
     [Fact]
     public void Cleanup_ContientLesModelesGroqGratuits()
     {
         // Modèles de nettoyage exécutés sur Groq (préfixe « groq/ »).
-        Assert.NotNull(ModelCatalog.Find("groq/llama-3.3-70b-versatile"));
-        Assert.NotNull(ModelCatalog.Find("groq/llama-3.1-8b-instant"));
+        Assert.NotNull(ModelCatalog.Find("groq/qwen/qwen3.8-27b"));
+        Assert.NotNull(ModelCatalog.Find("groq/openai/gpt-oss-120b"));
         Assert.All(ModelCatalog.Cleanup.Where(m => m.Id.StartsWith("groq/", StringComparison.Ordinal)),
             m => Assert.Contains("Gratuit", m.PriceLabel));
     }

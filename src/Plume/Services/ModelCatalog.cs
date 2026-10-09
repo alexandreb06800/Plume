@@ -28,28 +28,26 @@ public static class ModelCatalog
     public static IReadOnlyList<ModelInfo> Cleanup { get; } = new[]
     {
         // Modèles Groq (préfixe « groq/ ») : exécutés sur Groq en direct, gratuits. Nécessitent une clé Groq.
+        // Le premier modèle Groq de la liste est celui que la prise en main retient sans clé OpenRouter
+        // (ConfigService.CleanupModelUtilisable). Révisé le 2026-10-09 : Llama 3.3 70B et 3.1 8B arrêtés par
+        // Groq le 16/08/2026 ; comparatif sur le prompt de dictée réel (Qwen 3.8 : meilleur et ~250 ms ;
+        // GPT-OSS 120B : ~900 ms, rate une auto-correction « non pardon »). Groq renouvelle souvent ses Qwen.
         new ModelInfo
         {
-            Id = "groq/llama-3.3-70b-versatile", DisplayName = "Llama 3.3 70B (Groq)",
+            Id = "groq/qwen/qwen3.8-27b", DisplayName = "Qwen 3.8 27B (Groq)",
             Kind = ModelKind.Cleanup, PriceLabel = "Gratuit (Groq)",
-            CostPerDictationLabel = "Gratuit", Reliability = 4
+            CostPerDictationLabel = "Gratuit · ultra-rapide", Reliability = 5
         },
         new ModelInfo
         {
-            Id = "groq/llama-3.1-8b-instant", DisplayName = "Llama 3.1 8B (Groq)",
+            Id = "groq/openai/gpt-oss-120b", DisplayName = "GPT-OSS 120B (Groq)",
             Kind = ModelKind.Cleanup, PriceLabel = "Gratuit (Groq)",
-            CostPerDictationLabel = "Gratuit · ultra-rapide", Reliability = 3
+            CostPerDictationLabel = "Gratuit", Reliability = 3
         },
         new ModelInfo
         {
             Id = "openai/gpt-4o-mini", DisplayName = "GPT-4o mini",
             Kind = ModelKind.Cleanup, PriceLabel = "in 0,14 · out 0,55 €/1M",
-            CostPerDictationLabel = "≈ 0,001 €", Reliability = 4
-        },
-        new ModelInfo
-        {
-            Id = "google/gemini-2.0-flash-001", DisplayName = "Gemini 2.0 Flash",
-            Kind = ModelKind.Cleanup, PriceLabel = "in 0,10 · out 0,40 €/1M",
             CostPerDictationLabel = "≈ 0,001 €", Reliability = 4
         },
     };

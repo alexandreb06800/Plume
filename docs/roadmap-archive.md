@@ -4,6 +4,13 @@
 
 ---
 
+## 5.4.1 — Catalogue des modèles de nettoyage révisé ✅ (livrée le 2026-10-09)
+Constat : **`llama-3.3-70b-versatile` et `llama-3.1-8b-instant` arrêtés par Groq le 16/08/2026** (404 ; page officielle des retraits Groq) — une config « nettoyage Llama » insérait depuis le texte brut à chaque dictée (bulle « Nettoyage indisponible »), et l'assistant vocal était en panne. **`google/gemini-2.0-flash-001`** : 404 sur OpenRouter (« No endpoints found »). Les Whisper restent servis par OpenRouter `/audio/transcriptions` (testé 200) bien qu'absents de `/models`.
+- `ModelCatalog.Cleanup` : **Qwen 3.8 27B (Groq)** en tête (= modèle retenu par la prise en main sans clé OpenRouter, `CleanupModelUtilisable`), **GPT-OSS 120B (Groq)**, **GPT-4o mini (OpenRouter)**. Retirés : les deux Llama, Gemini 2.0 Flash.
+- Comparatif sur le prompt de dictée réel (5 phrases : hésitations, auto-correction « non pardon », dates/nombres, noms) : Qwen 3.8 meilleur (auto-correction OK, dates en chiffres) et ~250 ms médian ; GPT-4o mini bon, ~840 ms ; GPT-OSS 120B ~900 ms et rate l'auto-correction. Coût négligeable dans tous les cas (offre Groq gratuite : 0 € ; GPT-4o mini ≈ 0,15 $/1 000 dictées). Limite de l'offre Groq gratuite : ~8K tokens/min ≈ 8-10 dictées/min (429 au-delà → texte brut).
+- Ids Groq à éditeur (`groq/qwen/…`, `groq/openai/…`) : seul le préfixe `groq/` est retiré (test ajouté). « Vérifier les modèles » ne propose pas de successeur pour ces ids (pas de token de version au format attendu) — limite connue de `ModelUpdateService`, sans erreur.
+- Vigilance : Groq renouvelle souvent ses Qwen (qwen3.6-27b arrêté le 14/09/2026) ; en cas de retrait, Plume insère le texte brut avec le message « modèle retiré » qui renvoie aux Réglages.
+
 ## 5.4.0 — .NET 10 + correctifs de l'audit d'optimisation ✅ (livrée le 2026-10-09)
 Audit d'optimisation du 2026-10-09 (code lu en entier, mesures réelles) ; tout appliqué sauf ReadyToRun (mesuré, écarté).
 - **.NET 10 LTS** (fin de support .NET 8 le 10/11/2026) : `net10.0-windows` (app + tests), installateur (`DotNet10DesktopInstalled`, lien `aka.ms/dotnet/10.0/windowsdesktop-runtime-win-x64.exe`, vérifié), `deploy.ps1`, `build-installer.ps1`. Build 0 warning sans retouche. Démarrage mesuré (2e instance, médiane) : 442 ms → 376 ms.

@@ -23,6 +23,10 @@
         <Border Style="{StaticResource GroupBorder}" Padding="14,10">
             <StackPanel>
                 <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.4.1" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Modèles de nettoyage mis à jour : Llama 3.3 70B et Llama 3.1 8B ont été arrêtés par Groq (le nettoyage ne fonctionnait plus avec eux) et Gemini 2.0 Flash n'existe plus. Nouveaux choix : Qwen 3.8 27B (Groq, gratuit, le plus rapide), GPT-OSS 120B (Groq, gratuit), GPT-4o mini (OpenRouter)."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
                     <Run Text="5.4.0" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
                     <Run Text="  Passage à .NET 10 (démarrage un peu plus rapide, correctifs de sécurité assurés) · le presse-papiers est restauré à l'identique après une dictée (cellules Excel, mise en forme Word, fichiers coupés) au lieu d'être réduit au texte ou à une image · préchauffage réseau allégé (seuls les services utilisés) · connexions gardées ouvertes plus longtemps entre deux dictées · pastille plus légère pendant l'écoute."/>
                 </TextBlock>

@@ -116,6 +116,21 @@ public class CleanupServiceTests
     }
 
     [Fact]
+    public async Task CleanAsync_ModeleGroqAvecEditeur_GardeLIdEditeur()
+    {
+        // Ids Groq à éditeur (« qwen/… », « openai/… ») : seul le préfixe « groq/ » est retiré.
+        var json = "{\"choices\":[{\"message\":{\"content\":\"propre\"}}]}";
+        var fake = new FakeHttpHandler(HttpStatusCode.OK, json);
+        var svc = new CleanupService(new HttpClient(fake));
+
+        await svc.CleanAsync("brut", StyleCatalog.DictationPrompt,
+            "groq/qwen/qwen3.8-27b", "sk-openrouter", "gsk-groq", null, CancellationToken.None);
+
+        Assert.Contains("api.groq.com", fake.LastRequest!.RequestUri!.ToString());
+        Assert.Contains("\"qwen/qwen3.8-27b\"", fake.LastRequestBody);
+    }
+
+    [Fact]
     public async Task CleanAsync_TimeoutDepasse_LeveExceptionDelai()
     {
         var fake = new FakeHttpHandler(HttpStatusCode.OK,
