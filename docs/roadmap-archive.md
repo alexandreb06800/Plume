@@ -4,6 +4,13 @@
 
 ---
 
+## 5.4.4 — Listes automatiques dans la dictée ✅ (livrée le 2026-10-10)
+Idée issue d'un tour de la concurrence (« smart formatting » de Wispr Flow), retenue par l'utilisateur parmi 4 propositions. Prompt seul + un nettoyage de fins de ligne, aucun coût de latence.
+- `StyleCatalog.DictationPrompt` : la ligne vague « tu peux les mettre en liste à puces » devient une règle « Listes » : liste quand le locuteur énumère clairement des éléments à part entière (≈ 3 ou plus) ou annonce une liste ; **numérotée** si ordre/numérotation (premièrement, d'abord, ensuite, enfin…), sinon **puces « - »** ; majuscule, pas de virgule en fin de ligne ; une énumération courte dans un récit reste une phrase ; aucune autre mise en forme.
+- Migration douce : l'ancien défaut devient `Legacy2DictationPrompt` (`StyleService.MigrateHardenedPrompts`) — un prompt jamais personnalisé passe au nouveau au lancement, un prompt personnalisé n'est jamais touché (tests).
+- `ReplacementService.TrimLineEnds` après le nettoyage : GPT-4o mini termine les lignes de liste par des espaces (sauts de ligne markdown).
+- Banc d'essai (7 phrases dont 3 pièges qui ne doivent PAS devenir des listes, prompt réel) : **Qwen 3.8 : 7/7** (numérotée × 2, puces × 2, 3 phrases conservées) ; ancien prompt : 2 listes ratées, puces finies par « ; ». GPT-4o mini : listes correctes et pièges conservés, mais transforme un « d'abord… ensuite… enfin » en puces au lieu de numéros et a remplacé « doc » par « documentation » une fois.
+
 ## 5.4.3 — Plantage à l'arrêt du micro corrigé ✅ (livrée le 2026-10-10)
 Constat (journal d'événements Windows) : plantage de Plume le 2026-09-15 (5.3.9) — `AccessViolationException` dans `NAudio.Wave.WaveInBuffer.Reuse` → `waveInPrepareHeader`, sur le thread d'enregistrement. Cause : `AudioCaptureService.Stop()` appelait `StopRecording()` (qui ne fait que SIGNALER l'arrêt) puis `Dispose()` aussitôt ; le thread NAudio pouvait encore remettre en service un tampon déjà libéré. **Reproduit** : 300 démarrages/arrêts rapides du micro → 4 plantages sur 5 passes.
 - `AudioCaptureService.StopAndWait` : aucune libération avant que le thread d'enregistrement soit sorti de sa boucle (`RecordingStopped`, suivi dès le démarrage par `_threadDone` — déjà posé si le micro a été perdu, donc sans attente). Attente bornée à 500 ms.

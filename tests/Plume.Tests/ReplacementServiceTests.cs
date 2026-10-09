@@ -169,4 +169,17 @@ public class ReplacementServiceTests
         var res = ReplacementService.Apply(apresSauts, Rules(("emevem", "exemple.fr")));
         Assert.Equal("envoie à exemple.fr.\nMerci", res);
     }
+
+    [Fact]
+    public void TrimLineEnds_RetireLesEspacesDeFinDeLigne()
+    {
+        Assert.Equal("Points :\n\n- Budget\n- Planning", ReplacementService.TrimLineEnds("Points :  \r\n  \n- Budget   \n- Planning\t"));
+    }
+
+    [Fact]
+    public void TrimLineEnds_GardeLesEspacesDeDebutEtLeTexteSimple()
+    {
+        Assert.Equal("  - Sous-point", ReplacementService.TrimLineEnds("  - Sous-point "));
+        Assert.Equal("Bonjour.", ReplacementService.TrimLineEnds("Bonjour."));
+    }
 }

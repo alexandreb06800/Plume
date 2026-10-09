@@ -75,6 +75,9 @@ public partial class DictationController
             LogTiming($"Nettoyage : {sw.ElapsedMilliseconds} ms ({voieClean}, {cfg.CleanupModel})");
             _ = _diagLog.Log(cfg.DiagnosticsLogEnabled, "Nettoyage", $"{sw.ElapsedMilliseconds} ms ({voieClean}, {cfg.CleanupModel})");
 
+            // Espaces parasites en fin de ligne (listes mises en forme par le nettoyage).
+            finalText = ReplacementService.TrimLineEnds(finalText);
+
             // Commandes vocales de saut de ligne (« à la ligne », « nouveau paragraphe »…), avant les remplacements.
             if (cfg.LineBreakCommandsEnabled) finalText = ReplacementService.ApplyLineBreaks(finalText);
 

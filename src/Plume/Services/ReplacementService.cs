@@ -19,6 +19,17 @@ public static class ReplacementService
         return text;
     }
 
+    /// <summary>Retire les espaces et tabulations en fin de chaque ligne (certains modèles terminent les lignes
+    /// de liste par des espaces, héritage des sauts de ligne markdown) et normalise les fins de ligne en LF.
+    /// Fonction pure.</summary>
+    public static string TrimLineEnds(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return text;
+        var lines = text.Replace("\r\n", "\n").Split('\n');
+        for (int i = 0; i < lines.Length; i++) lines[i] = lines[i].TrimEnd(' ', '\t');
+        return string.Join("\n", lines);
+    }
+
     // Déclencheurs triés du plus long au plus court : « retour à la ligne » doit être absorbé
     // en entier (pas seulement son suffixe « à la ligne »), sinon le mot « retour » reste orphelin.
     private static readonly Regex LineBreakPattern = new(

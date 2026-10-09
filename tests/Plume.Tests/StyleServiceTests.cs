@@ -243,6 +243,26 @@ public class StyleServiceTests
     }
 
     [Fact]
+    public void Normalize_PromptDicteeAvantRegleListes_EstMisAJour()
+    {
+        // Défaut d'avant le 2026-10-10 : seule la ligne des listes change.
+        var ligne = StyleCatalog.DictationPrompt.Split('\n').Single(l => l.StartsWith("- Listes :", StringComparison.Ordinal));
+        var ancien = StyleCatalog.DictationPrompt.Replace(ligne, "- Si le texte énumère des éléments, tu peux les mettre en liste à puces.");
+        var cfg = new AppConfig { DictationPrompt = ancien };
+        StyleService.Normalize(cfg, null);
+        Assert.Equal(StyleCatalog.DictationPrompt, cfg.DictationPrompt);
+    }
+
+    [Fact]
+    public void Normalize_PromptDicteePersonnalise_NestJamaisEcrase()
+    {
+        var perso = StyleCatalog.DictationPrompt + "\nMa règle à moi.";
+        var cfg = new AppConfig { DictationPrompt = perso };
+        StyleService.Normalize(cfg, null);
+        Assert.Equal(perso, cfg.DictationPrompt);
+    }
+
+    [Fact]
     public void Normalize_DictationPromptPersonnalise_NestJamaisEcrase()
     {
         var cfg = new AppConfig { DictationPrompt = "Mon prompt de dictée perso, jamais touché." };

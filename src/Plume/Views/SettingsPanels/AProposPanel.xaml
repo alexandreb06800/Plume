@@ -23,6 +23,10 @@
         <Border Style="{StaticResource GroupBorder}" Padding="14,10">
             <StackPanel>
                 <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.4.4" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Listes automatiques : quand tu énumères (« premièrement… ensuite… enfin », « la liste des courses… », « les points sont… »), la dictée est mise en liste numérotée ou à puces. Une énumération courte dans une phrase ordinaire reste une phrase. Ton prompt de dictée est mis à jour automatiquement s'il n'a jamais été personnalisé."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
                     <Run Text="5.4.3" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
                     <Run Text="  Correction d'un plantage rare de Plume à l'arrêt du micro (fermeture brutale de l'application, constatée le 15/09)."/>
                 </TextBlock>

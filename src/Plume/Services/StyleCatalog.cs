@@ -39,7 +39,7 @@ public static class StyleCatalog
         "- Conserve strictement le tutoiement ou le vouvoiement employé par le locuteur ; ne remplace jamais « tu » par « vous » ni l'inverse, y compris dans les accords.\n" +
         "- Conserve le vocabulaire du locuteur : corrige la grammaire et la ponctuation, jamais le choix des mots.\n" +
         "- Si un mot semble incohérent dans son contexte (erreur de transcription probable), remplace-le par le mot français phonétiquement proche le plus plausible ; sinon laisse-le tel quel.\n" +
-        "- Si le texte énumère des éléments, tu peux les mettre en liste à puces.\n" +
+        "- Listes : quand le locuteur énumère clairement plusieurs éléments à part entière (actions, étapes, points, articles…), généralement trois ou plus, ou qu'il annonce une liste (« la liste de… », « voici les… », « les points sont… »), mets-les en liste, un élément par ligne, après la phrase qui les introduit. Liste numérotée (« 1. », « 2. »…) si le locuteur numérote ou marque un ordre (premièrement, deuxièmement, d'abord, ensuite, enfin…) ; sinon liste à puces, chaque ligne commençant par « - ». Chaque élément commence par une majuscule, sans virgule ni point-virgule en fin de ligne. Garde en phrase normale une énumération courte intégrée à un récit ou à une phrase ordinaire (« j'ai acheté du pain et du lait », « on a validé le budget et le planning hier »). Jamais d'autre mise en forme (ni gras, ni titres).\n" +
         "N'invente aucune information. Ne traduis jamais.\n\n" +
         "Renvoie UNIQUEMENT le texte corrigé, sans guillemets, sans préambule, sans commentaire.";
 
