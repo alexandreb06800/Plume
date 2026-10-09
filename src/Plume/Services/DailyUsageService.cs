@@ -50,6 +50,21 @@ public static class DailyUsageService
     private static bool TryParse(string key, out DateTime d) =>
         DateTime.TryParseExact(key, DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out d);
 
+    private static readonly object RecordLock = new();
+
+    /// <summary>Lit, incrémente, purge et réécrit l'agrégat du jour, sous verrou : appelable depuis une tâche
+    /// d'arrière-plan sans perdre de comptage si deux dictées se suivent de près. Ne lève jamais.</summary>
+    public static void RecordDictation(DateTime today, int words)
+    {
+        lock (RecordLock)
+        {
+            var days = Load();
+            Record(days, today, words);
+            Prune(days, today);
+            Save(days);
+        }
+    }
+
     // --- Stockage (jamais de crash : fichier absent/corrompu => dico vide) ---
 
     public static Dictionary<string, DayUsage> Load()

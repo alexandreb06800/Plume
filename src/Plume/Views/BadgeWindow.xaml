@@ -15,6 +15,10 @@
                 <ScaleTransform x:Name="CardScale" ScaleX="1" ScaleY="1"/>
             </Grid.RenderTransform>
 
+            <!-- Halo d'état (écoute/traitement) porté par une ellipse dédiée, DERRIÈRE le contenu : l'effet
+                 n'est pas recalculé à chaque mouvement des barres de niveau (25 fois/s pendant l'écoute). -->
+            <Ellipse x:Name="Halo" Fill="{DynamicResource BadgeOverlayBrush}" Visibility="Collapsed"/>
+
             <!-- Repos : logo Plume plein rond -->
             <Ellipse x:Name="Glyph">
                 <Ellipse.Fill>

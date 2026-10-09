@@ -12,14 +12,14 @@
 
 - [ ] Récupérer `installer/output/PlumeSetup-5.3.8.exe` (ou plus récent) sur une clé USB ou un partage.
 - [ ] Vérifier la machine cible : **pas** de dossier `%LOCALAPPDATA%\Plume` ni `%APPDATA%\Plume` (sinon supprimer les deux pour une vraie première installation).
-- [ ] Idéalement : machine **sans** runtime .NET 8 Desktop (PC neuf ou VM propre) pour tester le téléchargement automatique. Vérifier : `dotnet --list-runtimes` en console → aucun `Microsoft.WindowsDesktop.App 8.x` = parfait.
+- [ ] Idéalement : machine **sans** runtime .NET 10 Desktop (PC neuf ou VM propre) pour tester le téléchargement automatique. Vérifier : `dotnet --list-runtimes` en console → aucun `Microsoft.WindowsDesktop.App 10.x` = parfait.
 - [ ] Prévoir un compte Groq de test (ou créer le compte pendant la recette, comme un vrai collègue : c'est le parcours à valider). **Ne pas** préparer de clé OpenRouter — le scénario nominal est 100 % Groq.
 
 ## 1. Installation
 
 - [ ] Double-clic sur `PlumeSetup-5.3.8.exe`. **Attendu** : avertissement SmartScreen « Windows a protégé votre ordinateur » → « Informations complémentaires » → « Exécuter quand même » (assumé, installateur non signé — c'est le message expliqué dans l'email d'invitation).
 - [ ] **Aucune demande de droits administrateur** pour Plume lui-même (installation par utilisateur).
-- [ ] Si le runtime .NET 8 manque : message « Plume a besoin d'un composant Microsoft gratuit… » → téléchargement → UAC **pour l'installeur Microsoft uniquement** → installation silencieuse. **Attendu** : aucune erreur, l'installation de Plume enchaîne.
+- [ ] Si le runtime .NET 10 manque : message « Plume a besoin d'un composant Microsoft gratuit… » → téléchargement → UAC **pour l'installeur Microsoft uniquement** → installation silencieuse. **Attendu** : aucune erreur, l'installation de Plume enchaîne.
 - [ ] Fin d'installation : case « Lancer Plume » cochée → Plume démarre, icône dans la zone de notification (barre des tâches).
 - [ ] Vérifier : raccourci « Plume » dans le menu Démarrer ; fichiers dans `%LOCALAPPDATA%\Plume` (dont une copie `PlumeSetup-5.3.8.exe` — elle alimente « Inviter un collègue »).
 

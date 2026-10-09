@@ -112,7 +112,16 @@ public partial class DictationController : IDisposable
 
         // Timeout global volontairement infini : chaque appel impose son propre délai (voir TranscriptionService.TimeoutFor/CleanupTimeout),
         // ce qui évite qu'une transcription lente n'épuise le budget du nettoyage et donne un message d'erreur précis.
-        _http = new HttpClient { Timeout = System.Threading.Timeout.InfiniteTimeSpan };
+        // Connexions gardées 10 min au lieu d'1 min (défaut .NET) : une dictée après une courte pause
+        // réutilise la connexion TLS au lieu de repayer ~500 ms de reconnexion (audit latence 2026-07-11).
+        // Le serveur peut fermer avant : le warm-up de début d'écoute reste le filet. Décompression
+        // automatique : réponses JSON plus légères sur le réseau.
+        var handler = new SocketsHttpHandler
+        {
+            PooledConnectionIdleTimeout = TimeSpan.FromMinutes(10),
+            AutomaticDecompression = System.Net.DecompressionMethods.All
+        };
+        _http = new HttpClient(handler) { Timeout = System.Threading.Timeout.InfiniteTimeSpan };
         _stt = new TranscriptionService(_http);
         _cleanup = new CleanupService(_http);
         _agent = new AgentChatService(_http);
@@ -356,17 +365,21 @@ public partial class DictationController : IDisposable
         }
     }
 
-    /// <summary>Ouvre en parallèle une connexion vers Groq (STT) et OpenRouter (nettoyage),
-    /// requêtes légères ignorées, pour éviter le coût de connexion à froid sur la première
-    /// dictée. Ne lève jamais.</summary>
+    /// <summary>Ouvre en parallèle une connexion vers les hôtes réellement utilisés par la config
+    /// (Groq et/ou OpenRouter, voir <see cref="WarmUpPlanner"/>), requêtes légères ignorées, pour éviter
+    /// le coût de connexion à froid sur la première dictée. Ne lève jamais.</summary>
     private async Task WarmUpAsync()
     {
         try
         {
             var cfg = _getConfig();
+            var groqKey = _configService.ResolveGroqKey(cfg);
+            var openRouterKey = _configService.ResolveApiKey(cfg);
+            var (groq, openRouter) = WarmUpPlanner.Targets(groqKey is not null, openRouterKey is not null,
+                cfg.CleanupModel, cfg.AgentEnabled, cfg.AgentModel);
             await Task.WhenAll(
-                WarmUpHostAsync("https://api.groq.com/openai/v1/models", _configService.ResolveGroqKey(cfg)),
-                WarmUpHostAsync("https://openrouter.ai/api/v1/models", _configService.ResolveApiKey(cfg)));
+                groq ? WarmUpHostAsync(WarmUpPlanner.GroqUrl, groqKey) : Task.CompletedTask,
+                openRouter ? WarmUpHostAsync(WarmUpPlanner.OpenRouterUrl, openRouterKey) : Task.CompletedTask);
         }
         catch { /* le préchauffage est best-effort : aucune conséquence en cas d'échec */ }
     }

@@ -4,6 +4,17 @@
 
 ---
 
+## 5.4.0 — .NET 10 + correctifs de l'audit d'optimisation ✅ (livrée le 2026-10-09)
+Audit d'optimisation du 2026-10-09 (code lu en entier, mesures réelles) ; tout appliqué sauf ReadyToRun (mesuré, écarté).
+- **.NET 10 LTS** (fin de support .NET 8 le 10/11/2026) : `net10.0-windows` (app + tests), installateur (`DotNet10DesktopInstalled`, lien `aka.ms/dotnet/10.0/windowsdesktop-runtime-win-x64.exe`, vérifié), `deploy.ps1`, `build-installer.ps1`. Build 0 warning sans retouche. Démarrage mesuré (2e instance, médiane) : 442 ms → 376 ms.
+- **Presse-papiers restauré à l'identique** (`ClipboardSnapshot`) : l'ancien instantané ne gardait qu'UN format (fichiers > image > texte). Bug **reproduit sur Excel** : copier des cellules, dicter, recoller → une **image** au lieu des cellules (Excel annonce une image d'aperçu). Désormais tous les formats utiles sont copiés (`PlanFormats`, pur et testé) : exclusion des formats GDI/OLE, de l'aperçu image en présence d'un document Office, et de RTF/XML Spreadsheet/Biff5 en présence de Biff12 (RTF ≈ 200 ms de rendu à froid côté Excel). Plafond 64 Mo, repli sur l'ancien instantané (texte désormais AVANT image). Mesuré : Excel 50 lignes → cellules + gras restitués, capture 18-57 ms à froid (ancien : 39 ms) ; Word → gras restitué, 23-45 ms ; HTML, fichiers + effet « couper », image seule : conservés.
+- **Warm-up allégé** (`WarmUpPlanner`, pur et testé) : ne préchauffe que les hôtes réellement routés (config 100 % Groq → plus d'appel OpenRouter) ; OpenRouter via `/api/v1/key` au lieu de `/models` (**765 Ko non compressés** téléchargés puis jetés à chaque début d'écoute).
+- **HttpClient** : `SocketsHttpHandler` avec `PooledConnectionIdleTimeout` 10 min (défaut 1 min → reconnexion ~500 ms après une courte pause) + décompression automatique.
+- **Pastille** : halo porté par une ellipse dédiée (`Halo`) derrière le contenu, au lieu de `Card` : le flou n'est plus recalculé à chaque mouvement des barres de niveau (25×/s en écoute).
+- **Stats** : écriture config + `usage-daily.json` en tâche de fond (`DailyUsageService.RecordDictation`, sous verrou) au lieu du thread UI après chaque dictée.
+- **Écarté après mesure** : `PublishReadyToRun` — exe 1,2 → 2,1 Mo pour -16 ms au démarrage (commentaire dans le csproj).
+Impact RÈGLE PRIMORDIALE : positif (démarrage plus rapide, moins de réseau et de rendu pendant la dictée) ; taille de l'exe inchangée (1,2 Mo).
+
 ## 5.3.9 — Choix du nombre d'écrans pour la pastille ✅ (livrée le 2026-07-23)
 Demande directe de l'auteur : pouvoir choisir entre une pastille sur chaque écran connecté (comportement
 historique depuis V8-J) et une seule pastille, sur l'écran principal uniquement — utile quand la seconde

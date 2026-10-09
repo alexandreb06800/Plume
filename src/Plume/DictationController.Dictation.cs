@@ -89,17 +89,19 @@ public partial class DictationController
                 // Top sonore « insertion réussie » (V8-K), dictée classique uniquement.
                 if (cfg.TickSoundsEnabled) TickSoundService.Play(cfg.EndTickSound);
 
-                // Statistiques : compteurs cumulés, sauvegarde hors du chemin de latence (collage déjà fait).
+                // Statistiques : compteurs cumulés en mémoire (thread UI), écritures disque en tâche de fond
+                // (sérialisation + chiffrement DPAPI + écriture atomique : le thread UI ne s'y bloque plus).
                 // Le verrou de ConfigService.Save garantit l'intégrité du fichier ; en mémoire, dernier écrivain gagne (au pire une dictée perdue sur course rare, jamais de corruption).
+                int words = UsageStatsService.CountWords(finalText);
                 cfg.Stats.DictationCount++;
-                cfg.Stats.WordCount += UsageStatsService.CountWords(finalText);
-                try { _configService.Save(cfg); } catch { /* jamais de crash sur l'écriture des stats */ }
-
-                // Agrégat journalier (fichier séparé, jamais lu au démarrage)
-                var days = DailyUsageService.Load();
-                DailyUsageService.Record(days, DateTime.Today, UsageStatsService.CountWords(finalText));
-                DailyUsageService.Prune(days, DateTime.Today);
-                DailyUsageService.Save(days);
+                cfg.Stats.WordCount += words;
+                var today = DateTime.Today;
+                _ = Task.Run(() =>
+                {
+                    try { _configService.Save(cfg); } catch { /* jamais de crash sur l'écriture des stats */ }
+                    // Agrégat journalier (fichier séparé, jamais lu au démarrage)
+                    DailyUsageService.RecordDictation(today, words);
+                });
             }
             else
             {

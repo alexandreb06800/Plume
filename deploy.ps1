@@ -13,7 +13,7 @@ param([switch]$NoLaunch)
 
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
-$publishDir = Join-Path $root 'src\Plume\bin\Release\net8.0-windows\win-x64\publish'
+$publishDir = Join-Path $root 'src\Plume\bin\Release\net10.0-windows\win-x64\publish'
 $publishExe = Join-Path $publishDir 'Plume.exe'
 $destDir = Join-Path $env:LOCALAPPDATA 'Plume'
 $destExe = Join-Path $destDir 'Plume.exe'

@@ -202,13 +202,15 @@ public partial class BadgeWindow : Window
             Bar1.Height = Bar2.Height = Bar3.Height = BarRestHeight;
         }
 
-        // Halo : vert pendant l'écoute, bleu pendant le traitement, rien au repos.
-        Card.Effect = s switch
+        // Halo : vert pendant l'écoute, bleu pendant le traitement, rien au repos. Porté par l'ellipse Halo
+        // (et non par Card) : les barres de niveau qui bougent ne forcent pas le recalcul du flou.
+        Halo.Effect = s switch
         {
             BadgeState.Listening => _haloListen ??= MakeHalo(ThemeColor("GreenColor")),   // vert (assorti aux barres)
             BadgeState.Processing => _haloBusy ??= MakeHalo(ThemeColor("HaloBusyColor")), // bleu
             _ => null,
         };
+        Halo.Visibility = s == BadgeState.Idle ? Visibility.Collapsed : Visibility.Visible;
 
         // Spinner : animation lancée seulement pendant le traitement (aucun coût au repos).
         if (s == BadgeState.Processing)

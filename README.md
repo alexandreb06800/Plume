@@ -8,7 +8,7 @@ Léger, rapide, design minimal : une pastille flottante, un menu dans la barre d
 
 ## Installation (collègues)
 
-Lance **`PlumeSetup-X.Y.Z.exe`** : installation par utilisateur, sans droits admin, avec le composant .NET 8 installé automatiquement s'il manque.
+Lance **`PlumeSetup-X.Y.Z.exe`** : installation par utilisateur, sans droits admin, avec le composant .NET 10 installé automatiquement s'il manque.
 
 Au premier lancement, un **assistant de prise en main en 3 étapes** te guide : coller ta clé **Groq** (gratuite → https://console.groq.com/keys), tester ton micro, réussir ta première dictée. C'est tout.
 
@@ -16,7 +16,7 @@ Au premier lancement, un **assistant de prise en main en 3 étapes** te guide : 
 
 ## Installation (développeur)
 
-Prérequis : Windows 10/11, [.NET 8 SDK](https://dotnet.microsoft.com/download), un micro.
+Prérequis : Windows 10/11, [.NET 10 SDK](https://dotnet.microsoft.com/download), un micro.
 
 ```bash
 dotnet run --project src/Plume     # lancer en dév

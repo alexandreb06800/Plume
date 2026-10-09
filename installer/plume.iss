@@ -2,14 +2,14 @@
 ; qui publie l'app puis passe la version du csproj via /DAppVersion (source unique de vérité).
 ;
 ; Décisions (spec 2026-07-06) : installation PAR UTILISATEUR sans droits admin, dossier imposé
-; %LOCALAPPDATA%\Plume (jamais OneDrive), interface en français, runtime .NET 8 Desktop détecté
+; %LOCALAPPDATA%\Plume (jamais OneDrive), interface en français, runtime .NET 10 Desktop détecté
 ; et installé au besoin (seul l'installeur Microsoft élève via UAC), désinstallation propre qui
 ; CONSERVE %APPDATA%\Plume (config + clés : une réinstallation retrouve tout).
 
 #ifndef AppVersion
   #define AppVersion "0.0.0"
 #endif
-#define PublishDir "..\src\Plume\bin\Release\net8.0-windows\win-x64\publish"
+#define PublishDir "..\src\Plume\bin\Release\net10.0-windows\win-x64\publish"
 
 [Setup]
 ; GUID fixe : identifie Plume pour les réinstallations/mises à jour par-dessus l'existant.
@@ -60,12 +60,12 @@ var
 procedure InitializeWizard;
 begin
   DownloadPage := CreateDownloadPage(SetupMessage(msgWizardPreparing),
-    'Téléchargement du composant Microsoft .NET 8 (gratuit)…', nil);
+    'Téléchargement du composant Microsoft .NET 10 (gratuit)…', nil);
 end;
 
-{ Le runtime .NET 8 Desktop x64 est-il présent ? Clé posée par l'installeur Microsoft ;
-  une valeur nommée « 8.x.y » suffit. }
-function DotNet8DesktopInstalled: Boolean;
+{ Le runtime .NET 10 Desktop x64 est-il présent ? Clé posée par l'installeur Microsoft ;
+  une valeur nommée « 10.x.y » suffit. }
+function DotNet10DesktopInstalled: Boolean;
 var
   Names: TArrayOfString;
   I: Integer;
@@ -74,7 +74,7 @@ begin
   if RegGetValueNames(HKEY_LOCAL_MACHINE,
       'SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.WindowsDesktop.App', Names) then
     for I := 0 to GetArrayLength(Names) - 1 do
-      if Pos('8.', Names[I]) = 1 then
+      if Pos('10.', Names[I]) = 1 then
       begin
         Result := True;
         exit;
@@ -91,7 +91,7 @@ begin
     ewWaitUntilTerminated, ResultCode);
 end;
 
-{ Avant la copie : arrêter Plume, puis installer le runtime .NET 8 Desktop s'il manque.
+{ Avant la copie : arrêter Plume, puis installer le runtime .NET 10 Desktop s'il manque.
   Tout échec ici retourne un message → Inno Setup ABANDONNE proprement (rien n'a été copié :
   jamais une installation à moitié faite). }
 function PrepareToInstall(var NeedsRestart: Boolean): String;
@@ -101,22 +101,22 @@ begin
   Result := '';
   KillPlume;
 
-  if DotNet8DesktopInstalled then
+  if DotNet10DesktopInstalled then
     exit;
 
-  MsgBox('Plume a besoin d''un composant Microsoft gratuit (.NET 8 Desktop).'#13#10
+  MsgBox('Plume a besoin d''un composant Microsoft gratuit (.NET 10 Desktop).'#13#10
     + 'Il va être téléchargé puis installé — Windows demandera une autorisation.',
     mbInformation, MB_OK);
 
   DownloadPage.Clear;
-  DownloadPage.Add('https://aka.ms/dotnet/8.0/windowsdesktop-runtime-win-x64.exe',
+  DownloadPage.Add('https://aka.ms/dotnet/10.0/windowsdesktop-runtime-win-x64.exe',
     'windowsdesktop-runtime.exe', '');
   DownloadPage.Show;
   try
     try
       DownloadPage.Download;
     except
-      Result := 'Le téléchargement de .NET 8 a échoué (pas de connexion ?).'#13#10
+      Result := 'Le téléchargement de .NET 10 a échoué (pas de connexion ?).'#13#10
         + 'L''installation est annulée : rien n''a été modifié. Réessaie une fois en ligne.';
       exit;
     end;
@@ -126,10 +126,10 @@ begin
 
   if not Exec(ExpandConstant('{tmp}\windowsdesktop-runtime.exe'), '/install /quiet /norestart',
       '', SW_SHOW, ewWaitUntilTerminated, ResultCode) then
-    Result := 'Impossible de lancer l''installateur .NET 8.'
+    Result := 'Impossible de lancer l''installateur .NET 10.'
   { 0 = OK, 3010 = OK redémarrage demandé plus tard, 1638 = version plus récente déjà là. }
   else if (ResultCode <> 0) and (ResultCode <> 3010) and (ResultCode <> 1638) then
-    Result := '.NET 8 ne s''est pas installé (code ' + IntToStr(ResultCode) + ').'#13#10
+    Result := '.NET 10 ne s''est pas installé (code ' + IntToStr(ResultCode) + ').'#13#10
       + 'L''installation de Plume est annulée : rien n''a été modifié.';
 end;
 

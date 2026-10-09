@@ -24,7 +24,7 @@ Write-Host "Version : $version" -ForegroundColor Cyan
 # Dossier de publication supprimé avant coup : une publication incrémentale par-dessus un dossier
 # existant ne recopie pas toujours Resources\ (constaté en pratique), laissant un dossier vide que
 # l'installateur refuserait de compiler (aucun fichier ne correspond au motif Resources\*).
-$publishDir = Join-Path $root 'src\Plume\bin\Release\net8.0-windows\win-x64\publish'
+$publishDir = Join-Path $root 'src\Plume\bin\Release\net10.0-windows\win-x64\publish'
 if (Test-Path $publishDir) { Remove-Item $publishDir -Recurse -Force }
 Write-Host 'Publication…' -ForegroundColor Cyan
 dotnet publish (Join-Path $root 'src\Plume') -c Release -r win-x64 `
