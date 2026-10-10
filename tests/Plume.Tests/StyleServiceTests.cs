@@ -430,7 +430,7 @@ public class StyleServiceTests
     public void PromptsEmail_NeCitentPlusLeNomDeLAuteur(string id)
     {
         var prompt = StyleCatalog.DefaultPromptFor(id)!;
-        Assert.DoesNotContain("Prénom", prompt);
+        Assert.DoesNotContain("mon nom (", prompt); // les anciens défauts citaient le nom entre parenthèses
         Assert.Contains("N'écris JAMAIS mon nom ni mon prénom", prompt);
     }
 }

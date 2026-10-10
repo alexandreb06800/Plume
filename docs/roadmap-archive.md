@@ -17,7 +17,7 @@ Suite de l'audit 5.4.10, sur décision utilisateur : les prompts intégrés « E
 - **Migration par empreinte** : pour reconnaître un ancien défaut, le code en gardait le texte verbatim (`Legacy3BuiltInPrompts`) — donc le nom restait dans l'exe. Les anciens défauts de ces deux styles sont désormais reconnus par leur empreinte SHA-256 (`StyleService.LegacyPromptHashes`, `PromptHash`), sans texte conservé. Vérifié avec les quatre anciens textes réels : tous migrés ; un prompt personnalisé reste intact.
 - Vérifié sur l'exe publié : plus aucune occurrence du nom (recherche ASCII/UTF-8 et UTF-16).
 - Releases 5.4.8 et 5.4.9 retirées de GitHub (leur exe contenait le chemin du poste de compilation).
-- Reste hors de l'exe, non modifié : `AppPublisher` de `installer/plume.iss` (installateur non publié) et les notes historiques de `docs/`.
+- Le reste (éditeur de l'installateur, notes de `docs/`, exemples des tests, historique Git) a été anonymisé ensuite, le 2026-10-10.
 
 ## 5.4.10 — Audit de ce qui est distribué + guide d'installation ✅ (livrée le 2026-10-10)
 Demande : expliquer l'installation sur la page GitHub et vérifier qu'aucune clé ni donnée personnelle n'est distribuée. Audit du dépôt (arbre et historique complet), de l'archive de la Release et de l'exe (recherche en ASCII/UTF-8 et UTF-16).

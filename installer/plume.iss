@@ -16,7 +16,7 @@
 AppId={{B6E1B21C-9E2A-4E43-9D3B-3D2F0C7A51E4}
 AppName=Plume
 AppVersion={#AppVersion}
-AppPublisher=Jean EXEMPLE
+AppPublisher=Plume
 DefaultDirName={localappdata}\Plume
 DisableDirPage=yes
 DisableProgramGroupPage=yes
