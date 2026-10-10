@@ -242,12 +242,15 @@ public class StyleServiceTests
         Assert.Equal(StyleCatalog.DictationPrompt, cfg.DictationPrompt);
     }
 
-    [Fact]
-    public void Normalize_PromptDicteeAvantRegleListes_EstMisAJour()
+    [Theory]
+    [InlineData("Legacy2DictationPrompt")] // défaut d'avant la règle « Listes » (≤ 5.4.3)
+    [InlineData("Legacy3DictationPrompt")] // défaut 5.4.4 (avant l'optimisation du 2026-10-10)
+    public void Normalize_AncienDefautDeDictee_EstMisAJour(string constante)
     {
-        // Défaut d'avant le 2026-10-10 : seule la ligne des listes change.
-        var ligne = StyleCatalog.DictationPrompt.Split('\n').Single(l => l.StartsWith("- Listes :", StringComparison.Ordinal));
-        var ancien = StyleCatalog.DictationPrompt.Replace(ligne, "- Si le texte énumère des éléments, tu peux les mettre en liste à puces.");
+        var ancien = (string)typeof(StyleService)
+            .GetField(constante, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
+            .GetRawConstantValue()!;
+        Assert.NotEqual(StyleCatalog.DictationPrompt, ancien);
         var cfg = new AppConfig { DictationPrompt = ancien };
         StyleService.Normalize(cfg, null);
         Assert.Equal(StyleCatalog.DictationPrompt, cfg.DictationPrompt);

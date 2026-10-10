@@ -23,6 +23,10 @@
         <Border Style="{StaticResource GroupBorder}" Padding="14,10">
             <StackPanel>
                 <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.4.5" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Prompt de dictée optimisé : dates, heures, montants et pourcentages écrits en chiffres (« 12 500 € HT », « 14 h 30 ») · un prénom ou « Bonjour Marc » en tête est isolé sur sa ligne · quand tu te reprends (« mardi, non pardon, mercredi »), seule la version corrigée est gardée · un « sujet différent » dicté devient une ligne vide · les noms propres et termes métier inconnus sont recopiés tels quels · « à la ligne » fonctionne aussi quand il suit une phrase déjà terminée. Mis à jour automatiquement si ton prompt n'a jamais été personnalisé."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
                     <Run Text="5.4.4" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
                     <Run Text="  Listes automatiques : quand tu énumères (« premièrement… ensuite… enfin », « la liste des courses… », « les points sont… »), la dictée est mise en liste numérotée ou à puces. Une énumération courte dans une phrase ordinaire reste une phrase. Ton prompt de dictée est mis à jour automatiquement s'il n'a jamais été personnalisé."/>
                 </TextBlock>

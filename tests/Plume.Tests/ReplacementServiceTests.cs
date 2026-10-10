@@ -182,4 +182,24 @@ public class ReplacementServiceTests
         Assert.Equal("  - Sous-point", ReplacementService.TrimLineEnds("  - Sous-point "));
         Assert.Equal("Bonjour.", ReplacementService.TrimLineEnds("Bonjour."));
     }
+
+    [Fact]
+    public void ApplyLineBreaks_CommandeEnTeteDeLigne_PasDePointEnDouble()
+    {
+        // Le nettoyage a placé la commande en début de ligne, après une phrase déjà close.
+        Assert.Equal("Merci pour ton retour.\nJe regarde ça demain.",
+            ReplacementService.ApplyLineBreaks("Merci pour ton retour.\nÀ la ligne, je regarde ça demain."));
+    }
+
+    [Fact]
+    public void ApplyLineBreaks_ApresQuestion_PasDePointAjoute()
+    {
+        Assert.Equal("Tu viens ?\nMerci.", ReplacementService.ApplyLineBreaks("Tu viens ? À la ligne merci."));
+    }
+
+    [Fact]
+    public void ApplyLineBreaks_EnTeteDeTexte_PasDePoint()
+    {
+        Assert.Equal("\nBonjour", ReplacementService.ApplyLineBreaks("à la ligne bonjour"));
+    }
 }

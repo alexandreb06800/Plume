@@ -32,25 +32,36 @@ public static class ReplacementService
 
     // Déclencheurs triés du plus long au plus court : « retour à la ligne » doit être absorbé
     // en entier (pas seulement son suffixe « à la ligne »), sinon le mot « retour » reste orphelin.
+    // Avant la commande : blancs y compris retours à la ligne (\s) — le nettoyage peut avoir placé la commande
+    // en tête de ligne (« retour.\nÀ la ligne, je… ») ; sans ça, le saut s'ajoutait au sien (« retour.\n.\nJe »).
     private static readonly Regex LineBreakPattern = new(
-        @"[ \t]*[,\.]?[ \t]*\b(nouveau paragraphe|retour à la ligne|à la ligne|nouvelle ligne)\b[ \t]*[,\.]?[ \t]*(\p{L})?",
+        @"\s*([,\.]?)\s*\b(nouveau paragraphe|retour à la ligne|à la ligne|nouvelle ligne)\b[ \t]*[,\.]?[ \t]*(\p{L})?",
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     /// <summary>
     /// Transforme les commandes vocales de saut de ligne (« à la ligne », « nouveau paragraphe »…)
-    /// en vrais retours à la ligne. Absorbe la ponctuation adjacente et met en majuscule la lettre
-    /// qui suit le saut, pour une phrase proprement close. Fonction pure (aucun état, aucune I/O).
+    /// en vrais retours à la ligne. Absorbe la ponctuation et les blancs adjacents, clôt la phrase précédente
+    /// par un point s'il n'y a pas déjà une ponctuation finale (« ? », « ! »…), et met en majuscule la lettre
+    /// qui suit le saut. Fonction pure (aucun état, aucune I/O).
     /// </summary>
     public static string ApplyLineBreaks(string text)
     {
         if (string.IsNullOrEmpty(text)) return text;
         return LineBreakPattern.Replace(text, m =>
         {
-            var estParagraphe = string.Equals(m.Groups[1].Value, "nouveau paragraphe", StringComparison.OrdinalIgnoreCase);
+            var estParagraphe = string.Equals(m.Groups[2].Value, "nouveau paragraphe", StringComparison.OrdinalIgnoreCase);
             var saut = estParagraphe ? "\n\n" : "\n";
-            var lettreSuivante = m.Groups[2].Value;
+            var lettreSuivante = m.Groups[3].Value;
             var suite = lettreSuivante.Length > 0 ? lettreSuivante.ToUpperInvariant() : "";
-            return "." + saut + suite;
+
+            // Ponctuation de clôture : rien en tout début de texte ; le point s'il a été absorbé par le motif ;
+            // rien si la phrase précédente finit déjà par une ponctuation finale ; sinon un point.
+            var avant = text[..m.Index].TrimEnd();
+            string cloture;
+            if (avant.Length == 0) cloture = "";
+            else if (m.Groups[1].Value == ".") cloture = ".";
+            else cloture = ".?!…:".Contains(avant[^1]) ? "" : ".";
+            return cloture + saut + suite;
         });
     }
 }
