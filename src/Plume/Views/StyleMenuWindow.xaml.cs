@@ -21,6 +21,7 @@ public partial class StyleMenuWindow : Window
 {
     public event Action? AgentChosen;
     public event Action<SelectionStyle>? StyleChosen;
+    public event Action? CopyLastChosen;
 
     // Empêche un double Close() : un clic appelle Close(), ce qui désactive la fenêtre et déclenche
     // Deactivated → Close() une 2e fois pendant la fermeture (InvalidOperationException « Window en cours
@@ -34,11 +35,14 @@ public partial class StyleMenuWindow : Window
         Close();
     }
 
-    public StyleMenuWindow(IReadOnlyList<SelectionStyle> styles, double anchorX, double anchorY)
+    public StyleMenuWindow(IReadOnlyList<SelectionStyle> styles, double anchorX, double anchorY, bool hasLastText)
     {
         InitializeComponent();
 
         AddItem("🎤  Assistant vocal", () => { CloseOnce(); AgentChosen?.Invoke(); });
+        // Grisée tant qu'aucun texte n'a été produit (même règle que le menu tray).
+        AddItem("📋  Copier le dernier message", () => { CloseOnce(); CopyLastChosen?.Invoke(); })
+            .IsEnabled = hasLastText;
         AddSeparator();
 
         var (favs, others) = StyleService.MenuOrder(styles);
@@ -71,7 +75,7 @@ public partial class StyleMenuWindow : Window
         AddItem(label, () => { CloseOnce(); StyleChosen?.Invoke(s); }, s.IsFavorite ? FavoriteGlyph : null);
     }
 
-    private void AddItem(string text, Action onClick, string? icon = null)
+    private Button AddItem(string text, Action onClick, string? icon = null)
     {
         object content = text;
         if (icon is not null)
@@ -97,6 +101,7 @@ public partial class StyleMenuWindow : Window
         };
         btn.Click += (_, _) => onClick();
         ItemsHost.Children.Add(btn);
+        return btn;
     }
 
     private void AddSeparator()

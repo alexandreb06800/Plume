@@ -26,6 +26,10 @@
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Bd" Property="Background" Value="{DynamicResource HoverBrush}"/>
                             </Trigger>
+                            <!-- Entrée indisponible (ex. « Copier le dernier message » sans dictée) : estompée. -->
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                            </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>

@@ -388,8 +388,10 @@ public partial class App : Application
         // l'appli de l'utilisateur) — évite qu'une capture tardive via GetForegroundWindow ne vise le menu.
         IntPtr target = GetForegroundWindow();
         if (_config is null || _controller is null) return;
-        var menu = new StyleMenuWindow(_config.SelectionStyles, badge.Left, badge.Top);
+        var menu = new StyleMenuWindow(_config.SelectionStyles, badge.Left, badge.Top,
+                                       hasLastText: !string.IsNullOrEmpty(_controller.LastText));
         menu.AgentChosen += () => _controller.StartAgent();       // assistant vocal (la dictée reste sur Ctrl+Espace)
+        menu.CopyLastChosen += () => _tray?.CopyLast();
         menu.StyleChosen += style => _controller.ApplyStyle(style, target);
         menu.Show();
     }

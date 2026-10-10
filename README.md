@@ -68,7 +68,7 @@ Un installateur classique peut aussi être fabriqué avec `installer/build-insta
 
 - **Raccourci** (défaut Alt+Espace) : 1er appui = démarre l'écoute, 2e appui = arrête et insère le texte. **Échap** annule à tout moment.
 - **Mode de dictée** (réglages) : *Toggle* (appui/ré-appui) ou *Maintien enfoncé* (push-to-talk).
-- **Pastille flottante** : **double-clic** = démarrer/arrêter la dictée sans clavier ; **clic** = menu des **styles de réécriture** sur le texte sélectionné (Corriger, Email pro… — éditables, favoris, modèle IA par style, styles « avec voix » pour dicter une consigne).
+- **Pastille flottante** : **double-clic** = démarrer/arrêter la dictée sans clavier ; **clic** = menu des **styles de réécriture** sur le texte sélectionné (Corriger, Email pro… — éditables, favoris, modèle IA par style, styles « avec voix » pour dicter une consigne) ; ce menu propose aussi **« Copier le dernier message »**.
 - **Assistant vocal** (Ctrl+Alt+A) : pose une question à la voix, réponse dans une fenêtre (multi-tours, Copier / Insérer).
 - **Dictionnaire** (réglages) : ton **vocabulaire** (noms propres, jargon — mieux reconnus et préservés) et tes **règles de remplacement** (`raccourci → texte`, multi-ligne pour les signatures). Les commandes dictées « à la ligne » / « nouveau paragraphe » insèrent de vrais sauts de ligne.
 

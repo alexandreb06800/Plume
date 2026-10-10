@@ -215,8 +215,9 @@ public class TrayIcon : IDisposable
         }
     }
 
-    /// <summary>Copie la dernière dictée dans le presse-papiers ; notification discrète, jamais de crash.</summary>
-    private void CopyLast()
+    /// <summary>Copie la dernière dictée dans le presse-papiers ; notification discrète, jamais de crash.
+    /// Partagée par le menu tray et le menu de la pastille.</summary>
+    public void CopyLast()
     {
         var text = _getLastText();
         if (string.IsNullOrEmpty(text)) return; // entrée grisée en principe : double garde

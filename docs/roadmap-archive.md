@@ -4,6 +4,12 @@
 
 ---
 
+## 5.4.12 — Copier le dernier message depuis la pastille ✅ (livrée le 2026-10-10)
+Demande : récupérer le dernier texte sans passer par le menu tray.
+- Entrée « Copier le dernier message » dans le menu de la pastille (`StyleMenuWindow`), sous « Assistant vocal » ; estompée et inactive tant qu'aucun texte n'a été produit.
+- Même code que le menu tray (`TrayIcon.CopyLast`, rendue publique) : copie + notification « Copié ✓ », presse-papiers verrouillé sans crash.
+- Pas de clic droit sur la pastille (écarté par l'utilisateur).
+
 ## 5.4.11 — Prompts d'email sans nom d'auteur ✅ (livrée le 2026-10-10)
 Suite de l'audit 5.4.10, sur décision utilisateur : les prompts intégrés « Email pro » et « Finaliser l'email » citaient le prénom et le nom de l'auteur (« l'assistant de rédaction… de [prénom] », « n'écris jamais mon nom ([prénom], [prénom nom]) »). Distribués à quelqu'un d'autre, ils auraient rédigé en son nom.
 - Formulations génériques : « mon assistant de rédaction d'emails professionnels », « N'écris JAMAIS mon nom ni mon prénom ». Vérifié sur Qwen 3.8 (6 cas, dont deux brouillons contenant une signature complète) : aucune signature recopiée, comportement inchangé.
