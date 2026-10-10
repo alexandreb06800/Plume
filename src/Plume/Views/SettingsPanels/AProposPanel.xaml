@@ -36,6 +36,10 @@
         <Border Style="{StaticResource GroupBorder}" Padding="14,10">
             <StackPanel>
                 <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.4.10" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Version distribuée nettoyée : l'exe n'embarque plus le chemin du poste sur lequel il a été compilé. Guide d'installation, de mise à jour et de désinstallation ajouté sur la page du dépôt."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
                     <Run Text="5.4.9" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
                     <Run Text="  Mise à jour plus claire : quand une version est trouvée, le bouton devient « Installer la version X » et le message dit de cliquer dessus — inutile de redémarrer Plume toi-même."/>
                 </TextBlock>
