@@ -4,6 +4,11 @@
 
 ---
 
+## 5.4.9 — Bouton de mise à jour : libellé sans ambiguïté ✅ (livrée le 2026-10-10)
+Premier essai réel du bouton 5.4.8 par l'utilisateur : la version était bien trouvée, mais le message « Version 5.4.8 disponible… Plume se fermera puis se relancera » a été compris comme « redémarre Plume toi-même ». Plume a été relancée à la main et rien n'a été installé (constat sur disque : dossier de téléchargement jamais créé). Le second clic attendu (« Installer et redémarrer ») n'était pas assez visible.
+- Le bouton devient **« Installer la version X »**, en style principal (`PrimaryButton`), et le message dit explicitement de cliquer dessus (« Plume la télécharge et redémarre toute seule »).
+- Leçon : un message d'état ne doit jamais décrire une action que l'application fera comme si l'utilisateur devait la faire.
+
 ## 5.4.8 — Bouton « Vérifier les mises à jour » ✅ (livrée le 2026-10-10)
 Réouverture de V8-F point 2 (abandonné le 2026-07-16) sur décision utilisateur — voir `docs/roadmap.md`. Choix : mise à jour **à la demande**, via les Releases du dépôt GitHub privé.
 - **`Services/UpdateService.cs`** : lit `releases/latest` du dépôt (`UpdateService.Repository`), compare les versions, télécharge l'archive `Plume-X.Y.Z.zip`, **vérifie son empreinte SHA-256** (ligne `sha256: …` du texte de la Release — installation refusée si absente ou différente : l'exe n'est pas signé), puis installe. Installation : extraction dans un dossier temporaire, l'exe en cours est **renommé** en `Plume.old.exe` (Windows l'autorise, pas l'écrasement — vérifié), les nouveaux fichiers prennent sa place ; retour arrière si la copie échoue ; `Plume.old.exe` supprimé au démarrage suivant, en tâche de fond.

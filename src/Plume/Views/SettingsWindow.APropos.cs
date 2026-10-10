@@ -52,7 +52,9 @@ public partial class SettingsWindow
         try
         {
             SaveUpdateToken();
-            ShowUpdateStatus(_pendingUpdate is null ? "Recherche d'une nouvelle version…" : "Téléchargement…");
+            ShowUpdateStatus(_pendingUpdate is null
+                ? "Recherche d'une nouvelle version…"
+                : $"Téléchargement de la version {_pendingUpdate.Version}… Plume va redémarrer toute seule.");
 
             // Hors du thread UI : la lecture de la connexion Git lance un processus.
             var token = await Task.Run(() => UpdateService.ResolveToken(_config.UpdateToken));
@@ -73,8 +75,12 @@ public partial class SettingsWindow
                     return;
                 }
                 _pendingUpdate = latest;
-                PanelAbout.UpdateButton.Content = "Installer et redémarrer";
-                ShowUpdateStatus($"Version {latest.Version} disponible (tu as la {shown}). Plume se fermera puis se relancera.");
+                // Bouton mis en évidence et libellé explicite : au premier essai réel (2026-10-10), « Plume se fermera
+                // puis se relancera » a été compris comme « redémarre Plume toi-même » — rien n'était installé.
+                PanelAbout.UpdateButton.Content = $"Installer la version {latest.Version}";
+                PanelAbout.UpdateButton.Style = (Style)FindResource("PrimaryButton");
+                ShowUpdateStatus($"Version {latest.Version} disponible (tu as la {shown}). "
+                               + "Clique sur le bouton ci-dessus pour l'installer : Plume la télécharge et redémarre toute seule.");
                 return;
             }
 
