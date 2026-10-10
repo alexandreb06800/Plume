@@ -4,6 +4,17 @@
 
 ---
 
+## 5.4.8 — Bouton « Vérifier les mises à jour » ✅ (livrée le 2026-10-10)
+Réouverture de V8-F point 2 (abandonné le 2026-07-16) sur décision utilisateur — voir `docs/roadmap.md`. Choix : mise à jour **à la demande**, via les Releases du dépôt GitHub privé.
+- **`Services/UpdateService.cs`** : lit `releases/latest` du dépôt (`UpdateService.Repository`), compare les versions, télécharge l'archive `Plume-X.Y.Z.zip`, **vérifie son empreinte SHA-256** (ligne `sha256: …` du texte de la Release — installation refusée si absente ou différente : l'exe n'est pas signé), puis installe. Installation : extraction dans un dossier temporaire, l'exe en cours est **renommé** en `Plume.old.exe` (Windows l'autorise, pas l'écrasement — vérifié), les nouveaux fichiers prennent sa place ; retour arrière si la copie échoue ; `Plume.old.exe` supprimé au démarrage suivant, en tâche de fond.
+- **Redémarrage** (`App.RestartAfterUpdate`) : le verrou d'instance unique est rendu avant de lancer le nouvel exe, sinon celui-ci se croirait en double.
+- **Accès au dépôt privé** : jeton GitHub facultatif dans À propos (`AppConfig.UpdateToken`, chiffré DPAPI comme les clés API) ; sans lui, la connexion Git déjà enregistrée sur le poste (`git credential fill`, sans jamais ouvrir de fenêtre). Sur un poste où `git push` fonctionne, rien à configurer.
+- **Interface** : bouton en deux temps dans À propos (« Vérifier les mises à jour » → « Installer et redémarrer »), état affiché dessous, erreurs en français (pas de réseau, jeton refusé, aucune version publiée, empreinte incorrecte).
+- **`publish-release.ps1`** : publie la version courante (dépôt propre et poussé exigé) — publish, archive (Plume.exe + Resources), empreinte, Release `vX.Y.Z` + envoi. Une Release existante n'est jamais réécrite.
+- **RÈGLE PRIMORDIALE** : aucun appel réseau ni travail au démarrage (seul ajout : la suppression éventuelle de `Plume.old.exe`, en tâche de fond). Aucune dépendance ajoutée (`System.IO.Compression` fait partie de .NET). Confidentialité : un appel à `api.github.com` au clic uniquement, documenté dans `docs/confidentialite-flux-donnees.md`.
+- **Écarté** : mise à jour automatique en arrière-plan (exe non signé : télécharger et exécuter du code sans action de l'utilisateur serait un risque), vérification au démarrage, installateur Inno Setup dans la boucle (non requis : l'exe fait 1,2 Mo).
+- **Limites** : les styles créés par l'utilisateur vivent dans la config de chaque poste et ne sont pas mis à jour par ce bouton ; le poste doit avoir le runtime .NET 10 Desktop. Non vérifié par test automatique : le clic et le redémarrage réel (logique testée, 23 tests ; chaîne réseau vérifiée contre la vraie Release).
+
 ## 5.4.7 — Style « Email pro » révisé ✅ (livrée le 2026-10-10)
 Dernier style à passer au banc d'essai (3 cas : réponse interne avec fil cité, réponse client avec mots à éviter et date inconnue, brouillon très court ; Qwen 3.8 et GPT-4o mini). Bilan de départ : bon — fil jamais recopié, pas de signature, « dès que possible » retiré, un brouillon court reste court.
 - **« erreur » / « bug » du brouillon** : gardés tels quels dans 3 réponses client sur 4 (« il s'agissait d'une **erreur de mapping** »), la règle disant « sauf nécessité absolue ». Précision : leur présence dans le brouillon n'en est pas une ; reformuler sans supprimer l'information (« un ajustement de mapping de notre côté »). Après : 12 passes sur 12.

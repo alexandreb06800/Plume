@@ -91,6 +91,9 @@ public partial class App : Application
             return;
         }
 
+        // Ancien exe laissé par une mise à jour : supprimé en tâche de fond (jamais sur le chemin du démarrage).
+        _ = Task.Run(() => UpdateService.CleanupOld(AppContext.BaseDirectory));
+
         _configService = new ConfigService();
         bool premierLancement = !System.IO.File.Exists(_configService.ConfigPath);
         _config = _configService.Load();
@@ -207,6 +210,22 @@ public partial class App : Application
         _onboarding = win;
         win.Show();
         win.Activate();
+    }
+
+    /// <summary>Relance Plume après une mise à jour installée. Le verrou d'instance unique est rendu AVANT de
+    /// lancer le nouvel exe, sinon celui-ci se croirait en double et quitterait aussitôt.</summary>
+    public void RestartAfterUpdate()
+    {
+        var exe = Environment.ProcessPath;
+        try { _mutex?.ReleaseMutex(); } catch { /* verrou non détenu par ce thread : le nouvel exe attendra la sortie */ }
+        try { _mutex?.Dispose(); } catch { }
+        _mutex = null;
+        if (!string.IsNullOrEmpty(exe))
+        {
+            try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(exe) { UseShellExecute = true }); }
+            catch { /* relance impossible : l'utilisateur relancera Plume à la main, la nouvelle version est en place */ }
+        }
+        Shutdown();
     }
 
     /// <summary>(Ré)enregistre le raccourci de dictée et celui de l'assistant vocal (rebind à chaud).</summary>

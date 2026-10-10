@@ -17,11 +17,28 @@
 
         <Button x:Name="ReplayOnboardingButton" Content="Revoir la prise en main"
                 Style="{StaticResource SecondaryButton}" HorizontalAlignment="Center"
-                Margin="0,0,0,16"/>
+                Margin="0,0,0,10"/>
+
+        <!-- Mise à jour à la demande : aucun appel réseau sans clic. -->
+        <Button x:Name="UpdateButton" Content="Vérifier les mises à jour"
+                Style="{StaticResource SecondaryButton}" HorizontalAlignment="Center"/>
+        <TextBlock x:Name="UpdateStatus" Foreground="{DynamicResource SecondaryBrush}" FontSize="12"
+                   TextWrapping="Wrap" TextAlignment="Center" MaxWidth="420" Margin="0,8,0,0"
+                   Visibility="Collapsed"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,16"
+                    ToolTip="Jeton GitHub en lecture seule donnant accès aux versions publiées. Laisse vide pour utiliser la connexion Git déjà enregistrée sur ce poste.">
+            <TextBlock Text="Jeton GitHub (facultatif)" Foreground="{DynamicResource TertiaryBrush}" FontSize="12"
+                       VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <PasswordBox x:Name="UpdateTokenBox" Width="200" VerticalContentAlignment="Center" MinHeight="28"/>
+        </StackPanel>
 
         <TextBlock Text="Nouveautés" Style="{StaticResource GroupLabel}"/>
         <Border Style="{StaticResource GroupBorder}" Padding="14,10">
             <StackPanel>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.4.8" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Nouveau bouton « Vérifier les mises à jour » (ci-dessus) : il cherche la dernière version publiée sur GitHub, la télécharge, vérifie son empreinte, l'installe et relance Plume. Rien ne se passe sans clic : aucune vérification au démarrage."/>
+                </TextBlock>
                 <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
                     <Run Text="5.4.7" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
                     <Run Text="  Style « Email pro » révisé : les mots « erreur » et « bug » de ton brouillon sont reformulés sans perdre l'information (« un ajustement de mapping de notre côté ») · le tutoiement ou le vouvoiement de ton brouillon s'applique à tout l'email, sans mélange. Mis à jour automatiquement si le style n'a jamais été personnalisé."/>
