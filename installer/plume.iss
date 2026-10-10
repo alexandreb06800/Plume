@@ -37,10 +37,6 @@ Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 Source: "{#PublishDir}\Plume.exe"; DestDir: "{app}"; Flags: ignoreversion
 ; Resources\ (logo pastille/fenêtres + icône) : requis à côté de l'exe (cf. Services/AppLogo.cs).
 Source: "{#PublishDir}\Resources\*"; DestDir: "{app}\Resources"; Flags: ignoreversion recursesubdirs
-; L'installateur se recopie à côté de l'app : « Inviter un collègue » (pied des Réglages) peut ainsi
-; le joindre à l'email d'invitation — essaimage sans serveur de distribution. Nom figé (DestName) :
-; la recherche côté app cible le motif PlumeSetup-*.exe même si le fichier source a été renommé.
-Source: "{srcexe}"; DestDir: "{app}"; DestName: "PlumeSetup-{#AppVersion}.exe"; Flags: external ignoreversion
 
 [Icons]
 Name: "{userprograms}\Plume"; Filename: "{app}\Plume.exe"

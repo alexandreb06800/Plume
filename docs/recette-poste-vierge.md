@@ -21,7 +21,7 @@
 - [ ] **Aucune demande de droits administrateur** pour Plume lui-même (installation par utilisateur).
 - [ ] Si le runtime .NET 10 manque : message « Plume a besoin d'un composant Microsoft gratuit… » → téléchargement → UAC **pour l'installeur Microsoft uniquement** → installation silencieuse. **Attendu** : aucune erreur, l'installation de Plume enchaîne.
 - [ ] Fin d'installation : case « Lancer Plume » cochée → Plume démarre, icône dans la zone de notification (barre des tâches).
-- [ ] Vérifier : raccourci « Plume » dans le menu Démarrer ; fichiers dans `%LOCALAPPDATA%\Plume` (dont une copie `PlumeSetup-5.3.8.exe` — elle alimente « Inviter un collègue »).
+- [ ] Vérifier : raccourci « Plume » dans le menu Démarrer ; fichiers dans `%LOCALAPPDATA%\Plume`.
 
 ## 2. Prise en main (onboarding) — LE test critique
 
@@ -57,7 +57,6 @@
 
 - [ ] Redémarrer Windows → Plume **démarre seul** (icône tray présente sans rien lancer).
 - [ ] Réglages → À propos : « Version 5.3.8 » (ou plus récente) et le changelog s'affiche.
-- [ ] « Inviter un collègue » (pied des Réglages) : le brouillon Outlook s'ouvre **avec `PlumeSetup-5.3.8.exe` en pièce jointe** (ou, sans Outlook, l'email simple sans pièce jointe).
 - [ ] *(Optionnel, si la machine de test est jetable)* Désinstaller (Paramètres → Applications) → `%LOCALAPPDATA%\Plume` supprimé, plus de démarrage auto, **mais** `%APPDATA%\Plume` (config + clés) conservé. Réinstaller → Plume retrouve la clé et les réglages, l'onboarding ne réapparaît pas.
 
 ## Verdict

@@ -26,28 +26,4 @@ public class UsageStatsServiceTests
     [InlineData(10000, "~4 h 10")]  // 250 min
     public void FormatTimeSaved_FormateLeTemps(long mots, string attendu)
         => Assert.Equal(attendu, UsageStatsService.FormatTimeSaved(mots));
-
-    [Fact]
-    public void BuildInviteUri_ContientObjetEtCorpsSansPieceJointe()
-    {
-        var uri = UsageStatsService.BuildInviteUri();
-        Assert.StartsWith("mailto:?subject=", uri);
-        Assert.Contains(System.Uri.EscapeDataString(UsageStatsService.InviteSubject), uri);
-        // Le repli mailto ne joint rien : le corps doit demander l'installateur, pas dire « joint ».
-        Assert.Contains(System.Uri.EscapeDataString("demande-moi"), uri);
-    }
-
-    [Fact]
-    public void BuildInviteBody_AdapteLeParagrapheInstallation()
-    {
-        var avecPj = UsageStatsService.BuildInviteBody(attachmentIncluded: true);
-        var sansPj = UsageStatsService.BuildInviteBody(attachmentIncluded: false);
-        Assert.Contains("joint à cet email", avecPj);
-        Assert.DoesNotContain("demande-moi", avecPj);
-        Assert.Contains("demande-moi", sansPj);
-        Assert.DoesNotContain("joint à cet email", sansPj);
-        // Les deux variantes présentent l'app et préviennent de l'avertissement SmartScreen.
-        Assert.Contains("Ctrl+Alt+A", avecPj);
-        Assert.Contains("Windows a protégé votre ordinateur", sansPj);
-    }
 }

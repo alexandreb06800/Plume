@@ -7,6 +7,7 @@
 ## 5.4.13 — Étoiles des modèles lisibles sur fond violet ✅ (livrée le 2026-10-10)
 Demande : dans les listes de modèles (transcription, nettoyage), les étoiles violettes disparaissaient sur l'élément sélectionné, dont le fond est violet.
 - Nouveau token `StarColor` / `StarBrush` (ambre `#F5A300`, identique en clair et en sombre), utilisé par `ModelItemTemplate` dans `GeneralPanel.xaml` à la place de `VioletBrush`.
+- Bouton « Inviter un collègue » retiré du pied des Réglages (demande utilisateur), avec tout ce qui ne servait qu'à lui : brouillon Outlook / repli mailto (`SettingsWindow.xaml.cs`), texte de l'email (`UsageStatsService`), tests associés, et la recopie de l'installateur à côté de l'app (`installer/plume.iss`).
 
 ## 5.4.12 — Copier le dernier message depuis la pastille ✅ (livrée le 2026-10-10)
 Demande : récupérer le dernier texte sans passer par le menu tray.

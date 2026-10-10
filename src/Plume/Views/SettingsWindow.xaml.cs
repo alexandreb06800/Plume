@@ -64,7 +64,6 @@ public partial class SettingsWindow : Window
         PeriodWeek.Checked += (_, _) => RefreshSideStats();
         PeriodMonth.Checked += (_, _) => RefreshSideStats();
         PeriodTotal.Checked += (_, _) => RefreshSideStats();
-        InviteButton.Click += (_, _) => OpenInvite();
 
         _loaded = true;
     }
@@ -136,52 +135,5 @@ public partial class SettingsWindow : Window
         }
         SideStatTime.Text = UsageStatsService.FormatTimeSaved(words);
         SideStatDetail.Text = $"{dict:N0} dictée{(dict > 1 ? "s" : "")} · {words:N0} mot{(words > 1 ? "s" : "")}";
-    }
-
-    /// <summary>Invitation d'un collègue : brouillon Outlook avec l'installateur en pièce jointe
-    /// quand c'est possible (Outlook présent + PlumeSetup-*.exe à côté de l'app, déposé là par
-    /// l'installateur lui-même) ; sinon repli sur le client mail par défaut via mailto (sans pièce
-    /// jointe — le protocole ne le permet pas). Jamais de crash, jamais d'envoi automatique.</summary>
-    private void OpenInvite()
-    {
-        var setup = FindSetupNextToApp();
-        if (setup is not null && TryOutlookInvite(setup)) return;
-        try
-        {
-            System.Diagnostics.Process.Start(
-                new System.Diagnostics.ProcessStartInfo(UsageStatsService.BuildInviteUri()) { UseShellExecute = true });
-        }
-        catch { /* pas de client mail configuré : on n'interrompt rien */ }
-    }
-
-    /// <summary>Installateur le plus récent posé à côté de l'exe (null si absent — ex. lancement dév).</summary>
-    private static string? FindSetupNextToApp()
-    {
-        try
-        {
-            return System.IO.Directory.EnumerateFiles(AppContext.BaseDirectory, "PlumeSetup-*.exe")
-                .OrderByDescending(System.IO.File.GetLastWriteTimeUtc)
-                .FirstOrDefault();
-        }
-        catch { return null; }
-    }
-
-    /// <summary>Compose un brouillon Outlook (COM en liaison tardive : aucune dépendance) avec la
-    /// pièce jointe, et l'AFFICHE seulement — l'utilisateur choisit le destinataire et envoie.</summary>
-    private static bool TryOutlookInvite(string setupPath)
-    {
-        try
-        {
-            var outlookType = Type.GetTypeFromProgID("Outlook.Application");
-            if (outlookType is null) return false; // Outlook absent du poste
-            dynamic outlook = Activator.CreateInstance(outlookType)!;
-            dynamic mail = outlook.CreateItem(0); // 0 = olMailItem
-            mail.Subject = UsageStatsService.InviteSubject;
-            mail.Body = UsageStatsService.BuildInviteBody(attachmentIncluded: true);
-            mail.Attachments.Add(setupPath);
-            mail.Display(false); // fenêtre de composition non modale
-            return true;
-        }
-        catch { return false; } // Outlook indisponible/récalcitrant : le repli mailto prend la main
     }
 }

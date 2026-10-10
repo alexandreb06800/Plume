@@ -50,7 +50,7 @@
                     </ListBoxItem>
                 </ListBox>
 
-                <!-- Pied de sidebar : stats compactes + période + Inviter (remplace l'onglet Statistiques) -->
+                <!-- Pied de sidebar : stats compactes + période (remplace l'onglet Statistiques) -->
                 <StackPanel Grid.Row="1" Margin="14,0,14,12">
                     <Border Height="1" Background="{DynamicResource HairlineBrush}" Margin="0,0,0,10"/>
                     <TextBlock x:Name="SideStatTime" Text="~0 min" FontSize="17" FontWeight="SemiBold"
@@ -67,15 +67,6 @@
                             <RadioButton x:Name="PeriodTotal" Content="Tot"  Style="{StaticResource SegmentButton}" IsChecked="True"/>
                         </UniformGrid>
                     </Border>
-
-                    <Button x:Name="InviteButton" Margin="0,10,0,0" Style="{StaticResource SecondaryButton}"
-                            HorizontalAlignment="Stretch">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE716;" FontSize="12"
-                                       Margin="0,0,6,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="Inviter un collègue"/>
-                        </StackPanel>
-                    </Button>
                 </StackPanel>
             </Grid>
         </Border>
