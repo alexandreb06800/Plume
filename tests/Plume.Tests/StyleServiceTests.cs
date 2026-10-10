@@ -340,8 +340,6 @@ public class StyleServiceTests
     [InlineData(StyleCatalog.TonProId)]
     [InlineData(StyleCatalog.BasculerId)]
     [InlineData(StyleCatalog.CommandeVocaleId)]
-    [InlineData(StyleCatalog.FinaliserEmailId)]
-    [InlineData(StyleCatalog.EmailProId)]
     [InlineData(StyleCatalog.RaccourcirId)]
     [InlineData(StyleCatalog.RallongerId)]
     [InlineData(StyleCatalog.TonDeconId)]
@@ -405,5 +403,34 @@ public class StyleServiceTests
         StyleService.Normalize(cfg, null);
 
         Assert.Equal("Mon affinage à moi.", cfg.SelectionStyles.Single(s => s.Id == StyleCatalog.AffinerId).Prompt);
+    }
+
+    [Fact]
+    public void PromptHash_EmpreinteConnue()
+        => Assert.Equal("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad", StyleService.PromptHash("abc"));
+
+    [Theory]
+    [InlineData(StyleCatalog.EmailProId)]
+    [InlineData(StyleCatalog.FinaliserEmailId)]
+    public void AnciensDefautsEmail_ReconnusParEmpreinte_SansTexteConserve(string id)
+    {
+        // Ces anciens défauts citaient le nom de l'auteur : seule leur empreinte est gardée dans le code.
+        var hashes = (Dictionary<string, string[]>)typeof(StyleService)
+            .GetField("LegacyPromptHashes", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
+            .GetValue(null)!;
+        Assert.Equal(2, hashes[id].Length);
+        Assert.All(hashes[id], h => Assert.Matches("^[0-9a-f]{64}$", h));
+        // Le défaut actuel n'est pas un « ancien défaut » : il ne doit pas se migrer vers lui-même.
+        Assert.DoesNotContain(StyleService.PromptHash(StyleCatalog.DefaultPromptFor(id)!), hashes[id]);
+    }
+
+    [Theory]
+    [InlineData(StyleCatalog.EmailProId)]
+    [InlineData(StyleCatalog.FinaliserEmailId)]
+    public void PromptsEmail_NeCitentPlusLeNomDeLAuteur(string id)
+    {
+        var prompt = StyleCatalog.DefaultPromptFor(id)!;
+        Assert.DoesNotContain("Prénom", prompt);
+        Assert.Contains("N'écris JAMAIS mon nom ni mon prénom", prompt);
     }
 }

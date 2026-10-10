@@ -4,6 +4,14 @@
 
 ---
 
+## 5.4.11 — Prompts d'email sans nom d'auteur ✅ (livrée le 2026-10-10)
+Suite de l'audit 5.4.10, sur décision utilisateur : les prompts intégrés « Email pro » et « Finaliser l'email » citaient le prénom et le nom de l'auteur (« l'assistant de rédaction… de [prénom] », « n'écris jamais mon nom ([prénom], [prénom nom]) »). Distribués à quelqu'un d'autre, ils auraient rédigé en son nom.
+- Formulations génériques : « mon assistant de rédaction d'emails professionnels », « N'écris JAMAIS mon nom ni mon prénom ». Vérifié sur Qwen 3.8 (6 cas, dont deux brouillons contenant une signature complète) : aucune signature recopiée, comportement inchangé.
+- **Migration par empreinte** : pour reconnaître un ancien défaut, le code en gardait le texte verbatim (`Legacy3BuiltInPrompts`) — donc le nom restait dans l'exe. Les anciens défauts de ces deux styles sont désormais reconnus par leur empreinte SHA-256 (`StyleService.LegacyPromptHashes`, `PromptHash`), sans texte conservé. Vérifié avec les quatre anciens textes réels : tous migrés ; un prompt personnalisé reste intact.
+- Vérifié sur l'exe publié : plus aucune occurrence du nom (recherche ASCII/UTF-8 et UTF-16).
+- Releases 5.4.8 et 5.4.9 retirées de GitHub (leur exe contenait le chemin du poste de compilation).
+- Reste hors de l'exe, non modifié : `AppPublisher` de `installer/plume.iss` (installateur non publié) et les notes historiques de `docs/`.
+
 ## 5.4.10 — Audit de ce qui est distribué + guide d'installation ✅ (livrée le 2026-10-10)
 Demande : expliquer l'installation sur la page GitHub et vérifier qu'aucune clé ni donnée personnelle n'est distribuée. Audit du dépôt (arbre et historique complet), de l'archive de la Release et de l'exe (recherche en ASCII/UTF-8 et UTF-16).
 - **Clés et secrets : rien.** Aucune clé GitHub, Groq, OpenRouter ou privée, aucun fragment de `config.json` — ni dans le dépôt, ni dans l'historique git, ni dans l'exe. `config.json` et `.env` sont ignorés par git ; les commits utilisent l'adresse anonyme de GitHub. L'archive ne contient que `Plume.exe` et `Resources`.

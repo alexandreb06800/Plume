@@ -9,7 +9,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AssemblyName>Plume</AssemblyName>
     <RootNamespace>Plume</RootNamespace>
-    <Version>5.4.10</Version>
+    <Version>5.4.11</Version>
     <ApplicationIcon>Resources\plume.ico</ApplicationIcon>
     <!-- PublishReadyToRun volontairement NON activé : mesuré le 2026-10-09 (.NET 10), exe 1,2 → 2,1 Mo
          pour -16 ms au démarrage seulement (WPF est déjà précompilé, le code de Plume est petit). -->

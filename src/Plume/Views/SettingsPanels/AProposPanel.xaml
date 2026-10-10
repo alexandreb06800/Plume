@@ -36,6 +36,10 @@
         <Border Style="{StaticResource GroupBorder}" Padding="14,10">
             <StackPanel>
                 <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.4.11" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Styles « Email pro » et « Finaliser l'email » rendus génériques : ils ne citent plus le nom de leur auteur, et conviennent à n'importe quel utilisateur. La signature reste interdite en fin d'email. Mis à jour automatiquement si le style n'a jamais été personnalisé."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
                     <Run Text="5.4.10" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
                     <Run Text="  Version distribuée nettoyée : l'exe n'embarque plus le chemin du poste sur lequel il a été compilé. Guide d'installation, de mise à jour et de désinstallation ajouté sur la page du dépôt."/>
                 </TextBlock>
