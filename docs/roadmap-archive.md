@@ -9,6 +9,7 @@ Demande : récupérer le dernier texte sans passer par le menu tray.
 - Entrée « Copier le dernier message » dans le menu de la pastille (`StyleMenuWindow`), sous « Assistant vocal » ; estompée et inactive tant qu'aucun texte n'a été produit.
 - Même code que le menu tray (`TrayIcon.CopyLast`, rendue publique) : copie + notification « Copié ✓ », presse-papiers verrouillé sans crash.
 - Pas de clic droit sur la pastille (écarté par l'utilisateur).
+- `publish-release.ps1` vide désormais le dossier de publication avant `dotnet publish` : relancé deux fois de suite, le publish laissait `Resources` vide et l'archive partait sans logo ni icône. L'archive de la Release 5.4.12 a été remplacée une fois pour cette raison (0 téléchargement), empreinte mise à jour.
 
 ## 5.4.11 — Prompts d'email sans nom d'auteur ✅ (livrée le 2026-10-10)
 Suite de l'audit 5.4.10, sur décision utilisateur : les prompts intégrés « Email pro » et « Finaliser l'email » citaient le prénom et le nom de l'auteur (« l'assistant de rédaction… de [prénom] », « n'écris jamais mon nom ([prénom], [prénom nom]) »). Distribués à quelqu'un d'autre, ils auraient rédigé en son nom.

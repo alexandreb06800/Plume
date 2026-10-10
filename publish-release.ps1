@@ -36,6 +36,9 @@ try {
 # 2) Publier l'exe.
 $publishDir = Join-Path $root 'src\Plume\bin\Release\net10.0-windows\win-x64\publish'
 Write-Host "Publication de Plume $version…" -ForegroundColor Cyan
+# Dossier vidé d'abord : un second publish consécutif laisse « Resources » vide (constaté en 5.4.12),
+# et l'archive partirait alors sans le logo ni l'icône.
+if (Test-Path $publishDir) { Remove-Item $publishDir -Recurse -Force }
 dotnet publish (Join-Path $root 'src\Plume') -c Release -r win-x64 -p:PublishSingleFile=true --self-contained false --nologo -v q
 if ($LASTEXITCODE -ne 0) { throw "Échec de la publication (code $LASTEXITCODE)." }
 
