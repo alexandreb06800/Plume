@@ -341,6 +341,7 @@ public class StyleServiceTests
     [InlineData(StyleCatalog.BasculerId)]
     [InlineData(StyleCatalog.CommandeVocaleId)]
     [InlineData(StyleCatalog.FinaliserEmailId)]
+    [InlineData(StyleCatalog.EmailProId)]
     [InlineData(StyleCatalog.RaccourcirId)]
     [InlineData(StyleCatalog.RallongerId)]
     [InlineData(StyleCatalog.TonDeconId)]

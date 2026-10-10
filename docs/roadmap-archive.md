@@ -4,6 +4,14 @@
 
 ---
 
+## 5.4.7 — Style « Email pro » révisé ✅ (livrée le 2026-10-10)
+Dernier style à passer au banc d'essai (3 cas : réponse interne avec fil cité, réponse client avec mots à éviter et date inconnue, brouillon très court ; Qwen 3.8 et GPT-4o mini). Bilan de départ : bon — fil jamais recopié, pas de signature, « dès que possible » retiré, un brouillon court reste court.
+- **« erreur » / « bug » du brouillon** : gardés tels quels dans 3 réponses client sur 4 (« il s'agissait d'une **erreur de mapping** »), la règle disant « sauf nécessité absolue ». Précision : leur présence dans le brouillon n'en est pas une ; reformuler sans supprimer l'information (« un ajustement de mapping de notre côté »). Après : 12 passes sur 12.
+- **Forme d'adresse** : une seule par email, celle du brouillon prime sur les défauts interne/externe.
+- **Défaut propre à cette variante** : l'exemple « client » du prompt s'adressait à une « Julie » vouvoyée ; GPT-4o mini vouvoyait ensuite toute Julie, même tutoyée dans le brouillon (« Salut Julie, … vous pouvez valider », 3 fois sur 3 — y compris avec Julie déclarée « interne » dans le référentiel). L'exemple utilise désormais « Monsieur Bernard » ; formule de registre alignée (« Tutoiement dans la source → tutoiement »), le jeu de pronoms « Je tutoie → tu tutoies » étant ambigu. Après : 6 passes sur 6 (Julie et Sophie).
+- « Finaliser l'email » vérifié sur le même risque (exemple à prénom) : pas de défaut, inchangé.
+- Migration douce : `email-pro` ajouté à `Legacy3BuiltInPrompts` (un Email pro personnalisé — référentiel rempli — n'est jamais touché). Fiche `docs/prompts/style-email-pro.md` à jour.
+
 ## 5.4.6 — Prompts des styles révisés ✅ (livrée le 2026-10-10)
 Demande : même analyse que pour le prompt de dictée, sur les styles. Méthode : banc d'essai reproduisant l'assemblage exact de Plume (`CleanupService` + `CommandPromptBuilder`), 20 cas pièges sur les 9 styles intégrés et 5 des styles créés (Ticket Jira, Page Confluence, Commentaire de résolution, Réponse client, Finaliser l'email), sur Qwen 3.8 (Groq) et GPT-4o mini (OpenRouter). On ne corrige que ce que la mesure montre défaillant.
 - **Tu/vous inversé par GPT-4o mini (défaut majeur)** : avec l'ancienne consigne (« ne remplace jamais "tu" par "vous" ni l'inverse »), Corriger, Ton plus décontracté et Ton plus empathique passaient du « vous » au « tu », Ton plus professionnel du « tu » au « vous » — **12 fois sur 12**. Nouvelle consigne positive (« repère si le texte tutoie ou vouvoie… garde EXACTEMENT la même forme ») ; Ton pro et Ton décontracté précisent en plus que le registre n'impose ni le vouvoiement ni le tutoiement, avec exemple. Après : conservé sur les deux modèles, 2 passes sur 2.

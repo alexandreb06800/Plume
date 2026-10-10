@@ -23,6 +23,10 @@
         <Border Style="{StaticResource GroupBorder}" Padding="14,10">
             <StackPanel>
                 <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.4.7" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Style « Email pro » révisé : les mots « erreur » et « bug » de ton brouillon sont reformulés sans perdre l'information (« un ajustement de mapping de notre côté ») · le tutoiement ou le vouvoiement de ton brouillon s'applique à tout l'email, sans mélange. Mis à jour automatiquement si le style n'a jamais été personnalisé."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
                     <Run Text="5.4.6" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
                     <Run Text="  Styles révisés après banc d'essai : le tutoiement ou le vouvoiement du texte est désormais conservé avec tous les modèles (GPT-4o mini l'inversait dans Corriger et les styles de ton) · « Rallonger » rallonge vraiment · « Basculer » garde « Madame Durand » · une commande vocale sans texte sélectionné produit bien le texte demandé · une salutation ne devient plus une puce · « Finaliser l'email » reformule un aveu au lieu de le supprimer. Mis à jour automatiquement pour les styles jamais personnalisés."/>
                 </TextBlock>
