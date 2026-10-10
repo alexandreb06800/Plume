@@ -482,6 +482,9 @@
                               VerticalAlignment="Center" TextSearch.TextPath="DisplayName"
                               ItemTemplate="{StaticResource ModelItemTemplate}"/>
                 </Grid>
+                <!-- Clé manquante pour le modèle choisi : demandée ici, au moment du choix. -->
+                <TextBlock x:Name="CleanupKeyHint" Visibility="Collapsed" FontSize="11" TextWrapping="Wrap"
+                           Foreground="{DynamicResource ErrorBrush}" Margin="66,-4,12,10"/>
                 <Border Height="1" Background="{DynamicResource HairlineBrush}" Margin="54,0,0,0"/>
 
                 <!-- Vérifier les modèles -->

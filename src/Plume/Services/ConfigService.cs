@@ -181,4 +181,15 @@ public class ConfigService
             return "Le modèle choisi passe par OpenRouter : renseigne ta clé OpenRouter dans les paramètres.";
         return null;
     }
+
+    /// <summary>Indication affichée dans les Réglages, sous le modèle de nettoyage, quand la clé de son
+    /// fournisseur manque — pour la demander au moment du choix, pas à l'échec de la dictée suivante.
+    /// Null si le modèle est utilisable tel quel. Même routage que <see cref="MissingKeyMessage"/>.</summary>
+    public string? CleanupKeyHint(AppConfig config, string cleanupModel)
+    {
+        bool cleanupOnGroq = cleanupModel.StartsWith(CleanupService.GroqPrefix, StringComparison.OrdinalIgnoreCase);
+        if (cleanupOnGroq)
+            return ResolveGroqKey(config) is null ? "Ce modèle tourne sur Groq : renseigne ta clé Groq ci-dessus." : null;
+        return ResolveApiKey(config) is null ? "Ce modèle passe par OpenRouter : renseigne ta clé OpenRouter ci-dessus." : null;
+    }
 }

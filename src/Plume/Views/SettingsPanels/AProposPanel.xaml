@@ -37,7 +37,7 @@
             <StackPanel>
                 <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
                     <Run Text="5.4.13" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
-                    <Run Text="  Étoiles des modèles (transcription, nettoyage) en ambre : elles restent visibles sur le modèle sélectionné, dont le fond est violet. Bouton « Inviter un collègue » retiré des Réglages."/>
+                    <Run Text="  Étoiles des modèles (transcription, nettoyage) en ambre : elles restent visibles sur le modèle sélectionné, dont le fond est violet. Bouton « Inviter un collègue » retiré des Réglages. Prise en main simplifiée : seule la clé Groq est demandée ; la clé OpenRouter est réclamée dans les Réglages, sous le modèle de nettoyage, uniquement si le modèle choisi en a besoin."/>
                 </TextBlock>
                 <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
                     <Run Text="5.4.12" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>

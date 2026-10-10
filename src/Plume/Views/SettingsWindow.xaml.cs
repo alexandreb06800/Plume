@@ -114,6 +114,7 @@ public partial class SettingsWindow : Window
         catch { /* registre indisponible : on ne bloque jamais */ }
         _configService.Save(_config);
         _onSaved(_config);
+        RefreshCleanupKeyHint();
     }
 
     /// <summary>Rafraîchit le pied de sidebar (temps gagné + détail) selon la période choisie (Sem/Mois/Tot).

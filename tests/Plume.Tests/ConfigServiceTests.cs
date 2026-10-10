@@ -349,6 +349,25 @@ public class ConfigServiceTests
         Assert.Contains("Groq", msg);
     }
 
+    [Fact]
+    public void CleanupKeyHint_ModeleOpenRouterSansCle_DemandeLaCleOpenRouter()
+    {
+        var (svc, cfg) = ConfigSansEnv();
+        cfg.GroqApiKey = "gsk-test";
+        Assert.Contains("OpenRouter", svc.CleanupKeyHint(cfg, "openai/gpt-4o-mini"));
+        cfg.OpenRouterApiKey = "sk-or-test";
+        Assert.Null(svc.CleanupKeyHint(cfg, "openai/gpt-4o-mini"));
+    }
+
+    [Fact]
+    public void CleanupKeyHint_ModeleGroq_NeDemandeQueLaCleGroq()
+    {
+        var (svc, cfg) = ConfigSansEnv();
+        Assert.Contains("Groq", svc.CleanupKeyHint(cfg, "groq/qwen/qwen3.8-27b"));
+        cfg.GroqApiKey = "gsk-test";
+        Assert.Null(svc.CleanupKeyHint(cfg, "groq/qwen/qwen3.8-27b")); // aucune clé OpenRouter requise
+    }
+
     /// <summary>Neutralise les variables d'env (une clé présente sur la machine de dev fausserait les cas « absent »).</summary>
     private static (ConfigService svc, AppConfig cfg) ConfigSansEnv()
     {

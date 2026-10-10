@@ -216,6 +216,15 @@ public partial class SettingsWindow
         && HotkeyParser.TryParse(b, out var mb, out var vb, out _)
         && ma == mb && va == vb;
 
+    /// <summary>Affiche sous le modèle de nettoyage la clé qui lui manque (ex. modèle OpenRouter choisi
+    /// sans clé OpenRouter) ; masqué dès que le modèle est utilisable. Rappelé à chaque sauvegarde.</summary>
+    private void RefreshCleanupKeyHint()
+    {
+        var hint = _configService.CleanupKeyHint(_config, _config.CleanupModel);
+        PanelGeneral.CleanupKeyHint.Text = hint ?? "";
+        PanelGeneral.CleanupKeyHint.Visibility = hint is null ? Visibility.Collapsed : Visibility.Visible;
+    }
+
     /// <summary>Enregistre la nouvelle clé seulement si saisie ; bascule alors en état « configurée ».</summary>
     private void SaveApiKeyIfPresent()
     {

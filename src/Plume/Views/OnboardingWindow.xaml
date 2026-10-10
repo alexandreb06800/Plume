@@ -41,18 +41,6 @@
             </DockPanel>
             <TextBlock x:Name="KeyStatus" FontSize="12" TextWrapping="Wrap" Margin="0,8,0,0"
                        Foreground="{DynamicResource SecondaryBrush}"/>
-
-            <TextBlock Margin="0,18,0,0" FontSize="12">
-                <Hyperlink x:Name="OpenRouterToggle" Foreground="{DynamicResource TertiaryBrush}">J'ai plutôt une clé OpenRouter</Hyperlink>
-            </TextBlock>
-            <StackPanel x:Name="OpenRouterPanel" Visibility="Collapsed" Margin="0,8,0,0">
-                <TextBlock Margin="0,0,0,8" FontSize="12">
-                    <Hyperlink x:Name="OpenRouterLink" Foreground="{DynamicResource VioletBrush}">Ouvrir openrouter.ai/keys</Hyperlink>
-                </TextBlock>
-                <PasswordBox x:Name="OpenRouterBox" FontSize="13" VerticalContentAlignment="Center" Padding="8,6"/>
-                <TextBlock FontSize="12" Foreground="{DynamicResource TertiaryBrush}" Margin="0,6,0,0" TextWrapping="Wrap"
-                           Text="Elle sera enregistrée quand tu cliqueras sur « Continuer »."/>
-            </StackPanel>
         </StackPanel>
 
         <!-- Étape 2 : micro -->

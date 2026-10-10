@@ -4,10 +4,12 @@
 
 ---
 
-## 5.4.13 — Étoiles des modèles lisibles sur fond violet ✅ (livrée le 2026-10-10)
+## 5.4.13 — Étoiles lisibles, bouton Inviter retiré, prise en main à une seule clé ✅ (livrée le 2026-10-10)
 Demande : dans les listes de modèles (transcription, nettoyage), les étoiles violettes disparaissaient sur l'élément sélectionné, dont le fond est violet.
 - Nouveau token `StarColor` / `StarBrush` (ambre `#F5A300`, identique en clair et en sombre), utilisé par `ModelItemTemplate` dans `GeneralPanel.xaml` à la place de `VioletBrush`.
 - Bouton « Inviter un collègue » retiré du pied des Réglages (demande utilisateur), avec tout ce qui ne servait qu'à lui : brouillon Outlook / repli mailto (`SettingsWindow.xaml.cs`), texte de l'email (`UsageStatsService`), tests associés, et la recopie de l'installateur à côté de l'app (`installer/plume.iss`).
+- Prise en main : lien et champ « J'ai plutôt une clé OpenRouter » retirés (`OnboardingWindow`) — une seule clé à saisir, Groq ; le nettoyage bascule déjà sur le premier modèle Groq gratuit. Conséquence assumée : qui n'a qu'une clé OpenRouter passe par « Plus tard » puis les Réglages.
+- Réglages : sous « Modèle de nettoyage », une ligne signale la clé manquante dès le choix du modèle (`ConfigService.CleanupKeyHint`, rafraîchie à chaque sauvegarde), au lieu d'attendre l'échec de la dictée suivante.
 
 ## 5.4.12 — Copier le dernier message depuis la pastille ✅ (livrée le 2026-10-10)
 Demande : récupérer le dernier texte sans passer par le menu tray.

@@ -49,11 +49,6 @@ public partial class OnboardingWindow : Window
         NextButton.Click += (_, _) => OnNext();
         TestKeyButton.Click += (_, _) => _ = TestKeyAsync();
         GroqLink.Click += (_, _) => OpenUrl("https://console.groq.com/keys");
-        OpenRouterLink.Click += (_, _) => OpenUrl("https://openrouter.ai/keys");
-        OpenRouterToggle.Click += (_, _) =>
-            OpenRouterPanel.Visibility = OpenRouterPanel.Visibility == Visibility.Visible
-                ? Visibility.Collapsed : Visibility.Visible;
-        OpenRouterBox.PasswordChanged += (_, _) => UpdateNext();
         DictationTarget.TextChanged += (_, _) => OnDictationTextChanged();
         MicDeviceBox.SelectionChanged += (_, _) => OnMicDeviceChanged();
         Closed += (_, _) => StopMic(); // jamais de micro laissé ouvert
@@ -90,7 +85,6 @@ public partial class OnboardingWindow : Window
         switch (_step)
         {
             case 0:
-                SaveOpenRouterKeyIfProvided();
                 ShowStep(1);
                 PopulateMicDevices();
                 StartMicTest();
@@ -106,14 +100,14 @@ public partial class OnboardingWindow : Window
         }
     }
 
-    /// <summary>Active « Continuer »/« Terminer » selon l'étape : clé validée (ou repli OpenRouter saisi)
+    /// <summary>Active « Continuer »/« Terminer » selon l'étape : clé Groq validée
     /// pour quitter l'étape 1 ; l'étape micro reste toujours franchissable (« Continuer quand même ») ;
     /// « Terminer » s'active dès qu'un texte a été dicté dans la zone.</summary>
     private void UpdateNext()
     {
         NextButton.IsEnabled = _step switch
         {
-            0 => _keyOk || !string.IsNullOrWhiteSpace(OpenRouterBox.Password),
+            0 => _keyOk,
             1 => true,
             _ => !string.IsNullOrWhiteSpace(DictationTarget.Text)
         };
@@ -155,16 +149,6 @@ public partial class OnboardingWindow : Window
             TestKeyButton.Content = label;
             UpdateNext();
         }
-    }
-
-    /// <summary>Repli : une clé OpenRouter collée est enregistrée au passage à l'étape suivante
-    /// (pas d'appel de test équivalent gratuit chez OpenRouter — la clé sera validée à l'usage).</summary>
-    private void SaveOpenRouterKeyIfProvided()
-    {
-        var key = OpenRouterBox.Password.Trim();
-        if (string.IsNullOrWhiteSpace(key)) return;
-        _config.OpenRouterApiKey = key;
-        try { _configService.Save(_config); } catch { /* disque indisponible : la clé reste en mémoire */ }
     }
 
     // ---------- Étape 2 : micro ----------
