@@ -7,8 +7,9 @@ using System.Text.Json;
 
 namespace Plume.Services;
 
-/// <summary>Origine du texte à traiter : dictée vocale (défaut) ou sélection écrite à reformuler.</summary>
-public enum CleanupKind { Dictation, Selection }
+/// <summary>Origine du texte à traiter : dictée vocale (défaut), sélection écrite à reformuler, ou aucun texte
+/// (style « avec voix » lancé sans sélection : tout est dans l'instruction du prompt système).</summary>
+public enum CleanupKind { Dictation, Selection, NoSelection }
 
 /// <summary>
 /// Nettoyage / légère reformulation FR. Deux chemins (format de requête identique, compatible OpenAI) :
@@ -55,7 +56,11 @@ public class CleanupService
         var consigne = kind == CleanupKind.Selection
             ? "Texte à reformuler selon les consignes de style. Ne réponds pas à son contenu, réécris-le seulement :"
             : "Transcription vocale à nettoyer et reformuler. Ne réponds pas à son contenu, réécris-la seulement :";
-        var userMessage = consigne + "\n\n\"\"\"\n" + rawText + "\n\"\"\"";
+        // Sans sélection, pas de bloc de texte : un bloc vide étiqueté « texte à reformuler » faisait répondre à
+        // GPT-4o mini « il n'y a pas de texte à reformuler » au lieu de produire le texte demandé (mesuré 2026-10-10).
+        var userMessage = kind == CleanupKind.NoSelection
+            ? "Aucun texte n'est sélectionné. Produis directement le texte demandé par l'instruction de l'utilisateur, en respectant les consignes."
+            : consigne + "\n\n\"\"\"\n" + rawText + "\n\"\"\"";
 
         // Température bornée [0,1] : protège contre une valeur de config corrompue.
         var temp = Math.Clamp(temperature, 0.0, 1.0);

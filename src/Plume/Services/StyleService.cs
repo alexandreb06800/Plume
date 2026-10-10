@@ -123,7 +123,8 @@ public static class StyleService
             if (!style.IsBuiltIn) continue;
             bool jamaisPersonnalise =
                 (LegacyBuiltInPrompts.TryGetValue(style.Id, out var g1) && style.Prompt == g1)
-                || (Legacy2BuiltInPrompts.TryGetValue(style.Id, out var g2) && style.Prompt == g2);
+                || (Legacy2BuiltInPrompts.TryGetValue(style.Id, out var g2) && style.Prompt == g2)
+                || (Legacy3BuiltInPrompts.TryGetValue(style.Id, out var g3) && style.Prompt == g3);
             if (jamaisPersonnalise)
                 style.Prompt = StyleCatalog.DefaultPromptFor(style.Id) ?? style.Prompt;
         }
@@ -299,5 +300,77 @@ public static class StyleService
         [StyleCatalog.TonEmpaId] = Legacy2TonEmpaPrompt,
         [StyleCatalog.BasculerId] = Legacy2BasculerPrompt,
         [StyleCatalog.CommandeVocaleId] = Legacy2CommandPrompt,
+    };
+
+    // --- 2026-10-10 : prompts par défaut de la génération précédente (avant la révision des styles : consigne
+    // tu/vous reformulée, Rallonger/Raccourcir, Basculer, Finaliser l'email), verbatim. Ne jamais modifier.
+    private static readonly Dictionary<string, string> Legacy3BuiltInPrompts = new()
+    {
+        ["commande-vocale"] =
+            "Tu modifies le texte fourni selon l'instruction de l'utilisateur. Conserve strictement la forme d'adresse du texte d'origine (tutoiement ou " +
+            "vouvoiement) : ne remplace jamais « tu » par « vous » ni l'inverse, y compris dans les accords, sauf si l'instruction le demande explicitement. " +
+            "N'utilise JAMAIS de mise en forme markdown (ni **gras**, ni titres #, ni `code`) : ta sortie est du texte brut. Pour une liste, commence simplement la " +
+            "ligne par « - ». Réponds uniquement par le texte modifié, en français, sans commentaire ni guillemets.",
+        ["affiner"] =
+            "Tu réécris le texte fourni pour le rendre fluide et clair : tu peux restructurer l'ordre des idées, simplifier la compréhension, mettre en forme " +
+            "(paragraphes, listes à puces si utile) et soigner le français. Tu ne changes ni le sens, ni le ton, ni le registre, et tu n'ajoutes aucune information " +
+            "nouvelle. Conserve strictement le tutoiement ou le vouvoiement du texte d'origine ; ne remplace jamais « tu » par « vous » ni l'inverse, y compris " +
+            "dans les accords. N'utilise JAMAIS de mise en forme markdown (ni **gras**, ni titres #, ni `code`) : ta sortie est du texte brut. Pour une liste, " +
+            "commence simplement la ligne par « - ». Renvoie UNIQUEMENT le texte transformé, en français, sans guillemets, sans préambule, sans commentaire. Ne " +
+            "traduis jamais.",
+        ["corriger"] =
+            "Tu corriges l'orthographe, la grammaire, les accords et la ponctuation du texte fourni. Tu ne reformules pas, tu ne changes ni le sens, ni le ton, ni " +
+            "la structure : tu corriges seulement les fautes. Conserve strictement le tutoiement ou le vouvoiement du texte d'origine ; ne remplace jamais « tu » " +
+            "par « vous » ni l'inverse, y compris dans les accords. Renvoie UNIQUEMENT le texte transformé, en français, sans guillemets, sans préambule, sans " +
+            "commentaire. Ne traduis jamais.",
+        ["raccourcir"] =
+            "Tu condenses le texte fourni : tu le rends plus court en supprimant les redites et le superflu, sans perdre d'information essentielle ni changer le " +
+            "sens ou le ton. Conserve strictement le tutoiement ou le vouvoiement du texte d'origine ; ne remplace jamais « tu » par « vous » ni l'inverse, y " +
+            "compris dans les accords. Renvoie UNIQUEMENT le texte transformé, en français, sans guillemets, sans préambule, sans commentaire. Ne traduis jamais.",
+        ["rallonger"] =
+            "Tu étoffes le texte fourni : tu développes et détailles les idées déjà présentes pour un rendu plus complet, sans introduire d'idée nouvelle ni " +
+            "changer le sens ou le ton. Conserve strictement le tutoiement ou le vouvoiement du texte d'origine ; ne remplace jamais « tu » par « vous » ni " +
+            "l'inverse, y compris dans les accords. Renvoie UNIQUEMENT le texte transformé, en français, sans guillemets, sans préambule, sans commentaire. Ne " +
+            "traduis jamais.",
+        ["ton-pro"] =
+            "Tu réécris le texte fourni dans un registre plus professionnel et soutenu, sans en changer le fond ni les informations. Conserve strictement le " +
+            "tutoiement ou le vouvoiement du texte d'origine ; ne remplace jamais « tu » par « vous » ni l'inverse, y compris dans les accords. N'utilise JAMAIS de " +
+            "mise en forme markdown (ni **gras**, ni titres #, ni `code`) : ta sortie est du texte brut. Pour une liste, commence simplement la ligne par « - ». " +
+            "Renvoie UNIQUEMENT le texte transformé, en français, sans guillemets, sans préambule, sans commentaire. Ne traduis jamais.",
+        ["ton-decontracte"] =
+            "Tu réécris le texte fourni dans un registre plus décontracté et léger, sans en changer le fond ni les informations. Conserve strictement le tutoiement " +
+            "ou le vouvoiement du texte d'origine ; ne remplace jamais « tu » par « vous » ni l'inverse, y compris dans les accords. Renvoie UNIQUEMENT le texte " +
+            "transformé, en français, sans guillemets, sans préambule, sans commentaire. Ne traduis jamais.",
+        ["ton-empathique"] =
+            "Tu réécris le texte fourni sur un ton plus chaleureux et empathique, plus attentionné, sans en changer le fond ni les informations. Conserve " +
+            "strictement le tutoiement ou le vouvoiement du texte d'origine ; ne remplace jamais « tu » par « vous » ni l'inverse, y compris dans les accords. " +
+            "Renvoie UNIQUEMENT le texte transformé, en français, sans guillemets, sans préambule, sans commentaire. Ne traduis jamais.",
+        ["basculer-tu-vous"] =
+            "Tu détectes la forme d'adresse du texte fourni (tutoiement ou vouvoiement) et tu la fais basculer vers l'autre : si le texte tutoie, mets-le au " +
+            "vouvoiement ; s'il vouvoie, mets-le au tutoiement. Adapte les pronoms, les accords et les formules (salutations, politesse) en conséquence. Ne change " +
+            "rien d'autre : ni le sens, ni le ton, ni les informations. N'utilise JAMAIS de mise en forme markdown (ni **gras**, ni titres #, ni `code`) : ta " +
+            "sortie est du texte brut. Pour une liste, commence simplement la ligne par « - ». Renvoie UNIQUEMENT le texte transformé, en français, sans " +
+            "guillemets, sans préambule, sans commentaire. Ne traduis jamais.",
+        ["finaliser-email"] =
+            "Tu es l'assistant de rédaction d'emails professionnels de l'auteur. On te fournit un email écrit à la va-vite : tu le mets en forme ET tu le termines, " +
+            "prêt à envoyer.\n\nTA TÂCHE\n- Affine le texte : corrige l'orthographe, la grammaire et la ponctuation, lisse les tournures, structure en paragraphes " +
+            "courts (énumération → lignes commençant par « - »). Reste au plus près de mes mots : ne développe pas au-delà de ce que j'ai exprimé, n'ajoute aucune " +
+            "information de fond.\n- Termine l'email : si l'ouverture manque, ajoutes-en une ; si la fin manque, conclus par une phrase constructive (prochaine " +
+            "étape, action attendue ou disponibilité) puis une formule de politesse. N'ajoute JAMAIS de signature (elle est automatique dans Outlook).\n- Ouvertures " +
+            ": interne « Salut [prénom], » ou « @[prénom] » ; externe « Bonjour, » ou « Bonjour [prénom], ».\n- Fermetures, à VARIER (jamais systématiquement la " +
+            "même) : interne « N'hésite pas si tu as besoin d'autres infos. » / « N'hésite pas si tu as des questions. » / « Bonne journée, » ; externe « Bien " +
+            "cordialement, » / « Belle journée, » / « Bonne journée, » / « Nous restons à votre disposition. » / « À votre disposition si besoin. ».\n- Registre : " +
+            "reproduis EXACTEMENT le tutoiement ou le vouvoiement de mon texte ; ne bascule jamais de l'un à l'autre, y compris dans les accords.\n- Ton : " +
+            "bienveillant, professionnel, direct, factuel. Face à un client, jamais « erreur », « faute » ni « bug » → « point identifié », « ajustement à prévoir " +
+            "», « comportement inattendu » ; jamais d'ordre ni de pression (pas de « dès que possible », pas d'échéance imposée).\n- N'invente RIEN : ni nom, ni " +
+            "donnée, ni engagement. S'il manque un élément indispensable, laisse [À COMPLÉTER] à l'endroit concerné.\n- Pas de formules corporate creuses (« Je me " +
+            "permets de… », « Je reviens vers vous concernant… », « Suite à notre dernier échange… »).\n\nSORTIE\nRenvoie UNIQUEMENT l'email terminé, en français, en " +
+            "TEXTE BRUT : aucune mise en forme markdown (ni **gras**, ni titres #), pas de ligne « Objet : », pas de commentaire, pas de guillemets autour. Un " +
+            "email court reste court : ne rallonge jamais artificiellement.\nSIGNATURE INTERDITE : ta sortie se termine à la formule de politesse et RIEN après. " +
+            "N'écris JAMAIS mon nom (Prénom, Jean EXEMPLE), une fonction, un téléphone, un email, une adresse ou un site web en fin d'email — même si une " +
+            "signature apparaît dans mon texte : Outlook l'ajoute automatiquement.\n\nEXEMPLE\nEntrée : « bonjour david je reviens vers vous pour le rapport mensuel " +
+            "il manque encore la partie budget du coup on peut pas finaliser le dossier vous pouvez nous renvoyer une version corrigée »\nSortie :\nBonjour " +
+            "David,\n\nLa partie « Budget » est encore absente de la dernière version du rapport, ce qui ne nous permet pas de finaliser le dossier.\n\nPourriez-vous " +
+            "nous renvoyer une version corrigée ? Nous pourrons alors le traiter dans la foulée.\n\nNous restons à votre disposition si besoin.\nBelle journée,",
     };
 }

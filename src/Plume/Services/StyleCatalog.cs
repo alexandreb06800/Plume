@@ -65,39 +65,80 @@ public static class StyleCatalog
         "N'invente aucune information. Ne traduis jamais.\n" +
         "Renvoie UNIQUEMENT le texte corrigé, sans guillemets, sans préambule, sans commentaire.";
 
-    // Interdiction du markdown : la sortie des styles est collée telle quelle à la place de la sélection —
-    // des ** ou des # apparaîtraient littéralement. Indispensable avec Llama, enclin aux ornements markdown.
-    private const string TexteBrut =
-        "N'utilise JAMAIS de mise en forme markdown (ni **gras**, ni titres #, ni `code`) : ta sortie est du texte brut. " +
-        "Pour une liste, commence simplement la ligne par « - ».";
+    // --- Styles intégrés : prompts révisés le 2026-10-10 après banc d'essai (20 cas, Qwen 3.8 et GPT-4o mini). ---
+    // Consigne tu/vous : l'ancienne formule (« ne remplace jamais "tu" par "vous" ni l'inverse ») faisait INVERSER
+    // la forme d'adresse à GPT-4o mini (12 fois sur 12 mesuré : Corriger, Ton pro, Ton décontracté, Ton empathique).
+    // La formule positive ci-dessous la conserve ; Ton pro / Ton décontracté précisent en plus que le registre
+    // n'impose ni le vouvoiement ni le tutoiement. Interdiction du markdown : la sortie est collée telle quelle.
 
     /// <summary>Prompt-cadre par défaut d'un style « avec voix » (Commande vocale).</summary>
     public const string CommandPrompt =
-        "Tu modifies le texte fourni selon l'instruction de l'utilisateur. " +
-        "Conserve strictement la forme d'adresse du texte d'origine (tutoiement ou vouvoiement) : ne remplace jamais « tu » par « vous » ni l'inverse, y compris dans les accords, sauf si l'instruction le demande explicitement. " +
-        TexteBrut + " " +
-        "Réponds uniquement par le texte modifié, en français, sans commentaire ni guillemets.";
-
-    // Gabarit commun aux styles écrits : consigne de sortie propre.
-    private const string EcritSuffixe =
-        " Conserve strictement le tutoiement ou le vouvoiement du texte d'origine ; ne remplace jamais « tu » par « vous » ni l'inverse, y compris dans les accords. " +
-        TexteBrut + " " +
-        "Renvoie UNIQUEMENT le texte transformé, en français, sans guillemets, sans préambule, sans commentaire. Ne traduis jamais.";
+        "Tu modifies le texte fourni selon l'instruction de l'utilisateur. Garde la forme d'adresse du texte d'origine (un texte au « vous » reste au « vous », " +
+        "un texte au « tu » reste au « tu »), y compris dans les accords, sauf si l'instruction demande explicitement d'en changer. Si le texte commence par " +
+        "une salutation ou se termine par une formule de politesse, garde-les à leur place, chacune sur sa propre ligne, en dehors de toute liste. N'utilise " +
+        "JAMAIS de mise en forme markdown (ni **gras**, ni titres #, ni `code`) : ta sortie est du texte brut. Pour une liste, commence simplement la ligne par " +
+        "« - ». Réponds uniquement par le texte modifié, en français, sans commentaire ni guillemets.";
 
     private const string AffinerPrompt =
-        "Tu réécris le texte fourni pour le rendre fluide et clair : tu peux restructurer l'ordre des idées, simplifier la compréhension, " +
-        "mettre en forme (paragraphes, listes à puces si utile) et soigner le français. Tu ne changes ni le sens, ni le ton, ni le registre, " +
-        "et tu n'ajoutes aucune information nouvelle." + EcritSuffixe;
+        "Tu réécris le texte fourni pour le rendre fluide et clair : tu peux restructurer l'ordre des idées, simplifier la compréhension, mettre en forme " +
+        "(paragraphes, listes à puces si utile) et soigner le français. Tu ne changes ni le sens, ni le ton, ni le registre, et tu n'ajoutes aucune information " +
+        "nouvelle. Forme d'adresse : repère si le texte tutoie ou vouvoie son destinataire, et garde EXACTEMENT la même forme dans ta réponse (un texte qui dit " +
+        "« vous » reste au « vous », un texte qui dit « tu » reste au « tu »), y compris dans les accords et les formules de politesse. N'utilise JAMAIS de " +
+        "mise en forme markdown (ni **gras**, ni titres #, ni `code`) : ta sortie est du texte brut. Pour une liste, commence simplement la ligne par « - ». " +
+        "Renvoie UNIQUEMENT le texte transformé, en français, sans guillemets, sans préambule, sans commentaire. Ne traduis jamais.";
 
     private const string TonProPrompt =
-        "Tu réécris le texte fourni dans un registre plus professionnel et soutenu, sans en changer le fond ni les informations." + EcritSuffixe;
+        "Tu réécris le texte fourni dans un registre plus professionnel et soutenu, sans en changer le fond ni les informations. Un registre professionnel " +
+        "n'impose PAS le vouvoiement : si le texte tutoie, ta version tutoie aussi (« salut, on te tient au jus » → « Bonjour, nous te tiendrons informé »). " +
+        "Forme d'adresse : repère si le texte tutoie ou vouvoie son destinataire, et garde EXACTEMENT la même forme dans ta réponse (un texte qui dit « vous » " +
+        "reste au « vous », un texte qui dit « tu » reste au « tu »), y compris dans les accords et les formules de politesse. N'utilise JAMAIS de mise en " +
+        "forme markdown (ni **gras**, ni titres #, ni `code`) : ta sortie est du texte brut. Pour une liste, commence simplement la ligne par « - ». Renvoie " +
+        "UNIQUEMENT le texte transformé, en français, sans guillemets, sans préambule, sans commentaire. Ne traduis jamais.";
 
     private const string BasculerPrompt =
-        "Tu détectes la forme d'adresse du texte fourni (tutoiement ou vouvoiement) et tu la fais basculer vers l'autre : " +
-        "si le texte tutoie, mets-le au vouvoiement ; s'il vouvoie, mets-le au tutoiement. Adapte les pronoms, les accords et les formules " +
-        "(salutations, politesse) en conséquence. Ne change rien d'autre : ni le sens, ni le ton, ni les informations. " +
-        TexteBrut + " " +
-        "Renvoie UNIQUEMENT le texte transformé, en français, sans guillemets, sans préambule, sans commentaire. Ne traduis jamais.";
+        "Tu détectes la forme d'adresse du texte fourni (tutoiement ou vouvoiement) et tu la fais basculer vers l'autre : si le texte tutoie, mets-le au " +
+        "vouvoiement ; s'il vouvoie, mets-le au tutoiement. Adapte les pronoms, les accords et les formules (salutations, politesse) en conséquence. Garde les " +
+        "noms tels quels : ne supprime ni n'invente un prénom, ne change jamais « Madame » en « Monsieur » ni l'inverse ; une civilité sans prénom est " +
+        "conservée (« Bonjour Madame Durand, »). Ne change rien d'autre : ni le sens, ni le ton, ni les informations. N'utilise JAMAIS de mise en forme " +
+        "markdown (ni **gras**, ni titres #, ni `code`) : ta sortie est du texte brut. Pour une liste, commence simplement la ligne par « - ». Renvoie " +
+        "UNIQUEMENT le texte transformé, en français, sans guillemets, sans préambule, sans commentaire. Ne traduis jamais.";
+
+    // Styles retirés du jeu par défaut des nouvelles installations (5.1.7) mais encore présents dans les
+    // configurations existantes : leur prompt révisé sert uniquement à la migration douce (DefaultPromptFor).
+    private const string CorrigerPrompt =
+        "Tu corriges l'orthographe, la grammaire, les accords et la ponctuation du texte fourni. Tu ne reformules pas, tu ne changes ni le sens, ni le ton, ni " +
+        "le registre, ni la structure : tu corriges seulement les fautes. Forme d'adresse : repère si le texte tutoie ou vouvoie son destinataire, et garde " +
+        "EXACTEMENT la même forme dans ta réponse (un texte qui dit « vous » reste au « vous », un texte qui dit « tu » reste au « tu »), y compris dans les " +
+        "accords et les formules de politesse. Renvoie UNIQUEMENT le texte transformé, en français, sans guillemets, sans préambule, sans commentaire. Ne " +
+        "traduis jamais.";
+
+    private const string RaccourcirPrompt =
+        "Tu condenses le texte fourni : le résultat doit faire au plus la moitié de sa longueur. Va droit au fait : supprime les redites, les rappels de " +
+        "contexte (« comme je vous l'avais indiqué », « je me permets de revenir vers vous »), les précautions oratoires et les formules de politesse " +
+        "superflues. Garde TOUS les faits (noms, dates, heures, lieux, montants, demandes) et le ton. Forme d'adresse : repère si le texte tutoie ou vouvoie " +
+        "son destinataire, et garde EXACTEMENT la même forme dans ta réponse (un texte qui dit « vous » reste au « vous », un texte qui dit « tu » reste au « " +
+        "tu »), y compris dans les accords et les formules de politesse. Renvoie UNIQUEMENT le texte transformé, en français, sans guillemets, sans préambule, " +
+        "sans commentaire. Ne traduis jamais.";
+
+    private const string RallongerPrompt =
+        "Tu étoffes le texte fourni : le résultat doit compter au moins deux fois plus de mots. Développe ce qui est déjà dit avec des phrases complètes, des " +
+        "transitions, et en explicitant ce que le texte implique déjà. N'ajoute AUCUN fait nouveau : ni cause, ni date, ni chiffre, ni nom, ni engagement " +
+        "absent du texte. Garde le sens et le ton. Forme d'adresse : repère si le texte tutoie ou vouvoie son destinataire, et garde EXACTEMENT la même forme " +
+        "dans ta réponse (un texte qui dit « vous » reste au « vous », un texte qui dit « tu » reste au « tu »), y compris dans les accords et les formules de " +
+        "politesse. Renvoie UNIQUEMENT le texte transformé, en français, sans guillemets, sans préambule, sans commentaire. Ne traduis jamais.";
+
+    private const string TonDeconPrompt =
+        "Tu réécris le texte fourni dans un registre plus décontracté et léger, sans en changer le fond ni les informations. Un ton décontracté n'impose PAS le " +
+        "tutoiement : si le texte vouvoie, ta version vouvoie aussi et garde « Madame » ou « Monsieur » (« nous vous prions de bien vouloir nous transmettre » " +
+        "→ « pourriez-vous nous envoyer »). Forme d'adresse : repère si le texte tutoie ou vouvoie son destinataire, et garde EXACTEMENT la même forme dans ta " +
+        "réponse (un texte qui dit « vous » reste au « vous », un texte qui dit « tu » reste au « tu »), y compris dans les accords et les formules de " +
+        "politesse. Renvoie UNIQUEMENT le texte transformé, en français, sans guillemets, sans préambule, sans commentaire. Ne traduis jamais.";
+
+    private const string TonEmpaPrompt =
+        "Tu réécris le texte fourni sur un ton plus chaleureux et empathique, plus attentionné, sans en changer le fond ni les informations : une décision, un " +
+        "refus et son motif restent entiers. Forme d'adresse : repère si le texte tutoie ou vouvoie son destinataire, et garde EXACTEMENT la même forme dans ta " +
+        "réponse (un texte qui dit « vous » reste au « vous », un texte qui dit « tu » reste au « tu »), y compris dans les accords et les formules de " +
+        "politesse. Renvoie UNIQUEMENT le texte transformé, en français, sans guillemets, sans préambule, sans commentaire. Ne traduis jamais.";
 
     // Style « Email pro » (référence : docs/prompts/style-email-pro.md) : rédige un email complet depuis
     // un brouillon + le fil sélectionné. Résultat en fenêtre (Copier/Insérer), sortie en markdown léger.
@@ -164,7 +205,7 @@ public static class StyleCatalog
         "- Ouvertures : interne « Salut [prénom], » ou « @[prénom] » ; externe « Bonjour, » ou « Bonjour [prénom], ».\n" +
         "- Fermetures, à VARIER (jamais systématiquement la même) : interne « N'hésite pas si tu as besoin d'autres infos. » / « N'hésite pas si tu as des questions. » / « Bonne journée, » ; externe « Bien cordialement, » / « Belle journée, » / « Bonne journée, » / « Nous restons à votre disposition. » / « À votre disposition si besoin. ».\n" +
         "- Registre : reproduis EXACTEMENT le tutoiement ou le vouvoiement de mon texte ; ne bascule jamais de l'un à l'autre, y compris dans les accords.\n" +
-        "- Ton : bienveillant, professionnel, direct, factuel. Face à un client, jamais « erreur », « faute » ni « bug » → « point identifié », « ajustement à prévoir », « comportement inattendu » ; jamais d'ordre ni de pression (pas de « dès que possible », pas d'échéance imposée).\n" +
+        "- Ton : bienveillant, professionnel, direct, factuel. Face à un client, jamais « erreur », « faute » ni « bug » → « point identifié », « ajustement à prévoir », « comportement inattendu » ; jamais d'ordre ni de pression (pas de « dès que possible », pas d'échéance imposée). Reformule sans jamais supprimer l'information : « c'était une erreur de notre côté » → « le point venait de notre côté ».\n" +
         "- N'invente RIEN : ni nom, ni donnée, ni engagement. S'il manque un élément indispensable, laisse [À COMPLÉTER] à l'endroit concerné.\n" +
         "- Pas de formules corporate creuses (« Je me permets de… », « Je reviens vers vous concernant… », « Suite à notre dernier échange… »).\n\n" +
         "SORTIE\n" +
@@ -198,7 +239,16 @@ public static class StyleCatalog
         Make(FinaliserEmailId,  "Finaliser l'email",               FinaliserEmailPrompt, favorite: true, temperature: 0.3),
     };
 
-    /// <summary>Prompt par défaut d'un style intégré (pour la migration douce), ou null si inconnu/retiré.</summary>
+    /// <summary>Prompt par défaut d'un style intégré (pour la migration douce), ou null si inconnu. Couvre aussi
+    /// les styles retirés du jeu par défaut mais toujours présents dans les configurations existantes.</summary>
     public static string? DefaultPromptFor(string id)
-        => BuiltIns().FirstOrDefault(s => s.Id == id)?.Prompt;
+        => BuiltIns().FirstOrDefault(s => s.Id == id)?.Prompt ?? id switch
+        {
+            CorrigerId => CorrigerPrompt,
+            RaccourcirId => RaccourcirPrompt,
+            RallongerId => RallongerPrompt,
+            TonDeconId => TonDeconPrompt,
+            TonEmpaId => TonEmpaPrompt,
+            _ => null,
+        };
 }

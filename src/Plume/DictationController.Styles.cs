@@ -55,7 +55,8 @@ public partial class DictationController
             var inputText = hasSelection ? sel!.Text! : "";
             var model = string.IsNullOrWhiteSpace(style.Model) ? cfg.CleanupModel : style.Model!; // modèle du style, sinon global
             var result = await _cleanup.CleanAsync(inputText, system, model, apiKey, groqKey,
-                cfg.Vocabulary, cts.Token, CleanupTimeout, CleanupKind.Selection, style.Temperature);
+                cfg.Vocabulary, cts.Token, CleanupTimeout,
+                hasSelection ? CleanupKind.Selection : CleanupKind.NoSelection, style.Temperature);
 
             SetVisual(DictationVisual.Idle);
             LastText = result;

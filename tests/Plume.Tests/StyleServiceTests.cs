@@ -292,10 +292,11 @@ public class StyleServiceTests
     }
 
     [Fact]
-    public void Normalize_IntegreRetireDuCatalogue_JamaisPersonnalise_GardeSonPrompt()
+    public void Normalize_IntegreRetireDuCatalogue_JamaisPersonnalise_RecoitLePromptRevise()
     {
-        // « Corriger » a été retiré des défauts le 2026-07-06 : plus de nouveau défaut à appliquer,
-        // le style existant reste intact chez les installs qui l'ont encore.
+        // « Corriger » a été retiré des défauts le 2026-07-06 et gardait son prompt tel quel. Depuis le
+        // 2026-10-10 il existe un prompt révisé (l'ancienne consigne tu/vous faisait INVERSER la forme
+        // d'adresse à GPT-4o mini) : un style jamais personnalisé le reçoit, sans être réinjecté ni supprimé.
         const string ancienDefaut =
             "Tu corriges l'orthographe, la grammaire, les accords et la ponctuation du texte fourni. " +
             "Tu ne reformules pas, tu ne changes ni le sens, ni le ton, ni la structure : tu corriges seulement les fautes." +
@@ -311,7 +312,54 @@ public class StyleServiceTests
         };
         StyleService.Normalize(cfg, null);
 
-        Assert.Equal(ancienDefaut, cfg.SelectionStyles.Single(s => s.Id == StyleCatalog.CorrigerId).Prompt);
+        var corriger = cfg.SelectionStyles.Single(s => s.Id == StyleCatalog.CorrigerId);
+        Assert.Equal(StyleCatalog.DefaultPromptFor(StyleCatalog.CorrigerId), corriger.Prompt);
+        Assert.DoesNotContain("ne remplace jamais « tu » par « vous »", corriger.Prompt);
+        Assert.Contains("garde EXACTEMENT la même forme", corriger.Prompt);
+    }
+
+    [Fact]
+    public void Normalize_IntegreRetireDuCatalogue_Personnalise_NestJamaisTouche()
+    {
+        const string perso = "Corrige les fautes, et rien d'autre. Ma consigne à moi.";
+        var cfg = new AppConfig
+        {
+            BuiltInStylesSeeded = true,
+            SelectionStyles = new()
+            {
+                new SelectionStyle { Id = StyleCatalog.CorrigerId, Name = "Corriger", Prompt = perso, IsBuiltIn = true }
+            }
+        };
+        StyleService.Normalize(cfg, null);
+
+        Assert.Equal(perso, cfg.SelectionStyles.Single(s => s.Id == StyleCatalog.CorrigerId).Prompt);
+    }
+
+    [Theory]
+    [InlineData(StyleCatalog.AffinerId)]
+    [InlineData(StyleCatalog.TonProId)]
+    [InlineData(StyleCatalog.BasculerId)]
+    [InlineData(StyleCatalog.CommandeVocaleId)]
+    [InlineData(StyleCatalog.FinaliserEmailId)]
+    [InlineData(StyleCatalog.RaccourcirId)]
+    [InlineData(StyleCatalog.RallongerId)]
+    [InlineData(StyleCatalog.TonDeconId)]
+    [InlineData(StyleCatalog.TonEmpaId)]
+    public void Normalize_PromptDeStyleDeLaGenerationPrecedente_EstMisAJour(string id)
+    {
+        var legacy3 = (Dictionary<string, string>)typeof(StyleService)
+            .GetField("Legacy3BuiltInPrompts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
+            .GetValue(null)!;
+        var ancien = legacy3[id];
+        Assert.NotEqual(StyleCatalog.DefaultPromptFor(id), ancien);
+        var cfg = new AppConfig
+        {
+            BuiltInStylesSeeded = true,
+            SelectionStyles = new() { new SelectionStyle { Id = id, Name = id, Prompt = ancien, IsBuiltIn = true } }
+        };
+        StyleService.Normalize(cfg, null);
+
+        Assert.Equal(StyleCatalog.DefaultPromptFor(id), cfg.SelectionStyles.Single(s => s.Id == id).Prompt);
     }
 
     // --- 2026-07-06 : migration douce génération 2 (V8-I-0 → interdiction du markdown, adaptation Llama) ---

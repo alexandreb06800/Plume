@@ -157,6 +157,22 @@ public class CleanupServiceTests
     }
 
     [Fact]
+    public async Task CleanAsync_SansSelection_PasDeBlocDeTexteVide()
+    {
+        // Style « avec voix » sans sélection : la demande est dans le prompt système, aucun bloc vide à reformuler.
+        var json = "{\"choices\":[{\"message\":{\"content\":\"ok\"}}]}";
+        var fake = new FakeHttpHandler(HttpStatusCode.OK, json);
+        var svc = new CleanupService(new HttpClient(fake));
+
+        await svc.CleanAsync("", "Cadre. Instruction de l'utilisateur : \"écris à Paul\"", "m", "k", null, null,
+            CancellationToken.None, null, CleanupKind.NoSelection);
+
+        Assert.Contains("Aucun texte n'est sélectionné", fake.LastRequestBody);
+        Assert.DoesNotContain("Texte à reformuler", fake.LastRequestBody);
+        Assert.DoesNotContain("Transcription vocale", fake.LastRequestBody);
+    }
+
+    [Fact]
     public async Task CleanAsync_ModeSelection_EncadreCommeTexteAReformuler()
     {
         var json = "{\"choices\":[{\"message\":{\"content\":\"ok\"}}]}";

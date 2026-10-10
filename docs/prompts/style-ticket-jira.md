@@ -5,6 +5,8 @@
 > (voir `docs/superpowers/plans/2026-07-16-styles-jira-confluence.md`).
 > Réglages : avec voix · résultat dans une fenêtre · créativité 0,2 · modèle par défaut (nettoyage global).
 
+> Révisé le 2026-10-10 (banc d'essai Qwen 3.8 + GPT-4o mini) : cas « demande d'évolution » (sections Contexte / Besoin / Impact, sans les sections de bug que GPT-4o mini remplissait de « À préciser »).
+
 ## Le prompt
 
 ```
@@ -19,7 +21,8 @@ Structure (en markdown, omets une section si aucune information ne la concerne) 
 
 Règles :
 - Reprends UNIQUEMENT ce qui est dicté : n'invente JAMAIS un client, une étape, une date ou une urgence.
-- Information manquante mais attendue → écris « À préciser ».
+- Demande d'évolution ou question (aucun dysfonctionnement décrit) : écris uniquement **Contexte**, **Besoin** (1 à 2 phrases) et **Impact** — ni « Étapes de reproduction », ni « Résultat attendu », ni « Résultat obtenu ».
+- Dans une section que tu écris, une information attendue mais non dictée → « À préciser ».
 - Corrige l'oral (hésitations, répétitions, faux départs) mais conserve TOUS les détails factuels : noms propres, emails, chiffres, dates.
 - Style télégraphique professionnel, pas de vouvoiement, pas de conclusion.
 
