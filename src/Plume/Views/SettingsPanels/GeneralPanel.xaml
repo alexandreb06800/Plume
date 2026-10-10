@@ -23,7 +23,7 @@
                     </TextBlock>
                 </StackPanel>
                 <TextBlock Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0" FontSize="12"
-                           Foreground="{DynamicResource VioletBrush}"
+                           Foreground="{DynamicResource StarBrush}"
                            Text="{Binding Reliability, Converter={StaticResource Stars}}"/>
             </Grid>
         </DataTemplate>

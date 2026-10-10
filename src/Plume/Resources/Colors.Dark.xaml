@@ -12,6 +12,7 @@
     <Color x:Key="HoverColor">#1AFFFFFF</Color>
     <Color x:Key="VioletColor">#FF7C5CFF</Color>
     <Color x:Key="VioletHoverColor">#FF8E73FF</Color>
+    <Color x:Key="StarColor">#FFF5A300</Color>
     <Color x:Key="GreenColor">#FF34C759</Color>
     <Color x:Key="ErrorColor">#FFFF6B5E</Color>
     <Color x:Key="RawNoteBgColor">#FF1E2A20</Color>
@@ -40,6 +41,7 @@
     <SolidColorBrush x:Key="HoverBrush" Color="{StaticResource HoverColor}"/>
     <SolidColorBrush x:Key="VioletBrush" Color="{StaticResource VioletColor}"/>
     <SolidColorBrush x:Key="VioletHoverBrush" Color="{StaticResource VioletHoverColor}"/>
+    <SolidColorBrush x:Key="StarBrush" Color="{StaticResource StarColor}"/>
     <SolidColorBrush x:Key="GreenBrush" Color="{StaticResource GreenColor}"/>
     <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}"/>
     <SolidColorBrush x:Key="RawNoteBgBrush" Color="{StaticResource RawNoteBgColor}"/>

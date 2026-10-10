@@ -4,6 +4,10 @@
 
 ---
 
+## 5.4.13 — Étoiles des modèles lisibles sur fond violet ✅ (livrée le 2026-10-10)
+Demande : dans les listes de modèles (transcription, nettoyage), les étoiles violettes disparaissaient sur l'élément sélectionné, dont le fond est violet.
+- Nouveau token `StarColor` / `StarBrush` (ambre `#F5A300`, identique en clair et en sombre), utilisé par `ModelItemTemplate` dans `GeneralPanel.xaml` à la place de `VioletBrush`.
+
 ## 5.4.12 — Copier le dernier message depuis la pastille ✅ (livrée le 2026-10-10)
 Demande : récupérer le dernier texte sans passer par le menu tray.
 - Entrée « Copier le dernier message » dans le menu de la pastille (`StyleMenuWindow`), sous « Assistant vocal » ; estompée et inactive tant qu'aucun texte n'a été produit.
