@@ -40,7 +40,14 @@ public class CleanupService
                                          double temperature = 0.2)
     {
         var system = string.IsNullOrWhiteSpace(systemPrompt) ? StyleCatalog.DictationPrompt : systemPrompt;
-        if (vocabulary is { Count: > 0 })
+        // Vocabulaire : injecté pour les styles ÉCRITS uniquement.
+        //  - Dictée : omis volontairement — le hint STT le couvre déjà en amont, et rajouter la liste ici
+        //    diluerait le signal du prompt système et dégraderait la qualité du nettoyage.
+        //  - Sélection : un style écrit part du texte sélectionné SANS passer par la STT ; sans cette
+        //    injection, le Dictionnaire n'a aucun effet sur « Affiner », « Email pro »… et les noms propres
+        //    du référentiel ne sont plus préservés.
+        //  - Sans sélection (style « avec voix ») : même logique que la sélection — c'est un style, pas la dictée.
+        if (kind != CleanupKind.Dictation && vocabulary is { Count: > 0 })
             system += "\nOrthographe imposée de certains termes, UNIQUEMENT s'ils apparaissent déjà dans le texte d'origine : "
                     + string.Join(", ", vocabulary)
                     + ". Ce ne sont PAS des éléments à ajouter : n'introduis jamais l'un de ces termes (nom, signature, etc.) s'il n'est pas déjà présent.";

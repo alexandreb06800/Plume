@@ -4,6 +4,13 @@
 
 ---
 
+## 5.4.14 — Correctifs de l'audit de juillet repris de la version travail ✅ (livrée le 2026-10-15)
+Demande : vérifier ce que la copie « travail » de Plume contenait que la version personnelle n'avait pas. Les versions 5.5.0 à 5.5.3 de la copie travail y étaient déjà (5.4.1 à 5.4.7 ici) ; restaient quatre correctifs de l'audit du 2026-07-27/28, postérieurs à la création de ce dépôt, sans rien de propre à l'employeur.
+- Préchauffage (`DictationController.WarmUpHostAsync`) : `HttpCompletionOption.ResponseHeadersRead`, pour ne plus télécharger le catalogue de modèles entier d'OpenRouter à chaque écoute, en concurrence avec l'upload de la dictée.
+- Vocabulaire (`CleanupService.CleanAsync`) : plus injecté au nettoyage de la dictée (le hint STT le couvre en amont) ; injecté pour les styles (sélection, sans sélection), qui ne passent pas par la STT. Formulation « n'introduis jamais ces termes » conservée.
+- Pastilles (`App`) : créées au repos même quand `ShowBadge` est faux — `ReconcileBadges` ne les affiche pas, mais leur coût de construction sort du chemin du premier appui.
+- Prise en main relancée par-dessus les Réglages : à sa fermeture, `SettingsWindow.RefreshModelCombos()` relit les modèles (et l'indication de clé manquante) ; sans cela, le combo périmé réécrasait la bascule vers un modèle Groq au prochain enregistrement.
+
 ## 5.4.13 — Étoiles lisibles, bouton Inviter retiré, prise en main à une seule clé ✅ (livrée le 2026-10-10)
 Demande : dans les listes de modèles (transcription, nettoyage), les étoiles violettes disparaissaient sur l'élément sélectionné, dont le fond est violet.
 - Nouveau token `StarColor` / `StarBrush` (ambre `#F5A300`, identique en clair et en sombre), utilisé par `ModelItemTemplate` dans `GeneralPanel.xaml` à la place de `VioletBrush`.

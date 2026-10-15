@@ -144,7 +144,7 @@ public class CleanupServiceTests
     }
 
     [Fact]
-    public async Task CleanAsync_AvecVocabulaire_InjecteLesTermes()
+    public async Task CleanAsync_Dictee_AvecVocabulaire_NestPasInjecte()
     {
         var json = "{\"choices\":[{\"message\":{\"content\":\"ok\"}}]}";
         var fake = new FakeHttpHandler(HttpStatusCode.OK, json);
@@ -153,6 +153,23 @@ public class CleanupServiceTests
         await svc.CleanAsync("texte", StyleCatalog.DictationPrompt, "m", "k", null,
             new[] { "MotMetier" }, CancellationToken.None);
 
+        // Dictée : le vocabulaire n'est PAS injecté au nettoyage — le hint STT le couvre déjà en amont, et
+        // la liste complète ici diluerait le signal du prompt système (arbitrage assumé).
+        Assert.DoesNotContain("MotMetier", fake.LastRequestBody);
+    }
+
+    [Fact]
+    public async Task CleanAsync_Selection_AvecVocabulaire_EstInjecte()
+    {
+        var json = "{\"choices\":[{\"message\":{\"content\":\"ok\"}}]}";
+        var fake = new FakeHttpHandler(HttpStatusCode.OK, json);
+        var svc = new CleanupService(new HttpClient(fake));
+
+        await svc.CleanAsync("texte", "Rends ça plus concis.", "m", "k", null,
+            new[] { "MotMetier" }, CancellationToken.None, null, CleanupKind.Selection);
+
+        // Style écrit : la sélection ne passe JAMAIS par la STT, donc rien d'autre ne peut imposer
+        // l'orthographe des noms propres. Sans cette injection, le Dictionnaire est sans effet ici.
         Assert.Contains("MotMetier", fake.LastRequestBody);
     }
 

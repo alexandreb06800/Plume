@@ -36,6 +36,10 @@
         <Border Style="{StaticResource GroupBorder}" Padding="14,10">
             <StackPanel>
                 <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.4.14" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Premier appui plus rapide : la pastille est préparée au repos, même masquée. Le préchauffage réseau ne télécharge plus la liste complète des modèles à chaque écoute. Dictionnaire : il n'alourdit plus le nettoyage de la dictée (la transcription le reçoit déjà) et s'applique désormais aux styles lancés sur un texte sélectionné. « Revoir la prise en main » depuis les Réglages ouverts ne voit plus son choix de modèle écrasé."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
                     <Run Text="5.4.13" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
                     <Run Text="  Étoiles des modèles (transcription, nettoyage) en ambre : elles restent visibles sur le modèle sélectionné, dont le fond est violet. Bouton « Inviter un collègue » retiré des Réglages. Prise en main simplifiée : seule la clé Groq est demandée ; la clé OpenRouter est réclamée dans les Réglages, sous le modèle de nettoyage, uniquement si le modèle choisi en a besoin."/>
                 </TextBlock>

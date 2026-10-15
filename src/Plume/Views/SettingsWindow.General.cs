@@ -398,6 +398,23 @@ public partial class SettingsWindow
         return idx >= 0 ? idx : 1; // 1 = 60 s
     }
 
+    /// <summary>Relit les combos de modèles depuis la config. Nécessaire parce que l'onboarding (« Revoir la
+    /// prise en main », ouvert PAR-DESSUS les Réglages) partage la même instance d'AppConfig et peut basculer
+    /// CleanupModel vers un modèle Groq gratuit. Sans ce rafraîchissement, le combo resté périmé réécrasait la
+    /// bascule au prochain Persist() — n'importe quel changement de réglage rebloquait alors la dictée.</summary>
+    public void RefreshModelCombos()
+    {
+        bool wasLoaded = _loaded;
+        _loaded = false; // SelectedItem déclenche SelectionChanged → Persist() : parasite ici
+        try
+        {
+            SetComboModel(PanelGeneral.SttCombo, _config.SttModel, ModelCatalog.Stt);
+            SetComboModel(PanelGeneral.CleanupCombo, _config.CleanupModel, ModelCatalog.Cleanup);
+        }
+        finally { _loaded = wasLoaded; }
+        RefreshCleanupKeyHint(); // la clé demandée dépend du modèle de nettoyage, qui a pu changer
+    }
+
     /// <summary>Pré-sélectionne le modèle connu, ou affiche l'id custom dans le champ éditable.</summary>
     private static void SetComboModel(System.Windows.Controls.ComboBox combo,
         string currentId, IReadOnlyList<ModelInfo> catalog)

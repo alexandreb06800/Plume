@@ -160,8 +160,11 @@ public partial class App : Application
         RegisterHotkeys();
 
         // Pastilles flottantes créées en différé (jamais au boot → ouverture < 1 s préservée).
-        if (_config.ShowBadge)
-            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action(CreateBadges));
+        // Créées même quand la pastille est masquée : ReconcileBadges ne les affiche pas (garde ShowBadge),
+        // mais leur coût de construction (BAML, décodage du logo, fenêtre en couches, × nombre d'écrans) est
+        // ainsi payé au repos et non sur le chemin critique du PREMIER appui — la pastille étant le seul
+        // retour visuel, ce réglage en faisait sinon l'opération la plus lourde de ce chemin.
+        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action(CreateBadges));
 
         // Démarrage avec Windows peu fiable si Plume tourne depuis OneDrive : on prévient.
         if (StartupService.IsRunningFromOneDrive())
@@ -206,7 +209,14 @@ public partial class App : Application
             return;
         }
         var win = new OnboardingWindow(_configService!, _config!);
-        win.Closed += (_, _) => _onboarding = null; // libère la référence à la fermeture
+        win.Closed += (_, _) =>
+        {
+            _onboarding = null; // libère la référence à la fermeture
+            // L'onboarding a pu basculer CleanupModel vers un modèle Groq (config 100 % Groq). Les Réglages,
+            // s'ils sont restés ouverts derrière, doivent relire la config : leur combo périmé réécraserait
+            // sinon la bascule au prochain enregistrement, rebloquant la première dictée.
+            _settingsWindow?.RefreshModelCombos();
+        };
         _onboarding = win;
         win.Show();
         win.Activate();

@@ -398,7 +398,10 @@ public partial class DictationController : IDisposable
             using var req = new HttpRequestMessage(HttpMethod.Get, url);
             req.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-            using var resp = await _http.SendAsync(req, cts.Token);
+            // ResponseHeadersRead : on s'arrête aux en-têtes. Sans lui (défaut ResponseContentRead), chaque
+            // écoute téléchargeait le catalogue de modèles ENTIER des deux hôtes — celui d'OpenRouter en
+            // compte des centaines — pour le jeter aussitôt, en concurrence avec l'upload de la dictée.
+            using var resp = await _http.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, cts.Token);
         }
         catch { /* le préchauffage est best-effort : aucune conséquence en cas d'échec */ }
     }
