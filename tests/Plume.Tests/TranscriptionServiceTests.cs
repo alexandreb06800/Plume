@@ -155,4 +155,27 @@ public class TranscriptionServiceTests
     [Fact]
     public void TimeoutFor_EstPlafonneA180s()
         => Assert.Equal(TimeSpan.FromSeconds(180), TranscriptionService.TimeoutFor(50 * 1_048_576));
+
+    [Fact]
+    public void BuildHint_SansVocabulaire_Null()
+    {
+        Assert.Null(TranscriptionService.BuildHint(null));
+        Assert.Null(TranscriptionService.BuildHint(Array.Empty<string>()));
+        Assert.Null(TranscriptionService.BuildHint(new[] { " ", "" }));
+    }
+
+    [Fact]
+    public void BuildHint_Court_ListeComplete()
+        => Assert.Equal("Vocabulaire attendu : MotMetier, SFTP",
+            TranscriptionService.BuildHint(new[] { "MotMetier", "SFTP" }));
+
+    [Fact]
+    public void BuildHint_VocabulaireTresLong_BorneSansCouperDeTerme()
+    {
+        var termes = Enumerable.Range(0, 300).Select(i => $"Terme{i:D3}").ToList();
+        var hint = TranscriptionService.BuildHint(termes)!;
+        Assert.True(hint.Length <= TranscriptionService.MaxHintChars);
+        Assert.StartsWith("Vocabulaire attendu : Terme000, Terme001", hint);
+        Assert.Matches(@"Terme\d{3}$", hint);
+    }
 }

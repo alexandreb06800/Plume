@@ -28,13 +28,35 @@ public class TranscriptionService
         return TimeSpan.FromSeconds(Math.Min(180.0, seconds));
     }
 
+    /// <summary>Longueur maximale du prompt de transcription. Whisper ne lit que 224 tokens de prompt ;
+    /// 500 caractères laissent une marge (valeur prudente, non mesurée).</summary>
+    public const int MaxHintChars = 500;
+
+    /// <summary>Prompt « Vocabulaire attendu : … » : termes non vides dans l'ordre de la liste, jamais
+    /// coupés, arrêtés avant le premier qui ferait dépasser <see cref="MaxHintChars"/>. Null si aucun terme.</summary>
+    public static string? BuildHint(IReadOnlyList<string>? vocabulary)
+    {
+        if (vocabulary is null) return null;
+        const string prefix = "Vocabulaire attendu : ";
+        var sb = new System.Text.StringBuilder(prefix);
+        bool any = false;
+        foreach (var raw in vocabulary)
+        {
+            if (string.IsNullOrWhiteSpace(raw)) continue;
+            var term = raw.Trim();
+            var add = (any ? ", " : "") + term;
+            if (sb.Length + add.Length > MaxHintChars) break;
+            sb.Append(add);
+            any = true;
+        }
+        return any ? sb.ToString() : null;
+    }
+
     public async Task<string> TranscribeAsync(byte[] wav, string model, string apiKey, string? groqApiKey,
                                               IReadOnlyList<string>? vocabulary, CancellationToken ct,
                                               TimeSpan? timeout = null)
     {
-        var hint = vocabulary is { Count: > 0 }
-            ? "Vocabulaire attendu : " + string.Join(", ", vocabulary)
-            : null;
+        var hint = BuildHint(vocabulary);
 
         using var req = string.IsNullOrWhiteSpace(groqApiKey)
             ? BuildOpenRouterRequest(wav, model, apiKey, hint)
