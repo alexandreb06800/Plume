@@ -42,7 +42,8 @@ public static class ModelCatalog
         {
             Id = "groq/openai/gpt-oss-120b", DisplayName = "GPT-OSS 120B (Groq)",
             Kind = ModelKind.Cleanup, PriceLabel = "Gratuit (Groq)",
-            CostPerDictationLabel = "Gratuit", Reliability = 3
+            CostPerDictationLabel = "Gratuit", Reliability = 3,
+            ReasoningEffort = "low" // raisonnement court : réponse plus rapide (mesuré au lot 2 de l'audit 2026-10-16)
         },
         new ModelInfo
         {

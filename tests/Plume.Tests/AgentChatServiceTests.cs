@@ -117,4 +117,14 @@ public class AgentChatServiceTests
         Assert.Contains("404", ex.Message);
         Assert.Contains("Réglages", ex.Message);
     }
+
+    [Fact]
+    public async Task AskAsync_GptOssSurGroq_ReglageLowEtReflexionRetiree()
+    {
+        var fake = new FakeHttpHandler(HttpStatusCode.OK, "{\"choices\":[{\"message\":{\"content\":\"<think>x</think>Lundi.\"}}]}");
+        var result = await new AgentChatService(new HttpClient(fake)).AskAsync(new AgentSession(), "Quel jour ?", SampleNow,
+            "groq/openai/gpt-oss-120b", "", "gsk-x", null, CancellationToken.None);
+        Assert.Equal("Lundi.", result);
+        Assert.Contains("\"reasoning_effort\":\"low\"", fake.LastRequestBody);
+    }
 }

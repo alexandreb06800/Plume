@@ -25,7 +25,8 @@ public class AgentChatService
 
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
-        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull // reasoning_effort absent si null
     };
     private static readonly CultureInfo Fr = new("fr-FR");
 
@@ -70,6 +71,7 @@ public class AgentChatService
         {
             model = modelId,
             temperature = 0.3, // un assistant : un peu de souplesse, sans dériver
+            reasoning_effort = useGroq ? ModelCatalog.Find(model)?.ReasoningEffort : null,
             messages = BuildMessages(session, question, now, vocabulary)
         };
 
@@ -112,7 +114,8 @@ public class AgentChatService
                 .GetProperty("message")
                 .GetProperty("content")
                 .GetString();
-            if (!string.IsNullOrWhiteSpace(content)) return content!.Trim();
+            content = CleanupService.StripReasoning(content);
+            if (!string.IsNullOrWhiteSpace(content)) return content!;
         }
         catch { /* tombe dans l'erreur ci-dessous */ }
         throw new OpenRouterException("Réponse inattendue.");

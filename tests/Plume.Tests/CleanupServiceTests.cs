@@ -268,4 +268,39 @@ public class CleanupServiceTests
         Assert.Contains("404", ex.Message);
         Assert.Contains("Réglages", ex.Message);
     }
+
+    private const string ReponseOk = "{\"choices\":[{\"message\":{\"content\":\"ok\"}}]}";
+
+    [Fact]
+    public async Task CleanAsync_GptOssSurGroq_EnvoieReasoningEffortLow()
+    {
+        var fake = new FakeHttpHandler(HttpStatusCode.OK, ReponseOk);
+        await new CleanupService(new HttpClient(fake)).CleanAsync("texte", "p", "groq/openai/gpt-oss-120b",
+            "", "gsk-x", null, CancellationToken.None);
+        Assert.Contains("\"reasoning_effort\":\"low\"", fake.LastRequestBody);
+    }
+
+    [Fact]
+    public async Task CleanAsync_ModeleSansReglage_NEnvoiePasReasoningEffort()
+    {
+        var fake = new FakeHttpHandler(HttpStatusCode.OK, ReponseOk);
+        await new CleanupService(new HttpClient(fake)).CleanAsync("texte", "p", "openai/gpt-4o-mini",
+            "sk-x", null, null, CancellationToken.None);
+        Assert.DoesNotContain("reasoning_effort", fake.LastRequestBody);
+    }
+
+    [Theory]
+    [InlineData("<think>je réfléchis</think>Bonjour.", "Bonjour.")]
+    [InlineData("<THINK>\nx\n</THINK>\n\nBonjour.", "Bonjour.")]
+    [InlineData("Bonjour.", "Bonjour.")]
+    public void StripReasoning_RetireLesBlocsDeReflexion(string brut, string attendu)
+        => Assert.Equal(attendu, CleanupService.StripReasoning(brut));
+
+    [Fact]
+    public async Task CleanAsync_ReponseQueDeLaReflexion_ErreurPropre()
+    {
+        var fake = new FakeHttpHandler(HttpStatusCode.OK, "{\"choices\":[{\"message\":{\"content\":\"<think>x</think>\"}}]}");
+        await Assert.ThrowsAsync<OpenRouterException>(() => new CleanupService(new HttpClient(fake))
+            .CleanAsync("texte", "p", "groq/openai/gpt-oss-120b", "", "gsk-x", null, CancellationToken.None));
+    }
 }

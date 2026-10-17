@@ -27,7 +27,8 @@ public class CleanupService
     // Encodeur relâché : n'échappe pas les accents FR dans le payload envoyé au LLM.
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
-        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull // reasoning_effort absent si null
     };
 
     private readonly HttpClient _http;
@@ -76,6 +77,7 @@ public class CleanupService
         {
             model = modelId,
             temperature = temp,
+            reasoning_effort = useGroq ? ModelCatalog.Find(model)?.ReasoningEffort : null,
             messages = new object[]
             {
                 new { role = "system", content = system },
@@ -124,9 +126,17 @@ public class CleanupService
                 .GetProperty("message")
                 .GetProperty("content")
                 .GetString();
-            if (!string.IsNullOrWhiteSpace(content)) return content!.Trim();
+            content = StripReasoning(content);
+            if (!string.IsNullOrWhiteSpace(content)) return content!;
         }
         catch { /* tombe dans l'erreur ci-dessous */ }
         throw new OpenRouterException("Réponse de nettoyage inattendue.");
     }
+
+    /// <summary>Retire les blocs de réflexion « &lt;think&gt;…&lt;/think&gt; » que certains modèles renvoient dans
+    /// le contenu : ils ne doivent jamais être insérés. Une réponse qui n'en contient que devient vide
+    /// (donc erreur « réponse inattendue »).</summary>
+    public static string StripReasoning(string? content)
+        => content is null ? "" : System.Text.RegularExpressions.Regex.Replace(content, @"<think>.*?</think>", "",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Singleline).Trim();
 }
