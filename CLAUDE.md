@@ -17,7 +17,7 @@
 
 ## Stack imposée
 - **.NET 10 · C# · WPF** (Windows uniquement) — 100 % XAML natif, aucune lib UI tierce.
-- **NAudio** — capture micro (seule dépendance NuGet autorisée).
+- **NAudio.WinMM** (sous-paquet de NAudio : capture et lecture WinMM) — seule dépendance NuGet autorisée.
 - **Win32 `RegisterHotKey`** — raccourcis globaux.
 - **HttpClient** → **Groq** (STT si clé Groq ; nettoyage si modèle « groq/… ») ou **OpenRouter** sinon. Routage statique décidé avant l'appel — PAS de bascule automatique sur erreur.
 - Insertion au curseur via **presse-papiers + Ctrl+V** (presse-papiers restauré).
