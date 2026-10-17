@@ -31,6 +31,10 @@
         <Border Style="{StaticResource GroupBorder}" Padding="14,10">
             <StackPanel>
                 <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.4.17" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Erreurs visibles : quand une dictée, un style ou l'assistant échoue, la pastille passe au rouge deux secondes et la bulle dit pourquoi (modèle retiré, clé refusée, limite de requêtes). Si le nettoyage échoue, le texte brut est inséré et la raison s'affiche. Nouveau modèle de nettoyage par défaut : GPT-OSS 120B (Groq, modèle stable), réglé pour répondre plus vite ; Qwen 3.8 reste proposé (préversion chez Groq). Les modèles retirés par leur fournisseur sont remplacés automatiquement, et « Vérifier les modèles » signale un modèle qui n'existe plus. Un vocabulaire très long ne gêne plus la transcription."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
                     <Run Text="5.4.16" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
                     <Run Text="  Plus de jeton GitHub : le dépôt de Plume est public, « Vérifier les mises à jour » fonctionne sans compte ni réglage. Le champ jeton disparaît d'À propos et la connexion Git du poste n'est plus lue."/>
                 </TextBlock>

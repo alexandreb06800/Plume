@@ -4,6 +4,15 @@
 
 ---
 
+## 5.4.17 — Erreurs visibles et modèles fiables ✅ (livrée le 2026-10-17)
+Demande : corrections de l'audit du 2026-10-16, lot 2.
+- `OpenRouterException` : `ModelHint` renommée `StatusHint`, message clair sur 429 (limite de requêtes) ; `RawTextFallbackMessage` (« Nettoyage indisponible, texte brut inséré. … »).
+- Pastille rouge ~2 s à chaque échec de dictée, de style ou d'assistant : `DictationVisual.Error`, `BadgeWindow.ShowError`, jetons `BadgeErrorColor`/`BadgeErrorBrush`, minuteur de retour au repos dans `App` ; `DictationController.ReportError` remplace les bulles isolées (deux échecs jusque-là silencieux de `Styles` corrigés) ; nettoyage en échec signalé après le collage du texte brut (`ProcessDictation`).
+- `ModelInfo.ReasoningEffort` : GPT-OSS 120B envoyé avec `reasoning_effort: "low"` (`CleanupService`, `AgentChatService`). Mesure d'Alexandre, 5 dictées : médiane du nettoyage 1202 ms → 822 ms. Blocs `<think>` retirés (`CleanupService.StripReasoning`), réponse vide = erreur propre.
+- `ModelCatalog` : GPT-OSS 120B en tête et défaut de la prise en main (`DefaultGroqCleanupId`), Qwen 3.8 libellé « préversion » ; `ReplacementFor` + `ConfigService.MigrateRetiredModels` remplacent à la lecture de la config les modèles retirés (Llama, Qwen 3 / 3.6, Gemini 2.0 Flash) dans le réglage global, l'assistant et les styles.
+- `ModelUpdateService` : organisation et version collée au nom reconnues (Qwen), `GroqBareId`/`IsAvailable` ; « Vérifier les modèles » signale un modèle disparu et propose son remplaçant (`SettingsWindow.General.CheckOneModel`).
+- `TranscriptionService.BuildHint` : prompt de vocabulaire borné à 500 caractères, sans couper de terme.
+
 ## 5.4.16 — Dépôt public, mise à jour sans jeton ✅ (livrée le 2026-10-17)
 Demande : le dépôt passe en public, donc plus besoin de jeton GitHub (décision d'Alexandre). Numérotation : les lots 2 à 4 de l'audit passent en 5.4.17 à 5.4.19.
 - `UpdateService` : lecture anonyme de l'API GitHub (`GetLatestAsync`, `DownloadAsync` sans jeton, gestionnaire HTTP injectable) ; `ResolveToken`, `TokenFromGit` et `ParseCredentialPassword` supprimés (la lecture Git bornée de la 5.4.15 n'a plus d'objet).
