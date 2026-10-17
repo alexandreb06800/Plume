@@ -4,6 +4,12 @@
 
 ---
 
+## 5.4.19 — Plus léger ✅ (livrée le 2026-10-17)
+Demande : corrections de l'audit du 2026-10-16, lot 4.
+- `Plume.csproj` : paquet `NAudio` remplacé par son sous-paquet `NAudio.WinMM` (le code n'utilise que `WaveInEvent`, `WaveOutEvent`, `WaveFormat`, `WaveFileReader`, `WaveInEventArgs`, `StoppedEventArgs`). Dépendances embarquées : `NAudio.Core` et `NAudio.WinMM` seulement. Exe publié : 1 303 662 → 989 051 octets (−314 611, −24,1 %).
+- `ThemeService.RefreshFromWindows` : le dictionnaire de couleurs n'est rechargé (et `Changed` levé) que si le résultat clair/sombre change ; Windows signale la catégorie « General » pour bien d'autres réglages.
+- `CLAUDE.md` : ligne NAudio de la stack mise à jour.
+
 ## 5.4.18 — Réglages protégés et texte plus juste ✅ (livrée le 2026-10-17)
 Demande : corrections de l'audit du 2026-10-16, lot 3.
 - `ConfigService.Load` : un `config.json` illisible est copié en `config.illisible-AAAAMMJJ-HHmmss.json` avant que les défauts ne l'écrasent (`RecoveryBackupPath`) ; si la copie échoue (fichier verrouillé), `SavesSuspended` bloque `Save` jusqu'au redémarrage. Bulles au démarrage dans `App` (après celle d'OneDrive).
