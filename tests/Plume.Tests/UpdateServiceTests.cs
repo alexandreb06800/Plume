@@ -1,5 +1,6 @@
 using System.IO;
 using System.IO.Compression;
+using System.Net;
 using Plume.Services;
 using Xunit;
 
@@ -144,4 +145,57 @@ public class UpdateServiceTests : IDisposable
     [Fact]
     public void ResolveToken_JetonDesReglages_Prioritaire()
         => Assert.Equal("ghp_abc", UpdateService.ResolveToken("  ghp_abc  "));
+
+    private static string Sha256Hex(string s)
+        => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(s))).ToLowerInvariant();
+
+    private static UpdateInfo Info(string? sha)
+        => new(new Version(5, 4, 99), "v5.4.99", "https://api.github.com/repos/o/r/releases/assets/1", sha);
+
+    [Fact]
+    public async Task DownloadAsync_SansEmpreinte_RefuseSansTelecharger()
+    {
+        var fake = new FakeHttpHandler(HttpStatusCode.OK, "archive");
+        var dest = Path.Combine(_dir, "dl");
+        var ex = await Assert.ThrowsAsync<UpdateException>(() => UpdateService.DownloadAsync("t", Info(null), dest, fake));
+        Assert.Contains("empreinte", ex.Message);
+        Assert.Null(fake.LastRequest);
+        Assert.False(Directory.Exists(dest) && Directory.EnumerateFiles(dest).Any());
+    }
+
+    [Fact]
+    public async Task DownloadAsync_EmpreinteFausse_RefuseEtSupprimeLArchive()
+    {
+        var fake = new FakeHttpHandler(HttpStatusCode.OK, "archive");
+        var dest = Path.Combine(_dir, "dl");
+        var ex = await Assert.ThrowsAsync<UpdateException>(() => UpdateService.DownloadAsync("t", Info(Hash), dest, fake));
+        Assert.Contains("ne correspond pas", ex.Message);
+        Assert.Empty(Directory.EnumerateFiles(dest));
+    }
+
+    [Fact]
+    public async Task DownloadAsync_EmpreinteJuste_RenvoieLeChemin()
+    {
+        var fake = new FakeHttpHandler(HttpStatusCode.OK, "archive");
+        var path = await UpdateService.DownloadAsync("t", Info(Sha256Hex("archive")), Path.Combine(_dir, "dl"), fake);
+        Assert.Equal("archive", File.ReadAllText(path));
+        Assert.Equal("Bearer", fake.LastRequest!.Headers.Authorization!.Scheme);
+    }
+
+    [Fact]
+    public async Task DownloadAsync_Refus_MessageFrancais()
+    {
+        var fake = new FakeHttpHandler(HttpStatusCode.NotFound, "");
+        var ex = await Assert.ThrowsAsync<UpdateException>(
+            () => UpdateService.DownloadAsync("t", Info(Hash), Path.Combine(_dir, "dl"), fake));
+        Assert.Equal("Téléchargement refusé par GitHub (404).", ex.Message);
+    }
+
+    [Fact]
+    public void ParseLatestRelease_ArchiveHorsApiGitHub_Ignoree()
+    {
+        var json = "{\"tag_name\":\"v5.4.99\",\"body\":\"sha256: " + Hash + "\",\"assets\":["
+                 + "{\"name\":\"Plume-5.4.99.zip\",\"url\":\"https://exemple.invalid/Plume-5.4.99.zip\"}]}";
+        Assert.Null(UpdateService.ParseLatestRelease(json));
+    }
 }

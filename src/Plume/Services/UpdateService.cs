@@ -78,6 +78,8 @@ public static partial class UpdateService
                 var name = a.TryGetProperty("name", out var n) ? n.GetString() : null;
                 var url = a.TryGetProperty("url", out var u) ? u.GetString() : null;
                 if (name is null || url is null) continue;
+                // Le jeton GitHub est envoyé à cette adresse : on n'accepte que l'API GitHub.
+                if (!url.StartsWith("https://api.github.com/", StringComparison.Ordinal)) continue;
                 if (name.StartsWith("Plume-", StringComparison.OrdinalIgnoreCase)
                     && name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
                     return new UpdateInfo(version, tag, url, ExtractSha256(body));
@@ -162,9 +164,10 @@ public static partial class UpdateService
 
     // ---------- Réseau ----------
 
-    private static HttpClient CreateClient(string token)
+    private static HttpClient CreateClient(string token, HttpMessageHandler? handler = null)
     {
-        var http = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
+        var http = handler is null ? new HttpClient() : new HttpClient(handler, disposeHandler: false);
+        http.Timeout = TimeSpan.FromSeconds(60);
         http.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("Plume", "1.0")); // exigé par l'API GitHub
         http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         http.DefaultRequestHeaders.Add("X-GitHub-Api-Version", "2022-11-28");
@@ -194,11 +197,17 @@ public static partial class UpdateService
     }
 
     /// <summary>Télécharge l'archive de la version et vérifie son empreinte. Renvoie le chemin du fichier.</summary>
-    public static async Task<string> DownloadAsync(string token, UpdateInfo info, string destDir, CancellationToken ct = default)
+    public static async Task<string> DownloadAsync(string token, UpdateInfo info, string destDir,
+        HttpMessageHandler? handler = null, CancellationToken ct = default)
     {
+        // Empreinte obligatoire : un exe non signé ne s'installe pas sans contrôle d'intégrité.
+        // Refus en tête, avant tout dossier créé et tout appel réseau.
+        if (info.Sha256 is null)
+            throw new UpdateException("Cette version ne publie pas d'empreinte de contrôle : installation refusée.");
+
         Directory.CreateDirectory(destDir);
         var path = Path.Combine(destDir, $"Plume-{info.Version}.zip");
-        using var http = CreateClient(token);
+        using var http = CreateClient(token, handler);
         // « application/octet-stream » : l'API renvoie le fichier (via une redirection signée, sans le jeton).
         http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/octet-stream"));
         try
@@ -214,9 +223,6 @@ public static partial class UpdateService
             throw new UpdateException("Le téléchargement de la mise à jour a échoué.");
         }
 
-        // Empreinte obligatoire : un exe non signé ne s'installe pas sans contrôle d'intégrité.
-        if (info.Sha256 is null)
-            throw new UpdateException("Cette version ne publie pas d'empreinte de contrôle : installation refusée.");
         if (!string.Equals(Sha256Of(path), info.Sha256, StringComparison.OrdinalIgnoreCase))
         {
             try { File.Delete(path); } catch { }
