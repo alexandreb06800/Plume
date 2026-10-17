@@ -4,6 +4,12 @@
 
 ---
 
+## 5.4.15 — Mises à jour plus sûres ✅ (livrée le 2026-10-17)
+Demande : corrections de l'audit du 2026-10-16, lot 1.
+- `UpdateService.DownloadAsync` : refus « pas d'empreinte » en tête, avant tout dossier créé et tout appel réseau ; gestionnaire HTTP injectable (tests) ; `ParseLatestRelease` n'accepte qu'une archive hébergée sur `https://api.github.com/` (le jeton lui est envoyé).
+- `UpdateService.TokenFromGit` : lectures de sortie lancées avant l'écriture, délai de 8 s réellement effectif, processus tué en cas de dépassement ; logique de lecture extraite dans `ParseCredentialPassword` (testée).
+- `publish-release.ps1` : build `-warnaserror` et tests obligatoires avant toute publication ; Release créée en brouillon, publiée après l'envoi de l'archive (brouillon supprimé en cas d'échec) ; contrôle final de `releases/latest`.
+
 ## 5.4.14 — Correctifs de l'audit de juillet repris de la version travail ✅ (livrée le 2026-10-15)
 Demande : vérifier ce que la copie « travail » de Plume contenait que la version personnelle n'avait pas. Les versions 5.5.0 à 5.5.3 de la copie travail y étaient déjà (5.4.1 à 5.4.7 ici) ; restaient quatre correctifs de l'audit du 2026-07-27/28, postérieurs à la création de ce dépôt, sans rien de propre à l'employeur.
 - Préchauffage (`DictationController.WarmUpHostAsync`) : `HttpCompletionOption.ResponseHeadersRead`, pour ne plus télécharger le catalogue de modèles entier d'OpenRouter à chaque écoute, en concurrence avec l'upload de la dictée.

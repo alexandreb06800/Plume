@@ -36,6 +36,10 @@
         <Border Style="{StaticResource GroupBorder}" Padding="14,10">
             <StackPanel>
                 <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.4.15" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Mises à jour plus sûres : une version qui ne publie pas son empreinte de contrôle n'est plus téléchargée du tout, et l'archive n'est acceptée que si elle vient de l'API GitHub. La lecture de la connexion Git ne peut plus bloquer le bouton « Vérifier les mises à jour »."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
                     <Run Text="5.4.14" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
                     <Run Text="  Premier appui plus rapide : la pastille est préparée au repos, même masquée. Le préchauffage réseau ne télécharge plus la liste complète des modèles à chaque écoute. Dictionnaire : il n'alourdit plus le nettoyage de la dictée (la transcription le reçoit déjà) et s'applique désormais aux styles lancés sur un texte sélectionné. « Revoir la prise en main » depuis les Réglages ouverts ne voit plus son choix de modèle écrasé."/>
                 </TextBlock>
