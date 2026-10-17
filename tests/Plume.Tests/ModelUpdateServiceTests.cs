@@ -171,4 +171,33 @@ public class ModelUpdateServiceTests
 
         Assert.Empty(newer);
     }
+
+    [Fact]
+    public void FindNewer_QwenAvecOrganisation_VersionCollee_EstSignalee()
+        => Assert.Equal(new[] { "groq/qwen/qwen3.9-27b" },
+            ModelUpdateService.FindNewer("groq/qwen/qwen3.8-27b", new[] { "qwen/qwen3.8-27b", "qwen/qwen3.9-27b" }));
+
+    [Fact]
+    public void FindNewer_QwenTailleDifferente_NonSignalee()
+        => Assert.Empty(ModelUpdateService.FindNewer("groq/qwen/qwen3.8-27b", new[] { "qwen/qwen3.9-32b" }));
+
+    [Fact]
+    public void FindNewer_QwenAutreOrganisation_NonSignalee()
+        => Assert.Empty(ModelUpdateService.FindNewer("groq/qwen/qwen3.8-27b", new[] { "autre/qwen3.9-27b" }));
+
+    [Theory]
+    [InlineData("groq/openai/gpt-oss-120b", false, "openai/gpt-oss-120b")]
+    [InlineData("openai/gpt-4o-mini", false, null)]
+    [InlineData("openai/whisper-large-v3", true, "whisper-large-v3")]
+    [InlineData("whisper-large-v3", true, "whisper-large-v3")]
+    public void GroqBareId_DonneLIdListeParGroq(string configure, bool isStt, string? attendu)
+        => Assert.Equal(attendu, ModelUpdateService.GroqBareId(configure, isStt));
+
+    [Fact]
+    public void IsAvailable_CompareSansCasse()
+    {
+        var ids = new[] { "openai/gpt-oss-120b", "whisper-large-v3" };
+        Assert.True(ModelUpdateService.IsAvailable("OpenAI/GPT-OSS-120b", ids));
+        Assert.False(ModelUpdateService.IsAvailable("qwen/qwen3.6-27b", ids));
+    }
 }

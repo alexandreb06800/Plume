@@ -319,12 +319,11 @@ public partial class SettingsWindow
             var ids = await GroqModelsClient.FetchModelIdsAsync(
                 _updateHttp, groqKey, System.Threading.CancellationToken.None, TimeSpan.FromSeconds(15));
 
-            var sttNew = ModelUpdateService.FindNewer(_config.SttModel, ids);
-            var cleanupNew = ModelUpdateService.FindNewer(_config.CleanupModel, ids);
-
-            if (sttNew.Count > 0) AddUpdateRow("Transcription", sttNew[0], isStt: true);
-            if (cleanupNew.Count > 0) AddUpdateRow("Nettoyage", cleanupNew[0], isStt: false);
-            if (sttNew.Count == 0 && cleanupNew.Count == 0) ShowUpdatesStatus("Tu es à jour ✓");
+            bool anyRow = false;
+            anyRow |= CheckOneModel("Transcription", _config.SttModel, isStt: true, ids, ModelCatalog.Stt[0]);
+            anyRow |= CheckOneModel("Nettoyage", _config.CleanupModel, isStt: false, ids,
+                ModelCatalog.Find(ModelCatalog.DefaultGroqCleanupId)!);
+            if (!anyRow) ShowUpdatesStatus("Tu es à jour ✓");
         }
         catch (OpenRouterException ex) { ShowUpdatesStatus(ex.Message); }
         catch { ShowUpdatesStatus("Vérification impossible pour le moment."); }
@@ -335,22 +334,44 @@ public partial class SettingsWindow
         }
     }
 
-    /// <summary>Ligne « &lt;type&gt; : &lt;nouvel id&gt; » + bouton « Mettre à jour » (bascule le modèle en un clic).</summary>
-    private void AddUpdateRow(string kind, string newId, bool isStt)
+    /// <summary>Vérifie un modèle chez Groq : disparu → propose le remplaçant du catalogue (s'il existe encore
+    /// chez Groq) ; sinon, version plus récente de la même famille. Renvoie vrai si une ligne ou un message
+    /// a été affiché.</summary>
+    private bool CheckOneModel(string kind, string currentId, bool isStt, IReadOnlyList<string> ids, ModelInfo fallback)
+    {
+        var bare = ModelUpdateService.GroqBareId(currentId, isStt);
+        if (bare is not null && !ModelUpdateService.IsAvailable(bare, ids))
+        {
+            var fallbackBare = ModelUpdateService.GroqBareId(fallback.Id, isStt);
+            if (fallbackBare is not null && ModelUpdateService.IsAvailable(fallbackBare, ids))
+                AddUpdateRow($"{kind} : « {currentId} » n'existe plus chez Groq → {fallback.DisplayName}", fallback.Id, isStt);
+            else
+                ShowUpdatesStatus("Ton modèle n'existe plus chez Groq et aucun remplaçant connu n'est disponible : mets Plume à jour (À propos).");
+            return true;
+        }
+
+        var newer = ModelUpdateService.FindNewer(currentId, ids);
+        if (newer.Count == 0) return false;
+        AddUpdateRow($"{kind} : {newer[0]}", newer[0], isStt);
+        return true;
+    }
+
+    /// <summary>Ligne de texte + bouton « Mettre à jour » (bascule le modèle en un clic).</summary>
+    private void AddUpdateRow(string text, string newId, bool isStt)
     {
         var row = new System.Windows.Controls.Grid { Margin = new Thickness(2, 6, 0, 0) };
         row.ColumnDefinitions.Add(new System.Windows.Controls.ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         row.ColumnDefinitions.Add(new System.Windows.Controls.ColumnDefinition { Width = GridLength.Auto });
 
-        var text = new System.Windows.Controls.TextBlock
+        var label = new System.Windows.Controls.TextBlock
         {
-            Text = $"{kind} : {newId}",
+            Text = text,
             FontSize = 12,
             TextWrapping = TextWrapping.Wrap,
             VerticalAlignment = VerticalAlignment.Center,
             Foreground = (System.Windows.Media.Brush)FindResource("InkBrush")
         };
-        System.Windows.Controls.Grid.SetColumn(text, 0);
+        System.Windows.Controls.Grid.SetColumn(label, 0);
 
         var btn = new System.Windows.Controls.Button
         {
@@ -363,7 +384,7 @@ public partial class SettingsWindow
         System.Windows.Controls.Grid.SetColumn(btn, 1);
         btn.Click += (_, _) => ApplyModelUpdate(newId, isStt, row);
 
-        row.Children.Add(text);
+        row.Children.Add(label);
         row.Children.Add(btn);
         PanelGeneral.UpdatesPanel.Children.Add(row);
     }
