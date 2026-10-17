@@ -25,12 +25,7 @@
         <TextBlock x:Name="UpdateStatus" Foreground="{DynamicResource SecondaryBrush}" FontSize="12"
                    TextWrapping="Wrap" TextAlignment="Center" MaxWidth="420" Margin="0,8,0,0"
                    Visibility="Collapsed"/>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,16"
-                    ToolTip="Jeton GitHub en lecture seule donnant accès aux versions publiées. Laisse vide pour utiliser la connexion Git déjà enregistrée sur ce poste.">
-            <TextBlock Text="Jeton GitHub (facultatif)" Foreground="{DynamicResource TertiaryBrush}" FontSize="12"
-                       VerticalAlignment="Center" Margin="0,0,8,0"/>
-            <PasswordBox x:Name="UpdateTokenBox" Width="200" VerticalContentAlignment="Center" MinHeight="28"/>
-        </StackPanel>
+        <Border Height="16"/>
 
         <TextBlock Text="Nouveautés" Style="{StaticResource GroupLabel}"/>
         <Border Style="{StaticResource GroupBorder}" Padding="14,10">

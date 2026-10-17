@@ -142,19 +142,6 @@ public class UpdateServiceTests : IDisposable
         Assert.Equal("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", UpdateService.Sha256Of(f));
     }
 
-    [Fact]
-    public void ResolveToken_JetonDesReglages_Prioritaire()
-        => Assert.Equal("ghp_abc", UpdateService.ResolveToken("  ghp_abc  "));
-
-    [Theory]
-    [InlineData("protocol=https\nhost=github.com\nusername=x\npassword=gho_abc\n", "gho_abc")]
-    [InlineData("password=  gho_abc  \r\n", "gho_abc")]
-    [InlineData("protocol=https\nhost=github.com\n", null)]
-    [InlineData("password=\n", null)]
-    [InlineData("", null)]
-    public void ParseCredentialPassword_LitLeJeton(string sortie, string? attendu)
-        => Assert.Equal(attendu, UpdateService.ParseCredentialPassword(sortie));
-
     private static string Sha256Hex(string s)
         => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(s))).ToLowerInvariant();
 
@@ -166,7 +153,7 @@ public class UpdateServiceTests : IDisposable
     {
         var fake = new FakeHttpHandler(HttpStatusCode.OK, "archive");
         var dest = Path.Combine(_dir, "dl");
-        var ex = await Assert.ThrowsAsync<UpdateException>(() => UpdateService.DownloadAsync("t", Info(null), dest, fake));
+        var ex = await Assert.ThrowsAsync<UpdateException>(() => UpdateService.DownloadAsync(Info(null), dest, fake));
         Assert.Contains("empreinte", ex.Message);
         Assert.Null(fake.LastRequest);
         Assert.False(Directory.Exists(dest) && Directory.EnumerateFiles(dest).Any());
@@ -177,7 +164,7 @@ public class UpdateServiceTests : IDisposable
     {
         var fake = new FakeHttpHandler(HttpStatusCode.OK, "archive");
         var dest = Path.Combine(_dir, "dl");
-        var ex = await Assert.ThrowsAsync<UpdateException>(() => UpdateService.DownloadAsync("t", Info(Hash), dest, fake));
+        var ex = await Assert.ThrowsAsync<UpdateException>(() => UpdateService.DownloadAsync(Info(Hash), dest, fake));
         Assert.Contains("ne correspond pas", ex.Message);
         Assert.Empty(Directory.EnumerateFiles(dest));
     }
@@ -186,9 +173,9 @@ public class UpdateServiceTests : IDisposable
     public async Task DownloadAsync_EmpreinteJuste_RenvoieLeChemin()
     {
         var fake = new FakeHttpHandler(HttpStatusCode.OK, "archive");
-        var path = await UpdateService.DownloadAsync("t", Info(Sha256Hex("archive")), Path.Combine(_dir, "dl"), fake);
+        var path = await UpdateService.DownloadAsync(Info(Sha256Hex("archive")), Path.Combine(_dir, "dl"), fake);
         Assert.Equal("archive", File.ReadAllText(path));
-        Assert.Equal("Bearer", fake.LastRequest!.Headers.Authorization!.Scheme);
+        Assert.Null(fake.LastRequest!.Headers.Authorization); // dépôt public : aucun jeton envoyé
     }
 
     [Fact]
@@ -196,7 +183,7 @@ public class UpdateServiceTests : IDisposable
     {
         var fake = new FakeHttpHandler(HttpStatusCode.NotFound, "");
         var ex = await Assert.ThrowsAsync<UpdateException>(
-            () => UpdateService.DownloadAsync("t", Info(Hash), Path.Combine(_dir, "dl"), fake));
+            () => UpdateService.DownloadAsync(Info(Hash), Path.Combine(_dir, "dl"), fake));
         Assert.Equal("Téléchargement refusé par GitHub (404).", ex.Message);
     }
 
@@ -206,5 +193,24 @@ public class UpdateServiceTests : IDisposable
         var json = "{\"tag_name\":\"v5.4.99\",\"body\":\"sha256: " + Hash + "\",\"assets\":["
                  + "{\"name\":\"Plume-5.4.99.zip\",\"url\":\"https://exemple.invalid/Plume-5.4.99.zip\"}]}";
         Assert.Null(UpdateService.ParseLatestRelease(json));
+    }
+
+    [Fact]
+    public async Task GetLatestAsync_DepotPublic_NEnvoieAucunJeton()
+    {
+        var json = "{\"tag_name\":\"v5.4.99\",\"body\":\"sha256: " + Hash + "\",\"assets\":["
+                 + "{\"name\":\"Plume-5.4.99.zip\",\"url\":\"https://api.github.com/a/2\"}]}";
+        var fake = new FakeHttpHandler(HttpStatusCode.OK, json);
+        var info = await UpdateService.GetLatestAsync(fake);
+        Assert.Equal(new Version(5, 4, 99), info!.Version);
+        Assert.Null(fake.LastRequest!.Headers.Authorization);
+    }
+
+    [Fact]
+    public async Task GetLatestAsync_404_MessageSansMentionDeJeton()
+    {
+        var fake = new FakeHttpHandler(HttpStatusCode.NotFound, "");
+        var ex = await Assert.ThrowsAsync<UpdateException>(() => UpdateService.GetLatestAsync(fake));
+        Assert.Equal("Aucune version publiée.", ex.Message);
     }
 }

@@ -31,10 +31,7 @@ Plume s'inscrit d'elle-même au démarrage de Windows et vit dans la zone de not
 
 **Réglages → À propos → « Vérifier les mises à jour »**. Si une version plus récente existe, le bouton devient « Installer la version X » : un clic, et Plume la télécharge, vérifie son empreinte, s'installe et redémarre toute seule. Rien n'est vérifié sans clic, ni au démarrage.
 
-Le dépôt étant privé, Plume a besoin d'un accès à GitHub :
-
-- si Git est installé et déjà connecté à GitHub sur le poste, il n'y a **rien à faire** ;
-- sinon, crée un **jeton GitHub en lecture seule** (GitHub → Settings → Developer settings → Fine-grained tokens → accès au dépôt Plume, permission « Contents : Read-only ») et colle-le dans le champ « Jeton GitHub (facultatif) », sous le bouton.
+Le dépôt est public : Plume lit les versions publiées sans compte ni jeton GitHub.
 
 ## Sécurité et données
 

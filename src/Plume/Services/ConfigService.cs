@@ -54,7 +54,6 @@ public class ConfigService
 
         cfg.OpenRouterApiKey = Unprotect(cfg.OpenRouterApiKey);
         cfg.GroqApiKey = Unprotect(cfg.GroqApiKey);
-        cfg.UpdateToken = Unprotect(cfg.UpdateToken);
         StyleService.Normalize(cfg, legacyCleanup);
         MigrateBadgePosition(cfg);
         return cfg;
@@ -124,7 +123,6 @@ public class ConfigService
             var node = JsonNode.Parse(json)!.AsObject();
             node["openRouterApiKey"] = Protect(config.OpenRouterApiKey);
             node["groqApiKey"] = Protect(config.GroqApiKey);
-            node["updateToken"] = Protect(config.UpdateToken);
             // Écriture atomique : jamais de config.json tronqué si le process est tué en pleine écriture
             // (Load repartirait silencieusement des défauts, clés API comprises).
             var tmp = ConfigPath + ".tmp";

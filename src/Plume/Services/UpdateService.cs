@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
@@ -23,8 +22,7 @@ public sealed class UpdateException : Exception
 /// Mise à jour à la demande (bouton « Vérifier les mises à jour » de l'onglet À propos) : lit la dernière
 /// Release du dépôt GitHub, télécharge l'archive, vérifie son empreinte, remplace l'exe et ses ressources.
 /// RIEN n'est fait au démarrage ni en arrière-plan : aucun appel réseau sans clic (RÈGLE PRIMORDIALE et
-/// docs/confidentialite-flux-donnees.md). Le dépôt étant privé, l'accès passe par un jeton : celui des
-/// Réglages, sinon la connexion Git déjà enregistrée sur le poste (Git Credential Manager).
+/// docs/confidentialite-flux-donnees.md). Le dépôt est public : lecture anonyme, aucun jeton.
 /// </summary>
 public static partial class UpdateService
 {
@@ -78,7 +76,7 @@ public static partial class UpdateService
                 var name = a.TryGetProperty("name", out var n) ? n.GetString() : null;
                 var url = a.TryGetProperty("url", out var u) ? u.GetString() : null;
                 if (name is null || url is null) continue;
-                // Le jeton GitHub est envoyé à cette adresse : on n'accepte que l'API GitHub.
+                // On n'accepte qu'une archive hébergée par l'API GitHub.
                 if (!url.StartsWith("https://api.github.com/", StringComparison.Ordinal)) continue;
                 if (name.StartsWith("Plume-", StringComparison.OrdinalIgnoreCase)
                     && name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
@@ -164,20 +162,19 @@ public static partial class UpdateService
 
     // ---------- Réseau ----------
 
-    private static HttpClient CreateClient(string token, HttpMessageHandler? handler = null)
+    private static HttpClient CreateClient(HttpMessageHandler? handler = null)
     {
         var http = handler is null ? new HttpClient() : new HttpClient(handler, disposeHandler: false);
         http.Timeout = TimeSpan.FromSeconds(60);
         http.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("Plume", "1.0")); // exigé par l'API GitHub
-        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         http.DefaultRequestHeaders.Add("X-GitHub-Api-Version", "2022-11-28");
         return http;
     }
 
     /// <summary>Dernière version publiée, ou null s'il n'existe encore aucune Release exploitable.</summary>
-    public static async Task<UpdateInfo?> GetLatestAsync(string token, CancellationToken ct = default)
+    public static async Task<UpdateInfo?> GetLatestAsync(HttpMessageHandler? handler = null, CancellationToken ct = default)
     {
-        using var http = CreateClient(token);
+        using var http = CreateClient(handler);
         http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
         HttpResponseMessage resp;
         try { resp = await http.GetAsync($"https://api.github.com/repos/{Repository}/releases/latest", ct); }
@@ -186,18 +183,15 @@ public static partial class UpdateService
             throw new UpdateException("Pas de réseau : impossible de joindre GitHub.");
         }
         using var _ = resp;
-        if (resp.StatusCode == HttpStatusCode.Unauthorized)
-            throw new UpdateException("Jeton GitHub refusé (expiré ou invalide).");
         if (resp.StatusCode == HttpStatusCode.NotFound)
-            // Dépôt privé : GitHub répond 404 aussi bien « aucune Release » que « jeton sans accès au dépôt ».
-            throw new UpdateException("Aucune version publiée, ou le jeton n'a pas accès au dépôt.");
+            throw new UpdateException("Aucune version publiée.");
         if (!resp.IsSuccessStatusCode)
             throw new UpdateException($"GitHub a répondu une erreur ({(int)resp.StatusCode}).");
         return ParseLatestRelease(await resp.Content.ReadAsStringAsync(ct));
     }
 
     /// <summary>Télécharge l'archive de la version et vérifie son empreinte. Renvoie le chemin du fichier.</summary>
-    public static async Task<string> DownloadAsync(string token, UpdateInfo info, string destDir,
+    public static async Task<string> DownloadAsync(UpdateInfo info, string destDir,
         HttpMessageHandler? handler = null, CancellationToken ct = default)
     {
         // Empreinte obligatoire : un exe non signé ne s'installe pas sans contrôle d'intégrité.
@@ -207,7 +201,7 @@ public static partial class UpdateService
 
         Directory.CreateDirectory(destDir);
         var path = Path.Combine(destDir, $"Plume-{info.Version}.zip");
-        using var http = CreateClient(token, handler);
+        using var http = CreateClient(handler);
         // « application/octet-stream » : l'API renvoie le fichier (via une redirection signée, sans le jeton).
         http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/octet-stream"));
         try
@@ -229,56 +223,5 @@ public static partial class UpdateService
             throw new UpdateException("L'archive téléchargée ne correspond pas à l'empreinte publiée : installation refusée.");
         }
         return path;
-    }
-
-    // ---------- Jeton ----------
-
-    /// <summary>Jeton à utiliser : celui des Réglages, sinon la connexion Git enregistrée sur le poste
-    /// (« git credential fill », sans jamais ouvrir de fenêtre). Null si aucun n'est disponible.</summary>
-    public static string? ResolveToken(string? configured)
-        => !string.IsNullOrWhiteSpace(configured) ? configured.Trim() : TokenFromGit();
-
-    private static string? TokenFromGit()
-    {
-        try
-        {
-            var psi = new ProcessStartInfo("git", "credential fill")
-            {
-                RedirectStandardInput = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-            };
-            // Aucune invite : si Git n'a pas déjà la connexion, on renonce en silence.
-            psi.Environment["GIT_TERMINAL_PROMPT"] = "0";
-            psi.Environment["GCM_INTERACTIVE"] = "never";
-            using var p = Process.Start(psi);
-            if (p is null) return null;
-            // Lectures lancées AVANT d'écrire : sinon un Git bloqué rend le délai ci-dessous inopérant.
-            var sortie = p.StandardOutput.ReadToEndAsync();
-            _ = p.StandardError.ReadToEndAsync();
-            p.StandardInput.Write("protocol=https\nhost=github.com\n\n");
-            p.StandardInput.Close();
-            if (!p.WaitForExit(8000) || !sortie.Wait(1000))
-            {
-                try { p.Kill(entireProcessTree: true); } catch { }
-                return null;
-            }
-            return ParseCredentialPassword(sortie.Result);
-        }
-        catch { return null; } // Git absent du poste : pas de jeton par ce moyen
-    }
-
-    /// <summary>Jeton lu sur la ligne « password=… » de la sortie de « git credential fill » ; null s'il manque ou est vide.</summary>
-    public static string? ParseCredentialPassword(string output)
-    {
-        foreach (var line in output.Split('\n'))
-            if (line.StartsWith("password=", StringComparison.Ordinal))
-            {
-                var token = line["password=".Length..].Trim();
-                return token.Length > 0 ? token : null;
-            }
-        return null;
     }
 }

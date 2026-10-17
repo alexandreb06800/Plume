@@ -6,9 +6,6 @@ public class AppConfig
     public string? OpenRouterApiKey { get; set; }
     /// <summary>Clé Groq optionnelle : si renseignée, la transcription passe par Groq en direct (bien plus rapide).</summary>
     public string? GroqApiKey { get; set; }
-    /// <summary>Jeton GitHub (lecture seule) du bouton « Vérifier les mises à jour ». Facultatif : sans lui, Plume
-    /// utilise la connexion Git déjà enregistrée sur le poste. Chiffré sur disque (DPAPI), comme les clés API.</summary>
-    public string? UpdateToken { get; set; }
     public string SttModel { get; set; } = "openai/whisper-large-v3-turbo";
     public string CleanupModel { get; set; } = "openai/gpt-4o-mini";
     public HotkeyConfig Hotkey { get; set; } = new();

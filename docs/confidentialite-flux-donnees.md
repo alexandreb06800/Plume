@@ -20,7 +20,7 @@
 | **Texte sélectionné** | à chaque style appliqué sur une sélection (y c. le fil d'emails complet pour « Email pro ») | idem nettoyage |
 | **Questions + historique de conversation** (20 derniers tours) | à chaque tour de l'assistant vocal | idem nettoyage |
 | **Vocabulaire personnalisé** (noms de clients, jargon) | joint à chaque requête STT et nettoyage | Groq et/ou OpenRouter |
-| **Vérification de mise à jour** (5.4.8) : aucun contenu dicté ; le jeton GitHub (ou la connexion Git du poste) et le numéro de version demandé | **uniquement au clic** sur « Vérifier les mises à jour » (À propos) — jamais au démarrage | API GitHub (`api.github.com`, puis téléchargement de l'archive) |
+| **Vérification de mise à jour** (5.4.8) : aucun contenu dicté ; aucun jeton ni identifiant (dépôt public, lecture anonyme) ; seul l'appel à l'API GitHub, avec l'adresse IP du poste | **uniquement au clic** sur « Vérifier les mises à jour » (À propos) — jamais au démarrage | API GitHub (`api.github.com`, puis téléchargement de l'archive) |
 | **Prompts des styles** (dont le référentiel du style « Email pro » : noms internes, clients, infra) | à chaque usage du style | idem nettoyage |
 | Rien d'autre | — | aucune télémétrie, aucun serveur tiers propriétaire, aucun autre tiers |
 
