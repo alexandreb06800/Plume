@@ -143,16 +143,6 @@ public class ReplacementServiceTests
     }
 
     [Fact]
-    public void Apply_FromFinissantParUnNonMot_LimiteConnue_NeMatchePas()
-    {
-        // Limite documentée : \b après « + » exige un caractère de mot adjacent — une règle dont le « De »
-        // se termine par un caractère non-mot (c++, .net…) ne matche jamais. Ce test FIGE le comportement
-        // actuel : s'il casse un jour, c'est qu'on a (volontairement ?) changé la construction du motif.
-        var res = ReplacementService.Apply("je code en c++ tous les jours", Rules(("c++", "C++")));
-        Assert.Equal("je code en c++ tous les jours", res);
-    }
-
-    [Fact]
     public void Apply_VersMultiligne_ConserveLesSauts()
     {
         // Champ « Vers » multi-ligne (signatures, livré en 5.1.11).
@@ -202,4 +192,21 @@ public class ReplacementServiceTests
     {
         Assert.Equal("\nBonjour", ReplacementService.ApplyLineBreaks("à la ligne bonjour"));
     }
+
+    [Theory]
+    [InlineData("je code en c++ tous les jours", "c++", "C++", "je code en C++ tous les jours")]
+    [InlineData("merci @sig", "@sig", "Jean", "merci Jean")]
+    [InlineData("voir (test) ici", "(test)", "[ok]", "voir [ok] ici")]
+    public void Apply_FromAvecSymboles_RemplaceLitteralement(string texte, string de, string vers, string attendu)
+        => Assert.Equal(attendu, ReplacementService.Apply(texte, Rules((de, vers))));
+
+    [Fact]
+    public void Apply_FromAvecSymboles_NeMatchePasDansUnMot()
+        => Assert.Equal("contact@sigma.fr", ReplacementService.Apply("contact@sigma.fr", Rules(("@sig", "X"))));
+
+    [Theory]
+    [InlineData("Corrige l'erreur à la ligne 3 du tableau")]
+    [InlineData("Regarde la nouvelle ligne 12 de la facture")]
+    public void ApplyLineBreaks_SuiviDUnNombre_TexteInchange(string texte)
+        => Assert.Equal(texte, ReplacementService.ApplyLineBreaks(texte));
 }

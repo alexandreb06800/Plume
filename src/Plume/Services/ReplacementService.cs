@@ -3,7 +3,9 @@ using Plume.Models;
 
 namespace Plume.Services;
 
-/// <summary>Applique les règles de remplacement exactes (mot entier, insensible à la casse) au texte final.</summary>
+/// <summary>Applique les règles de remplacement exactes (littérales, jamais à l'intérieur d'un mot,
+/// insensible à la casse) au texte final. « Jamais à l'intérieur d'un mot » = pas de caractère de mot juste
+/// avant ni juste après : vrai aussi pour une règle qui commence ou finit par un symbole (« c++ », « @sig »).</summary>
 public static class ReplacementService
 {
     public static string Apply(string text, IReadOnlyList<ReplacementRule> rules)
@@ -12,7 +14,7 @@ public static class ReplacementService
         foreach (var r in rules)
         {
             if (string.IsNullOrWhiteSpace(r.From)) continue;
-            var pattern = $@"\b{Regex.Escape(r.From)}\b";
+            var pattern = $@"(?<!\w){Regex.Escape(r.From)}(?!\w)";
             // MatchEvaluator : évite l'interprétation des $ dans le texte de remplacement.
             text = Regex.Replace(text, pattern, _ => r.To ?? "", RegexOptions.IgnoreCase);
         }
@@ -32,10 +34,12 @@ public static class ReplacementService
 
     // Déclencheurs triés du plus long au plus court : « retour à la ligne » doit être absorbé
     // en entier (pas seulement son suffixe « à la ligne »), sinon le mot « retour » reste orphelin.
+    // Une commande suivie d'un nombre (« à la ligne 3 », « nouvelle ligne 12 ») est du texte, pas une commande :
+    // le test (?![ \t]*[,\.]?[ \t]*\d) la laisse intacte.
     // Avant la commande : blancs y compris retours à la ligne (\s) — le nettoyage peut avoir placé la commande
     // en tête de ligne (« retour.\nÀ la ligne, je… ») ; sans ça, le saut s'ajoutait au sien (« retour.\n.\nJe »).
     private static readonly Regex LineBreakPattern = new(
-        @"\s*([,\.]?)\s*\b(nouveau paragraphe|retour à la ligne|à la ligne|nouvelle ligne)\b[ \t]*[,\.]?[ \t]*(\p{L})?",
+        @"\s*([,\.]?)\s*\b(nouveau paragraphe|retour à la ligne|à la ligne|nouvelle ligne)\b(?![ \t]*[,\.]?[ \t]*\d)[ \t]*[,\.]?[ \t]*(\p{L})?",
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     /// <summary>
