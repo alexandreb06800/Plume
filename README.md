@@ -35,9 +35,9 @@ Le dépôt est public : Plume lit les versions publiées sans compte ni jeton Gi
 
 ## Sécurité et données
 
-- **Aucune clé n'est fournie avec Plume** : ni dans ce dépôt, ni dans l'exe. Chacun saisit sa propre clé, qui reste sur son poste, **chiffrée** (DPAPI de Windows, liée à la session) dans `%APPDATA%\Plumenfig.json`.
+- **Aucune clé n'est fournie avec Plume** : ni dans ce dépôt, ni dans l'exe. Chacun saisit sa propre clé, qui reste sur son poste, **chiffrée** (DPAPI de Windows, liée à la session) dans `%APPDATA%\Plume\config.json`.
 - **Ce qui quitte ton poste** : l'audio dicté part chez Groq pour être transcrit, puis le texte part chez Groq (ou OpenRouter, selon le modèle choisi) pour être nettoyé. Rien d'autre : pas de télémétrie, pas de compte Plume. Détail des flux et des engagements des fournisseurs : [`docs/confidentialite-flux-donnees.md`](docs/confidentialite-flux-donnees.md).
-- **Rien n'est conservé** : ni l'audio, ni le texte dicté ne sont écrits sur disque. Le texte dicté est tenu hors de l'historique du presse-papiers Windows (Win+V).
+- **Rien n'est conservé** : ni l'audio, ni le texte dicté ne sont écrits sur disque. Le texte dicté est tenu hors de l'historique du presse-papiers Windows (Win+V), sauf si tu le copies toi-même avec « Copier le dernier message ».
 - **L'exe n'est pas signé** (d'où l'avertissement de Windows à la première exécution). L'intégrité de chaque version se vérifie par son empreinte SHA-256, que le bouton de mise à jour contrôle systématiquement.
 
 ## Désinstallation

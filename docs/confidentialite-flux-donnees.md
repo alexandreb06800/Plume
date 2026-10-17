@@ -1,7 +1,7 @@
 # Confidentialité — audit des flux de données de Plume
 
 > Audit réalisé les 2026-07-16/17 (version 5.3.8). Volet code : lecture intégrale des services réseau
-> (`docs/audits/2026-07-16-audit-complet.md`). Volet fournisseurs : chaque affirmation ci-dessous a été
+> (`docs/audits/2026-07-16-audit-complet.md` (non versionné)). Volet fournisseurs : chaque affirmation ci-dessous a été
 > sourcée sur les pages officielles puis **contre-vérifiée par une relecture indépendante de la source**
 > (21 affirmations, 21 vérifiées ; 3 corrigées au passage). Les politiques des fournisseurs évoluent :
 > les constats valent **à la date de consultation** et sont à revérifier ~une fois par an.
@@ -22,6 +22,8 @@
 | **Vocabulaire personnalisé** (noms de clients, jargon) | joint à chaque requête STT et nettoyage | Groq et/ou OpenRouter |
 | **Vérification de mise à jour** (5.4.8) : aucun contenu dicté ; aucun jeton ni identifiant (dépôt public, lecture anonyme) ; seul l'appel à l'API GitHub, avec l'adresse IP du poste | **uniquement au clic** sur « Vérifier les mises à jour » (À propos) — jamais au démarrage | API GitHub (`api.github.com`, puis téléchargement de l'archive) |
 | **Prompts des styles** (dont le référentiel du style « Email pro » : noms internes, clients, infra) | à chaque usage du style | idem nettoyage |
+| **Préchauffage réseau** : aucun contenu, seulement la clé API (en-tête) | à chaque début d'écoute | Groq `/models`, OpenRouter `/key` |
+| **Vérification des modèles et test de clé** : aucun contenu, seulement la clé Groq | uniquement au clic (Réglages, prise en main) | Groq `/models` |
 | Rien d'autre | — | aucune télémétrie, aucun serveur tiers propriétaire, aucun autre tiers |
 
 **Ce qui ne sort jamais** : les clés API (chiffrées DPAPI dans `config.json`, jamais journalisées), le
@@ -89,6 +91,8 @@ une restriction** en révèlent. C'est cette ligne qui guide les règles d'usage
    self-serve est acceptée en connaissance de cause, les mesures 1, 2 et 4 s'appliquant en
    compensation ; la bascule vers un modèle `groq/…` (Réglages → Général, deux clics, sans
    réinstallation) reste la porte de sortie si la conformité devait primer un jour.
+   Mise à jour du 2026-10-16 : la prise en main 100 % Groq propose désormais GPT-OSS 120B (Groq, modèle
+   « Production ») ; gpt-4o-mini via OpenRouter reste un choix possible dans les Réglages.
 4. **Diffuser la page ci-dessous** aux collègues équipés (email d'invitation, Confluence).
 5. **Revérification annuelle** : registre DPF (dataprivacyframework.gov) et les pages sources listées
    en fin de document.

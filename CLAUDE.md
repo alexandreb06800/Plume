@@ -46,7 +46,7 @@ Tests : `tests/Plume.Tests` (xUnit, logique pure uniquement). Déploiement : `de
 
 ## Périmètre de travail
 - Version courante : voir `<Version>` dans `src/Plume/Plume.csproj`. **À-venir et plans prêts : `docs/roadmap.md` (point d'entrée unique).** Historique livré : `docs/roadmap-archive.md` (ne lire que pour une décision passée).
-- **NE PAS** implémenter : traduction (jamais), snippets (couverts par les règles de remplacement), ni les idées non validées (`docs/superpowers/specs/2026-07-03-plume-idees-ulterieures-cadrees.md`).
+- **NE PAS** implémenter : traduction (jamais), snippets (couverts par les règles de remplacement), ni les idées non validées (liste close : `docs/roadmap.md`, section « Idées ultérieures »).
 
 ## Règles pour Claude Code
 - Toutes les chaînes d'interface **en français** ; commentaires en français, concis.
@@ -56,4 +56,4 @@ Tests : `tests/Plume.Tests` (xUnit, logique pure uniquement). Déploiement : `de
 - Avant d'ajouter une dépendance NuGet : vérifier qu'elle est légère et justifiée (défaut : refuser).
 - Un fichier ajouté/renommé → mettre à jour la « Carte du code » ci-dessus.
 - **À chaque version livrée** : bump `<Version>` dans `Plume.csproj` **+** ligne de changelog en tête de l'onglet « À propos » **+** mise à jour `docs/roadmap.md` (retirer de l'à-venir) et `docs/roadmap-archive.md` (ajouter au livré) **+** après le `git push`, `./publish-release.ps1` (Release GitHub lue par le bouton « Vérifier les mises à jour » ; le dépôt nommé dans le script doit rester celui de `UpdateService.Repository`). Aucune livraison sans ces 5 étapes.
-- Git : commits directs sur `master` (pas de branches ni PR), puis **`git push` en fin de livraison** — le dépôt est sauvegardé sur GitHub (privé : `alexandreb06800/Plume`, depuis le 2026-07-23).
+- Git : commits directs sur `main` (pas de branches ni PR), puis **`git push` en fin de livraison** — le dépôt est sauvegardé sur GitHub (public depuis le 2026-10-17 : `alexandreb06800/Plume` ; ne jamais y mettre de clé, de nom réel ni de donnée perso).
