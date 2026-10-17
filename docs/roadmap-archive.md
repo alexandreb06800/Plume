@@ -4,6 +4,13 @@
 
 ---
 
+## 5.4.16 — Dépôt public, mise à jour sans jeton ✅ (livrée le 2026-10-17)
+Demande : le dépôt passe en public, donc plus besoin de jeton GitHub (décision d'Alexandre). Numérotation : les lots 2 à 4 de l'audit passent en 5.4.17 à 5.4.19.
+- `UpdateService` : lecture anonyme de l'API GitHub (`GetLatestAsync`, `DownloadAsync` sans jeton, gestionnaire HTTP injectable) ; `ResolveToken`, `TokenFromGit` et `ParseCredentialPassword` supprimés (la lecture Git bornée de la 5.4.15 n'a plus d'objet).
+- `AppConfig.UpdateToken` supprimé (un jeton déjà enregistré disparaît du `config.json` à la prochaine sauvegarde) ; champ « Jeton GitHub » retiré de À propos.
+- README et `docs/confidentialite-flux-donnees.md` corrigés.
+- Historique Git réécrit (nom fictif remplacé dans les anciens commits) : tags et commits changent de numéro, la Release v5.4.15 est conservée.
+
 ## 5.4.15 — Mises à jour plus sûres ✅ (livrée le 2026-10-17)
 Demande : corrections de l'audit du 2026-10-16, lot 1.
 - `UpdateService.DownloadAsync` : refus « pas d'empreinte » en tête, avant tout dossier créé et tout appel réseau ; gestionnaire HTTP injectable (tests) ; `ParseLatestRelease` n'accepte qu'une archive hébergée sur `https://api.github.com/` (le jeton lui est envoyé).
