@@ -33,7 +33,13 @@ try {
     if (-not $Notes) { $Notes = git log -1 --format=%s }
 } finally { Pop-Location }
 
-# 2) Publier l'exe.
+# 2) Garde-fou : build complet sans avertissement et tests verts, sinon rien n'est publié.
+dotnet build (Join-Path $root 'Plume.sln') -c Release --no-incremental --nologo -v q -warnaserror
+if ($LASTEXITCODE -ne 0) { throw "Build en échec ou avec avertissements (code $LASTEXITCODE) : rien n'est publié." }
+dotnet test (Join-Path $root 'Plume.sln') -c Release --no-build --nologo -v q
+if ($LASTEXITCODE -ne 0) { throw "Tests en échec (code $LASTEXITCODE) : rien n'est publié." }
+
+# 3) Publier l'exe.
 $publishDir = Join-Path $root 'src\Plume\bin\Release\net10.0-windows\win-x64\publish'
 Write-Host "Publication de Plume $version…" -ForegroundColor Cyan
 # Dossier vidé d'abord : un second publish consécutif laisse « Resources » vide (constaté en 5.4.12),
@@ -42,7 +48,7 @@ if (Test-Path $publishDir) { Remove-Item $publishDir -Recurse -Force }
 dotnet publish (Join-Path $root 'src\Plume') -c Release -r win-x64 -p:PublishSingleFile=true --self-contained false --nologo -v q
 if ($LASTEXITCODE -ne 0) { throw "Échec de la publication (code $LASTEXITCODE)." }
 
-# 3) Archive : Plume.exe + Resources (logo, icône), comme deploy.ps1 les installe.
+# 4) Archive : Plume.exe + Resources (logo, icône), comme deploy.ps1 les installe.
 $stage = Join-Path $env:TEMP "plume-release-$version"
 if (Test-Path $stage) { Remove-Item $stage -Recurse -Force }
 New-Item -ItemType Directory -Path $stage | Out-Null
@@ -54,23 +60,39 @@ Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip
 $sha = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
 Write-Host ("Archive : {0} ({1:N0} Ko)  sha256 {2}" -f $zip, ((Get-Item $zip).Length / 1KB), $sha)
 
-# 4) Jeton : connexion Git du poste (jamais affiché).
+# 5) Jeton : connexion Git du poste (jamais affiché).
 $cred = "protocol=https`nhost=github.com`n`n" | git credential fill
 $token = ($cred | Where-Object { $_ -like 'password=*' } | Select-Object -First 1) -replace '^password=', ''
 if (-not $token) { throw "Aucune connexion Git enregistrée pour github.com." }
 $headers = @{ Authorization = "Bearer $token"; 'User-Agent' = 'Plume-publish'; Accept = 'application/vnd.github+json'; 'X-GitHub-Api-Version' = '2022-11-28' }
 
-# 5) Release (refus si elle existe déjà : une version publiée ne se réécrit pas).
+# 6) Release (refus si elle existe déjà : une version publiée ne se réécrit pas).
+#    Créée en brouillon, publiée seulement une fois l'archive envoyée : jamais de « dernière » Release sans archive.
 $existing = $null
 try { $existing = Invoke-RestMethod "https://api.github.com/repos/$repo/releases/tags/$tag" -Headers $headers } catch { }
 if ($existing) { throw "La Release $tag existe déjà. Incrémente <Version> avant de republier." }
 
-$body = @{ tag_name = $tag; target_commitish = $head; name = "Plume $version"; body = "$Notes`n`nsha256: $sha" } | ConvertTo-Json
+$body = @{ tag_name = $tag; target_commitish = $head; name = "Plume $version"; body = "$Notes`n`nsha256: $sha"; draft = $true } | ConvertTo-Json
 $release = Invoke-RestMethod "https://api.github.com/repos/$repo/releases" -Method Post -Headers $headers `
     -ContentType 'application/json; charset=utf-8' -Body ([Text.Encoding]::UTF8.GetBytes($body))
+$releaseApi = "https://api.github.com/repos/$repo/releases/$($release.id)"
+try {
+    $upload = "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=Plume-$version.zip"
+    $asset = Invoke-RestMethod $upload -Method Post -Headers $headers -ContentType 'application/zip' -InFile $zip
+    $publie = @{ draft = $false } | ConvertTo-Json
+    $release = Invoke-RestMethod $releaseApi -Method Patch -Headers $headers `
+        -ContentType 'application/json; charset=utf-8' -Body ([Text.Encoding]::UTF8.GetBytes($publie))
+} catch {
+    # Brouillon jamais publié : on le retire pour que le script puisse être relancé.
+    try { Invoke-RestMethod $releaseApi -Method Delete -Headers $headers | Out-Null } catch { }
+    throw "Publication interrompue ($($_.Exception.Message)) : brouillon supprimé, aucune version publiée."
+}
 
-$upload = "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=Plume-$version.zip"
-$asset = Invoke-RestMethod $upload -Method Post -Headers $headers -ContentType 'application/zip' -InFile $zip
+# Contrôle final : c'est bien cette version, avec son archive, que verra le bouton « Vérifier les mises à jour ».
+$latest = Invoke-RestMethod "https://api.github.com/repos/$repo/releases/latest" -Headers $headers
+if ($latest.tag_name -ne $tag -or -not ($latest.assets | Where-Object { $_.name -eq "Plume-$version.zip" })) {
+    throw "La Release $tag n'apparaît pas comme dernière version avec son archive : vérifier sur GitHub."
+}
 
 Remove-Item $stage -Recurse -Force
 Write-Host "Release $tag publiée : $($release.html_url)" -ForegroundColor Green
