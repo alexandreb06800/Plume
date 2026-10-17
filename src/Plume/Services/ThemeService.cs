@@ -53,16 +53,24 @@ public class ThemeService : IDisposable
         }
     }
 
+    /// <summary>Recharge les couleurs et lève <see cref="Changed"/> seulement si le résultat clair/sombre diffère de
+    /// <see cref="CurrentDark"/> ; renvoie vrai dans ce cas. Windows signale « General » pour bien d'autres
+    /// réglages que le thème : sans cette comparaison, chacun rechargeait tout le dictionnaire de couleurs.</summary>
+    public bool RefreshFromWindows()
+    {
+        var dark = ResolveDark();
+        if (dark == CurrentDark) return false;
+        SwapColors(dark);
+        CurrentDark = dark;
+        Changed?.Invoke(CurrentDark);
+        return true;
+    }
+
     private void OnUserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
     {
         // En mode auto seulement : on suit le basculement clair/sombre de Windows.
         if (_mode == "auto" && e.Category == UserPreferenceCategory.General)
-            Application.Current?.Dispatcher.Invoke(() =>
-            {
-                SwapColors(ResolveDark());
-                CurrentDark = ResolveDark();
-                Changed?.Invoke(CurrentDark);
-            });
+            Application.Current?.Dispatcher.Invoke(() => RefreshFromWindows());
     }
 
     private static void SwapColors(bool dark)
