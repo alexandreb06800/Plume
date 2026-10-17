@@ -82,4 +82,25 @@ public class ModelCatalogTests
         Assert.All(ModelCatalog.Cleanup.Where(m => m.Id.StartsWith("groq/", StringComparison.Ordinal)),
             m => Assert.Contains("Gratuit", m.PriceLabel));
     }
+
+    [Fact]
+    public void DefautGroq_EstUnModeleProduction_GptOss120b()
+        => Assert.Equal("groq/openai/gpt-oss-120b", ModelCatalog.DefaultGroqCleanupId);
+
+    [Theory]
+    [InlineData("groq/llama-3.3-70b-versatile", "groq/openai/gpt-oss-120b")]
+    [InlineData("groq/llama-3.1-8b-instant", "groq/openai/gpt-oss-120b")]
+    [InlineData("groq/qwen/qwen3-32b", "groq/openai/gpt-oss-120b")]
+    [InlineData("groq/qwen/qwen3.6-27b", "groq/qwen/qwen3.8-27b")]
+    [InlineData("google/gemini-2.0-flash-001", "openai/gpt-4o-mini")]
+    public void ReplacementFor_ModeleRetire_RenvoieSonRemplacant(string retire, string attendu)
+        => Assert.Equal(attendu, ModelCatalog.ReplacementFor(retire));
+
+    [Theory]
+    [InlineData("groq/openai/gpt-oss-120b")]
+    [InlineData("mon/modele-perso")]
+    [InlineData("")]
+    [InlineData(null)]
+    public void ReplacementFor_ModeleActifOuInconnu_Null(string? id)
+        => Assert.Null(ModelCatalog.ReplacementFor(id));
 }

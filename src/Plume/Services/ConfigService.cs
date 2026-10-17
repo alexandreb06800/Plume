@@ -55,8 +55,20 @@ public class ConfigService
         cfg.OpenRouterApiKey = Unprotect(cfg.OpenRouterApiKey);
         cfg.GroqApiKey = Unprotect(cfg.GroqApiKey);
         StyleService.Normalize(cfg, legacyCleanup);
+        MigrateRetiredModels(cfg);
         MigrateBadgePosition(cfg);
         return cfg;
+    }
+
+    /// <summary>Remplace les modèles retirés par leur fournisseur (404 constaté) par leur successeur : réglage
+    /// global, assistant et modèle propre à chaque style. Migration statique au chargement, pas une bascule
+    /// sur erreur (routage statique). Un modèle personnalisé n'est jamais touché.</summary>
+    private static void MigrateRetiredModels(AppConfig cfg)
+    {
+        cfg.CleanupModel = ModelCatalog.ReplacementFor(cfg.CleanupModel) ?? cfg.CleanupModel;
+        if (cfg.AgentModel is not null) cfg.AgentModel = ModelCatalog.ReplacementFor(cfg.AgentModel) ?? cfg.AgentModel;
+        foreach (var style in cfg.SelectionStyles)
+            if (style.Model is not null) style.Model = ModelCatalog.ReplacementFor(style.Model) ?? style.Model;
     }
 
     /// <summary>V8-H1 : déchiffre une clé API stockée (préfixe <c>enc:</c>). Une valeur sans préfixe est
@@ -156,9 +168,7 @@ public class ConfigService
     {
         if (hasOpenRouterKey) return cleanupModel;
         if (cleanupModel.StartsWith(CleanupService.GroqPrefix, StringComparison.OrdinalIgnoreCase)) return cleanupModel;
-        var groq = ModelCatalog.Cleanup.FirstOrDefault(
-            m => m.Id.StartsWith(CleanupService.GroqPrefix, StringComparison.OrdinalIgnoreCase));
-        return groq?.Id ?? cleanupModel;
+        return ModelCatalog.DefaultGroqCleanupId;
     }
 
     /// <summary>Message d'erreur FR si une clé nécessaire au flux manque, sinon null. Règles de routage

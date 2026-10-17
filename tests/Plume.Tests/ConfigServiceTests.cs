@@ -401,10 +401,33 @@ public class ConfigServiceTests
     }
 
     [Fact]
-    public void CleanupModelUtilisable_SansOpenRouter_BasculeSurQwenGroq()
+    public void CleanupModelUtilisable_SansOpenRouter_BasculeSurGptOssGroq()
     {
-        // Prise en main « 100 % Groq » : le défaut OpenRouter bascule sur le premier modèle Groq du catalogue.
-        Assert.Equal("groq/qwen/qwen3.8-27b",
+        // Prise en main « 100 % Groq » : défaut sur un modèle « Production » chez Groq (décision du 2026-10-16).
+        Assert.Equal("groq/openai/gpt-oss-120b",
             ConfigService.CleanupModelUtilisable("openai/gpt-4o-mini", hasOpenRouterKey: false));
+    }
+
+    [Fact]
+    public void Load_ModelesRetires_RemplacesPartout()
+    {
+        var svc = NewServiceInTemp(out _);
+        var cfg = AppConfig.CreateDefault();
+        cfg.CleanupModel = "groq/llama-3.3-70b-versatile";
+        cfg.AgentModel = "groq/llama-3.1-8b-instant";
+        cfg.BuiltInStylesSeeded = true;
+        cfg.SelectionStyles = new()
+        {
+            new SelectionStyle { Id = "perso-1", Name = "Perso 1", Prompt = "p", Model = "google/gemini-2.0-flash-001" },
+            new SelectionStyle { Id = "perso-2", Name = "Perso 2", Prompt = "p", Model = "mon/modele-perso" },
+        };
+        svc.Save(cfg);
+
+        var lu = svc.Load();
+
+        Assert.Equal("groq/openai/gpt-oss-120b", lu.CleanupModel);
+        Assert.Equal("groq/openai/gpt-oss-120b", lu.AgentModel);
+        Assert.Equal("openai/gpt-4o-mini", lu.SelectionStyles.Single(s => s.Id == "perso-1").Model);
+        Assert.Equal("mon/modele-perso", lu.SelectionStyles.Single(s => s.Id == "perso-2").Model);
     }
 }
