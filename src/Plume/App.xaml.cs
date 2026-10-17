@@ -67,7 +67,8 @@ public partial class App : Application
         {
             try
             {
-                _ = new DiagLogService().Log(_config?.DiagnosticsLogEnabled ?? false,
+                // Écriture synchrone : le processus va s'arrêter, une écriture en tâche de fond n'aurait pas le temps.
+                new DiagLogService().LogNow(_config?.DiagnosticsLogEnabled ?? false,
                     "Exception fatale (AppDomain)", $"{ex.ExceptionObject}");
             }
             catch { }

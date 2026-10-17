@@ -62,4 +62,20 @@ public class DiagLogServiceTests
 
         File.Delete(fakeParent);
     }
+
+    [Fact]
+    public void LogNow_Active_EcritAvantDeRendreLaMain()
+    {
+        var svc = NewServiceInTemp(out var dir);
+        svc.LogNow(true, "Exception fatale (AppDomain)", "System.Exception: boum");
+        Assert.Contains("Exception fatale (AppDomain)", File.ReadAllText(Path.Combine(dir, "diag.log")));
+    }
+
+    [Fact]
+    public void LogNow_Desactive_NEcritRien()
+    {
+        var svc = NewServiceInTemp(out var dir);
+        svc.LogNow(false, "Exception fatale (AppDomain)");
+        Assert.False(File.Exists(Path.Combine(dir, "diag.log")));
+    }
 }

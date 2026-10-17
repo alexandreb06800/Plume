@@ -26,6 +26,14 @@ public class DiagLogService
     public Task Log(bool enabled, string step, string? detail = null) =>
         enabled ? Task.Run(() => WriteNow(step, detail)) : Task.CompletedTask;
 
+    /// <summary>Comme <see cref="Log"/>, mais écrit dans le thread appelant avant de rendre la main : pour un
+    /// plantage fatal, où le processus va s'arrêter et où une écriture en tâche de fond n'aurait pas le temps
+    /// de se faire. No-op si désactivé.</summary>
+    public void LogNow(bool enabled, string step, string? detail = null)
+    {
+        if (enabled) WriteNow(step, detail);
+    }
+
     /// <summary>Écrit immédiatement (synchrone). Ne lève jamais.</summary>
     public void WriteNow(string step, string? detail = null)
     {

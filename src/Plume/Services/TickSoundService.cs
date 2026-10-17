@@ -44,7 +44,7 @@ public static class TickSoundService
     // handles audio natifs). System.Media.SoundPlayer (essayé avant NAudio) s'est révélé peu
     // fiable pour des sons courts joués répétitivement (échecs silencieux, sans exception,
     // constatés en test réel) — comportement documenté de cette API .NET historique. NAudio
-    // (déjà dépendance du projet pour le micro) utilise un chemin de lecture WASAPI plus robuste.
+    // (déjà dépendance du projet pour le micro) utilise la lecture WinMM (waveOut) de NAudio, plus robuste.
     private static readonly List<(WaveOutEvent Output, WaveFileReader Reader)> _active = new();
     private static readonly object _lock = new();
 
@@ -70,9 +70,14 @@ public static class TickSoundService
                 lock (_lock) { _active.Add((output, reader)); }
                 output.PlaybackStopped += (_, _) =>
                 {
-                    lock (_lock) { _active.Remove((output, reader)); }
-                    output.Dispose();
-                    reader.Dispose();
+                    // Thread de lecture NAudio : une exception ici tuerait le process (même règle qu'AudioCaptureService).
+                    try
+                    {
+                        lock (_lock) { _active.Remove((output, reader)); }
+                        output.Dispose();
+                        reader.Dispose();
+                    }
+                    catch { }
                 };
                 output.Play();
             }
