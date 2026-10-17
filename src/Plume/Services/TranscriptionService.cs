@@ -65,7 +65,7 @@ public class TranscriptionService
             throw new OpenRouterException("Clé de transcription invalide.", isUnauthorized: true);
         if (!resp.IsSuccessStatusCode)
             throw new OpenRouterException(
-                $"Échec de la transcription ({(int)resp.StatusCode}).{OpenRouterException.ModelHint((int)resp.StatusCode)}");
+                $"Échec de la transcription ({(int)resp.StatusCode}).{OpenRouterException.StatusHint((int)resp.StatusCode)}");
 
         return ExtractText(body);
     }

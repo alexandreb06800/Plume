@@ -102,7 +102,7 @@ public class AgentChatService
             throw new OpenRouterException("Clé invalide.", isUnauthorized: true);
         if (!resp.IsSuccessStatusCode)
             throw new OpenRouterException(
-                $"Échec de la requête ({(int)resp.StatusCode}).{OpenRouterException.ModelHint((int)resp.StatusCode)}");
+                $"Échec de la requête ({(int)resp.StatusCode}).{OpenRouterException.StatusHint((int)resp.StatusCode)}");
 
         try
         {

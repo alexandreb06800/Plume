@@ -114,7 +114,7 @@ public class CleanupService
             throw new OpenRouterException("Clé de nettoyage invalide.", isUnauthorized: true);
         if (!resp.IsSuccessStatusCode)
             throw new OpenRouterException(
-                $"Échec du nettoyage ({(int)resp.StatusCode}).{OpenRouterException.ModelHint((int)resp.StatusCode)}");
+                $"Échec du nettoyage ({(int)resp.StatusCode}).{OpenRouterException.StatusHint((int)resp.StatusCode)}");
 
         try
         {
