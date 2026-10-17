@@ -31,6 +31,10 @@
         <Border Style="{StaticResource GroupBorder}" Padding="14,10">
             <StackPanel>
                 <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
+                    <Run Text="5.4.18" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
+                    <Run Text="  Réglages protégés : si ton fichier de réglages devient illisible (erreur d'édition à la main, verrou d'un antivirus), Plume en garde une copie et te prévient, au lieu de l'écraser en silence. Dictionnaire : les règles de remplacement avec des symboles (c++, @sig) fonctionnent, et « à la ligne 3 » n'est plus coupé en deux. Le plantage éventuel est consigné avant l'arrêt de Plume (si le journal est activé). « Démarrer avec Windows » ne pointe plus jamais vers une version de développement."/>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource SecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7">
                     <Run Text="5.4.17" Foreground="{DynamicResource VioletBrush}" FontWeight="SemiBold"/>
                     <Run Text="  Erreurs visibles : quand une dictée, un style ou l'assistant échoue, la pastille passe au rouge deux secondes et la bulle dit pourquoi (modèle retiré, clé refusée, limite de requêtes). Si le nettoyage échoue, le texte brut est inséré et la raison s'affiche. Nouveau modèle de nettoyage par défaut : GPT-OSS 120B (Groq, modèle stable), réglé pour répondre plus vite ; Qwen 3.8 reste proposé (préversion chez Groq). Les modèles retirés par leur fournisseur sont remplacés automatiquement, et « Vérifier les modèles » signale un modèle qui n'existe plus. Un vocabulaire très long ne gêne plus la transcription."/>
                 </TextBlock>

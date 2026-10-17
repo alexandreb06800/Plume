@@ -4,6 +4,13 @@
 
 ---
 
+## 5.4.18 — Réglages protégés et texte plus juste ✅ (livrée le 2026-10-17)
+Demande : corrections de l'audit du 2026-10-16, lot 3.
+- `ConfigService.Load` : un `config.json` illisible est copié en `config.illisible-AAAAMMJJ-HHmmss.json` avant que les défauts ne l'écrasent (`RecoveryBackupPath`) ; si la copie échoue (fichier verrouillé), `SavesSuspended` bloque `Save` jusqu'au redémarrage. Bulles au démarrage dans `App` (après celle d'OneDrive).
+- `DiagLogService.LogNow` : écriture synchrone du plantage fatal (`AppDomain.UnhandledException`) avant l'arrêt du processus ; `TickSoundService` : fin de lecture protégée par un try/catch (thread NAudio), commentaire WinMM corrigé.
+- `ReplacementService` : motif `(?<!\w)…(?!\w)` (règles avec symboles : `c++`, `@sig`, jamais dans un mot) ; « à la ligne » suivi d'un nombre n'est plus une commande vocale.
+- `StartupService.IsDevBuildPath` : l'entrée « Démarrer avec Windows » ne pointe plus jamais vers `bin\Debug` ou `bin\Release`.
+
 ## 5.4.17 — Erreurs visibles et modèles fiables ✅ (livrée le 2026-10-17)
 Demande : corrections de l'audit du 2026-10-16, lot 2.
 - `OpenRouterException` : `ModelHint` renommée `StatusHint`, message clair sur 429 (limite de requêtes) ; `RawTextFallbackMessage` (« Nettoyage indisponible, texte brut inséré. … »).
