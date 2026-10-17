@@ -26,6 +26,7 @@
     <Color x:Key="BadgeOverlayColor">#E6141519</Color>
     <Color x:Key="BadgeStopColor">#FFFFFFFF</Color>
     <Color x:Key="HaloBusyColor">#FF4F8DFF</Color>
+    <Color x:Key="BadgeErrorColor">#FFFF453A</Color>
 
     <!-- Brushes définis dans le dico de thème : l'échange clair/sombre remplace ces instances,
          et les consommateurs en DynamicResource se rafraîchissent de façon fiable. -->
@@ -49,4 +50,5 @@
     <SolidColorBrush x:Key="NavSelectedBrush" Color="{StaticResource NavSelectedColor}"/>
     <SolidColorBrush x:Key="BadgeOverlayBrush" Color="{StaticResource BadgeOverlayColor}"/>
     <SolidColorBrush x:Key="BadgeStopBrush" Color="{StaticResource BadgeStopColor}"/>
+    <SolidColorBrush x:Key="BadgeErrorBrush" Color="{StaticResource BadgeErrorColor}"/>
 </ResourceDictionary>

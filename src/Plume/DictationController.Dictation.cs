@@ -62,12 +62,13 @@ public partial class DictationController
             }
 
             string finalText = raw;
+            OpenRouterException? cleanupError = null; // échec du nettoyage : signalé après le collage du texte brut
             sw.Restart();
             try { finalText = await _cleanup.CleanAsync(raw, cfg.DictationPrompt, cfg.CleanupModel, apiKey, groqKey, cfg.Vocabulary, cts.Token, CleanupTimeout, temperature: cfg.DictationTemperature); }
             catch (OpenRouterException ex)
             {
                 finalText = raw;
-                _tray.ShowBalloon("Plume", "Nettoyage indisponible : texte brut inséré.");
+                cleanupError = ex;
                 _ = _diagLog.Log(cfg.DiagnosticsLogEnabled, "Nettoyage — erreur", $"{ex.GetType().Name} : {ex.Message}");
             }
             var voieClean = cfg.CleanupModel.StartsWith(CleanupService.GroqPrefix, StringComparison.OrdinalIgnoreCase)
@@ -89,8 +90,14 @@ public partial class DictationController
             bool inserted = _insertion.Paste(finalText, _targetWindow);
             if (inserted)
             {
-                // Top sonore « insertion réussie » (V8-K), dictée classique uniquement.
-                if (cfg.TickSoundsEnabled) TickSoundService.Play(cfg.EndTickSound);
+                // Top sonore « insertion réussie » (V8-K), dictée classique uniquement ; absent si le nettoyage a
+                // échoué (texte brut inséré) : la pastille rouge et la bulle prennent le relais.
+                if (cleanupError is null && cfg.TickSoundsEnabled) TickSoundService.Play(cfg.EndTickSound);
+                if (cleanupError is not null)
+                {
+                    ReportError(OpenRouterException.RawTextFallbackMessage(cleanupError));
+                    if (cleanupError.IsUnauthorized) OpenSettingsRequested?.Invoke();
+                }
 
                 // Statistiques : compteurs cumulés en mémoire (thread UI), écritures disque en tâche de fond
                 // (sérialisation + chiffrement DPAPI + écriture atomique : le thread UI ne s'y bloque plus).
@@ -111,22 +118,20 @@ public partial class DictationController
                 // Presse-papiers verrouillé par une autre application : le texte reste récupérable en
                 // mémoire (LastText, menu tray) mais rien n'a été collé — sans ce message, l'échec passait
                 // totalement inaperçu (la dictée semblait avoir marché).
-                _tray.ShowBalloon("Plume",
-                    "Presse-papiers indisponible : texte non inséré. Récupère-le via « Copier le dernier texte » (menu Plume).");
+                ReportError("Presse-papiers indisponible : texte non inséré. "
+                          + "Récupère-le via « Copier le dernier message » (menu de la pastille ou de l'icône Plume).");
             }
         }
         catch (OperationCanceledException) { SetVisual(DictationVisual.Idle); }
         catch (OpenRouterException ex)
         {
-            SetVisual(DictationVisual.Idle);
-            _tray.ShowBalloon("Plume", ex.Message);
+            ReportError(ex.Message);
             if (ex.IsUnauthorized) OpenSettingsRequested?.Invoke();
             _ = _diagLog.Log(cfg.DiagnosticsLogEnabled, "Dictée — erreur", $"{ex.GetType().Name} : {ex.Message}");
         }
         catch (Exception ex)
         {
-            SetVisual(DictationVisual.Idle);
-            _tray.ShowBalloon("Plume", "Une erreur est survenue, réessaie.");
+            ReportError("Une erreur est survenue, réessaie.");
             _ = _diagLog.Log(cfg.DiagnosticsLogEnabled, "Dictée — erreur", $"{ex.GetType().Name} : {ex.Message}");
         }
         finally

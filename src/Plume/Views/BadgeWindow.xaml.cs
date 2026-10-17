@@ -152,11 +152,12 @@ public partial class BadgeWindow : Window
         Card.BeginAnimation(OpacityProperty, op);
     }
 
-    private enum BadgeState { Idle, Listening, Processing }
+    private enum BadgeState { Idle, Listening, Processing, Error }
     private BadgeState _state = BadgeState.Idle;
     private System.Windows.Media.Animation.DoubleAnimation? _spin;
     private System.Windows.Media.Effects.DropShadowEffect? _haloListen; // halo vert (écoute), créé une fois
     private System.Windows.Media.Effects.DropShadowEffect? _haloBusy;   // halo bleu (traitement), créé une fois
+    private System.Windows.Media.Effects.DropShadowEffect? _haloError;  // halo rouge (erreur), créé une fois
 
     // Barres de niveau (écoute) : hauteurs de repos (aucun son) et lissage pour un mouvement naturel.
     private const double BarRestHeight = 8, BarMaxHeight = 24;
@@ -171,6 +172,9 @@ public partial class BadgeWindow : Window
 
     /// <summary>Traitement : spinner violet.</summary>
     public void ShowProcessing() => Dispatcher.Invoke(() => SetState(BadgeState.Processing));
+
+    /// <summary>Erreur : « ! » rouge (l'appelant le range au repos après ~2 s).</summary>
+    public void ShowError() => Dispatcher.Invoke(() => SetState(BadgeState.Error));
 
     /// <summary>Fait bouger les 3 barres vertes selon le niveau vocal capté (pendant l'écoute uniquement).
     /// Lissage exponentiel léger pour un mouvement naturel ; aucun coût hors écoute (ignoré).</summary>
@@ -192,6 +196,7 @@ public partial class BadgeWindow : Window
         Glyph.Visibility       = s == BadgeState.Idle       ? Visibility.Visible : Visibility.Collapsed;
         ListenGlyph.Visibility = s == BadgeState.Listening  ? Visibility.Visible : Visibility.Collapsed;
         BusyGlyph.Visibility   = s == BadgeState.Processing ? Visibility.Visible : Visibility.Collapsed;
+        ErrorGlyph.Visibility  = s == BadgeState.Error      ? Visibility.Visible : Visibility.Collapsed;
         ListenStop.Visibility  = Visibility.Collapsed;
         ListenBars.Visibility  = Visibility.Visible;
 
@@ -202,12 +207,13 @@ public partial class BadgeWindow : Window
             Bar1.Height = Bar2.Height = Bar3.Height = BarRestHeight;
         }
 
-        // Halo : vert pendant l'écoute, bleu pendant le traitement, rien au repos. Porté par l'ellipse Halo
+        // Halo : vert pendant l'écoute, bleu pendant le traitement, rouge en erreur, rien au repos. Porté par l'ellipse Halo
         // (et non par Card) : les barres de niveau qui bougent ne forcent pas le recalcul du flou.
         Halo.Effect = s switch
         {
             BadgeState.Listening => _haloListen ??= MakeHalo(ThemeColor("GreenColor")),   // vert (assorti aux barres)
             BadgeState.Processing => _haloBusy ??= MakeHalo(ThemeColor("HaloBusyColor")), // bleu
+            BadgeState.Error => _haloError ??= MakeHalo(ThemeColor("BadgeErrorColor")),   // rouge
             _ => null,
         };
         Halo.Visibility = s == BadgeState.Idle ? Visibility.Collapsed : Visibility.Visible;

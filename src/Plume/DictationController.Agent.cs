@@ -83,14 +83,12 @@ public partial class DictationController
         catch (OperationCanceledException) { SetVisual(DictationVisual.Idle); }
         catch (OpenRouterException ex)
         {
-            SetVisual(DictationVisual.Idle);
-            _tray.ShowBalloon("Plume", ex.Message);
+            ReportError(ex.Message);
             if (ex.IsUnauthorized) OpenSettingsRequested?.Invoke();
         }
         catch
         {
-            SetVisual(DictationVisual.Idle);
-            _tray.ShowBalloon("Plume", "Une erreur est survenue, réessaie.");
+            ReportError("Une erreur est survenue, réessaie.");
         }
         finally
         {

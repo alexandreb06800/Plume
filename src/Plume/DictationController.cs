@@ -7,7 +7,7 @@ using Plume.Services;
 namespace Plume;
 
 /// <summary>État visuel de la dictée, affiché par la pastille flottante (unique retour visuel depuis V7).</summary>
-public enum DictationVisual { Idle, Listening, Processing }
+public enum DictationVisual { Idle, Listening, Processing, Error }
 
 /// <summary>Orchestre le cycle dictée : capture → STT → nettoyage → insertion, avec pastille et erreurs.
 /// Découpé en classes partielles par flux : <c>.Dictation.cs</c> (dictée classique), <c>.Styles.cs</c>
@@ -99,6 +99,13 @@ public partial class DictationController : IDisposable
     public event Action<DictationVisual>? VisualChanged;
     private void SetVisual(DictationVisual v) => VisualChanged?.Invoke(v);
 
+    /// <summary>Signale un échec : pastille rouge (~2 s, voir App.OnDictationVisual) + bulle avec la raison.</summary>
+    private void ReportError(string message)
+    {
+        SetVisual(DictationVisual.Error);
+        _tray.ShowBalloon("Plume", message);
+    }
+
     /// <summary>Niveau vocal capté (0..1, pic brut par bloc audio) : anime les barres de la pastille pendant l'écoute.</summary>
     public event Action<float>? LevelChanged;
 
@@ -161,7 +168,7 @@ public partial class DictationController : IDisposable
         {
             if (_state != State.Listening) return; // déjà arrêté/en traitement entre-temps : rien à faire
             Cancel();
-            _tray.ShowBalloon("Plume", "Micro déconnecté.");
+            ReportError("Micro déconnecté.");
         });
         _hotkey.EscapePressed += () => Application.Current.Dispatcher.Invoke(Cancel);
     }
@@ -272,7 +279,7 @@ public partial class DictationController : IDisposable
         };
         if (_configService.MissingKeyMessage(cfg, modelForKeys) is string keyErr)
         {
-            _tray.ShowBalloon("Plume", keyErr);
+            ReportError(keyErr);
             return;
         }
 
@@ -355,10 +362,9 @@ public partial class DictationController : IDisposable
                 _selection.RestoreClipboard(_commandSelection);
                 _commandSelection = null;
             }
-            SetVisual(DictationVisual.Idle);
             _state = State.Idle;
             _activeStyle = null;
-            _tray.ShowBalloon("Plume", err ?? "Micro indisponible.");
+            ReportError(err ?? "Micro indisponible.");
             return;
         }
 

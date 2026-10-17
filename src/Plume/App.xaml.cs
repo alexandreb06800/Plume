@@ -29,6 +29,8 @@ public partial class App : Application
     // double-clic, laissant sa chance au 2e clic (démarrage de la dictée). Un seul minuteur pour toutes
     // les pastilles (un seul curseur, donc une seule séquence de clics à la fois).
     private System.Windows.Threading.DispatcherTimer? _clickTimer;
+    private System.Windows.Threading.DispatcherTimer? _errorTimer; // retour au repos ~2 s après une erreur
+    private DictationVisual _lastVisual = DictationVisual.Idle;     // dernier état reçu
 
     /// <summary>Service de thème, exposé pour les fenêtres à chrome standard (barre de titre sombre).</summary>
     public ThemeService? Theme => _theme;
@@ -375,6 +377,8 @@ public partial class App : Application
     /// elle apparaît le temps de l'activité puis se cache — le retour visuel est garanti.</summary>
     private void OnDictationVisual(DictationVisual v)
     {
+        _lastVisual = v;
+        _errorTimer?.Stop();
         if (v != DictationVisual.Idle && _badges.Count == 0) CreateBadges(); // création à la demande
         switch (v)
         {
@@ -384,12 +388,26 @@ public partial class App : Application
             case DictationVisual.Processing:
                 foreach (var b in _badges) { b.Show(); b.ShowProcessing(); }
                 break;
+            case DictationVisual.Error:
+                foreach (var b in _badges) { b.Show(); b.ShowError(); }
+                _errorTimer ??= new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+                _errorTimer.Tick -= OnErrorTimerTick;
+                _errorTimer.Tick += OnErrorTimerTick;
+                _errorTimer.Start();
+                break;
             default:
                 foreach (var b in _badges) b.ShowIdle();
                 if (_config is not null && !_config.ShowBadge)
                     foreach (var b in _badges) b.Hide(); // masquées par réglage → on les range
                 break;
         }
+    }
+
+    /// <summary>Fin des ~2 s d'erreur : retour au repos, sauf si une nouvelle dictée a démarré entre-temps.</summary>
+    private void OnErrorTimerTick(object? sender, EventArgs e)
+    {
+        _errorTimer?.Stop();
+        if (_lastVisual == DictationVisual.Error) OnDictationVisual(DictationVisual.Idle);
     }
 
     private void OpenStyleMenu(BadgeWindow badge)

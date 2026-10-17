@@ -53,6 +53,13 @@
                           Data="M 9,1 A 8,8 0 1 1 1,9"/>
                 </Canvas>
             </Grid>
+
+            <!-- Erreur : fond sombre + « ! » rouge, affiché environ 2 s après un échec. -->
+            <Grid x:Name="ErrorGlyph" Visibility="Collapsed">
+                <Ellipse Fill="{DynamicResource BadgeOverlayBrush}"/>
+                <TextBlock Text="!" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource BadgeErrorBrush}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

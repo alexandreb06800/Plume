@@ -72,7 +72,7 @@ public partial class DictationController
                 if (!_insertion.PasteAndRestore(result, _targetWindow, sel!.Original))
                 {
                     _selection.RestoreClipboard(sel);
-                    _tray.ShowBalloon("Plume", "Presse-papiers indisponible : commande non insérée.");
+                    ReportError("Presse-papiers indisponible : commande non insérée.");
                 }
             }
             else
@@ -82,7 +82,7 @@ public partial class DictationController
                 {
                     // Échec du collage : restaurer le presse-papiers d'origine (sinon il garde le sentinel de capture).
                     if (sel is not null) _selection.RestoreClipboard(sel);
-                    _tray.ShowBalloon("Plume", "Presse-papiers indisponible : texte non inséré.");
+                    ReportError("Presse-papiers indisponible : texte non inséré.");
                 }
             }
         }
@@ -90,15 +90,13 @@ public partial class DictationController
         catch (OpenRouterException ex)
         {
             if (sel is not null) _selection.RestoreClipboard(sel);
-            SetVisual(DictationVisual.Idle);
-            _tray.ShowBalloon("Plume", ex.Message);
+            ReportError(ex.Message);
             if (ex.IsUnauthorized) OpenSettingsRequested?.Invoke();
         }
         catch
         {
             if (sel is not null) _selection.RestoreClipboard(sel);
-            SetVisual(DictationVisual.Idle);
-            _tray.ShowBalloon("Plume", "Une erreur est survenue, réessaie.");
+            ReportError("Une erreur est survenue, réessaie.");
         }
         finally
         {
@@ -137,7 +135,7 @@ public partial class DictationController
         var styleModel = string.IsNullOrWhiteSpace(style.Model) ? cfg.CleanupModel : style.Model!;
         if (_configService.MissingKeyMessage(cfg, styleModel) is string keyErr)
         {
-            _tray.ShowBalloon("Plume", keyErr);
+            ReportError(keyErr);
             return;
         }
 
@@ -191,7 +189,7 @@ public partial class DictationController
                 else if (!_insertion.PasteAndRestore(result, _targetWindow, sel.Original))
                 {
                     _selection.RestoreClipboard(sel);
-                    _tray.ShowBalloon("Plume", "Presse-papiers indisponible : style non appliqué.");
+                    ReportError("Presse-papiers indisponible : style non appliqué.");
                 }
             }
             catch (OperationCanceledException)
@@ -203,14 +201,13 @@ public partial class DictationController
             catch (OpenRouterException ex)
             {
                 _selection.RestoreClipboard(sel);
-                SetVisual(DictationVisual.Idle);
-                _tray.ShowBalloon("Plume", ex.Message);
+                ReportError(ex.Message);
                 if (ex.IsUnauthorized) OpenSettingsRequested?.Invoke();
             }
             catch
             {
                 _selection.RestoreClipboard(sel);
-                SetVisual(DictationVisual.Idle);
+                ReportError("Une erreur est survenue, réessaie.");
             }
         }
         finally
@@ -262,7 +259,7 @@ public partial class DictationController
             // Filet de sécurité : le chemin normal ne passe pas par ici (il se termine soit en Listening,
             // soit en Idle ci-dessus). Une exception imprévue avant ce point laisserait sinon _state bloqué
             // sur Working pour toujours (spinner permanent, Échap non enregistré, aucun raccourci actif).
-            SetVisual(DictationVisual.Idle);
+            ReportError("Une erreur est survenue, réessaie.");
             if (_commandSelection is not null)
             {
                 _selection.RestoreClipboard(_commandSelection);
