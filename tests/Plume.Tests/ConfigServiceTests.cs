@@ -430,4 +430,48 @@ public class ConfigServiceTests
         Assert.Equal("openai/gpt-4o-mini", lu.SelectionStyles.Single(s => s.Id == "perso-1").Model);
         Assert.Equal("mon/modele-perso", lu.SelectionStyles.Single(s => s.Id == "perso-2").Model);
     }
+
+    [Fact]
+    public void Load_FichierCorrompu_GardeUneCopieIntacte()
+    {
+        var svc = NewServiceInTemp(out var dir);
+        Directory.CreateDirectory(dir);
+        File.WriteAllText(Path.Combine(dir, "config.json"), "{ ceci n'est pas du json");
+
+        svc.Load();
+
+        Assert.NotNull(svc.RecoveryBackupPath);
+        Assert.StartsWith("config.illisible-", Path.GetFileName(svc.RecoveryBackupPath));
+        Assert.Equal("{ ceci n'est pas du json", File.ReadAllText(svc.RecoveryBackupPath!));
+        Assert.False(svc.SavesSuspended);
+    }
+
+    [Fact]
+    public void Load_FichierVerrouille_NEcraseJamaisLOriginal()
+    {
+        var svc = NewServiceInTemp(out var dir);
+        Directory.CreateDirectory(dir);
+        var chemin = Path.Combine(dir, "config.json");
+        File.WriteAllText(chemin, "{\"sttModel\":\"original\"}");
+
+        AppConfig lu;
+        using (new FileStream(chemin, FileMode.Open, FileAccess.Read, FileShare.None))
+            lu = svc.Load();
+        svc.Save(lu);
+
+        Assert.True(svc.SavesSuspended);
+        Assert.Equal("{\"sttModel\":\"original\"}", File.ReadAllText(chemin));
+    }
+
+    [Fact]
+    public void Load_FichierSain_NiCopieNiBlocage()
+    {
+        var svc = NewServiceInTemp(out _);
+        svc.Save(AppConfig.CreateDefault());
+
+        svc.Load();
+
+        Assert.Null(svc.RecoveryBackupPath);
+        Assert.False(svc.SavesSuspended);
+    }
 }

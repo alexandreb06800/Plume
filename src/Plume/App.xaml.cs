@@ -174,6 +174,14 @@ public partial class App : Application
                 "Plume est lancé depuis OneDrive : le « Démarrer avec Windows » peut être instable. "
                 + "Place Plume dans un dossier local (hors OneDrive).");
 
+        // Réglages illisibles (après la bulle OneDrive, pour ne pas être remplacée par elle).
+        if (_configService.RecoveryBackupPath is { } copie)
+            _tray.ShowBalloon("Plume",
+                $"Réglages illisibles : Plume repart des réglages par défaut. L'ancien fichier est gardé ({System.IO.Path.GetFileName(copie)}).");
+        else if (_configService.SavesSuspended)
+            _tray.ShowBalloon("Plume",
+                "Réglages illisibles pour le moment : aucun changement ne sera enregistré avant le prochain démarrage de Plume.");
+
         // Aucune clé configurée : premier contact — assistant de prise en main (V8-B). Une clé
         // présente = plus jamais affiché. Fenêtre créée à la demande uniquement : le démarrage
         // normal ne charge rien de plus (RÈGLE PRIMORDIALE).

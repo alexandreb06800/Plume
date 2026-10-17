@@ -29,6 +29,13 @@ public class ConfigService
 
     public string ConfigPath => Path.Combine(_dir, "config.json");
 
+    /// <summary>Copie faite au dernier <see cref="Load"/> d'un config.json illisible (JSON cassé), sinon null.</summary>
+    public string? RecoveryBackupPath { get; private set; }
+
+    /// <summary>Vrai si config.json existe mais n'a pu être ni lu ni copié (verrouillé par un antivirus, une
+    /// synchronisation…) : <see cref="Save"/> ne fait alors plus rien jusqu'au redémarrage.</summary>
+    public bool SavesSuspended { get; private set; }
+
     public AppConfig Load()
     {
         AppConfig cfg;
@@ -38,7 +45,7 @@ public class ConfigService
             if (File.Exists(ConfigPath))
             {
                 var json = File.ReadAllText(ConfigPath);
-                cfg = JsonSerializer.Deserialize<AppConfig>(json, JsonOpts) ?? AppConfig.CreateDefault();
+                cfg = JsonSerializer.Deserialize<AppConfig>(json, JsonOpts) ?? throw new JsonException("config.json vide");
                 legacyCleanup = ReadLegacyCleanupEnabled(json);
             }
             else
@@ -50,6 +57,7 @@ public class ConfigService
         {
             // Fichier corrompu ou illisible : on repart des défauts, jamais de crash.
             cfg = AppConfig.CreateDefault();
+            KeepUnreadableCopy();
         }
 
         cfg.OpenRouterApiKey = Unprotect(cfg.OpenRouterApiKey);
@@ -58,6 +66,25 @@ public class ConfigService
         MigrateRetiredModels(cfg);
         MigrateBadgePosition(cfg);
         return cfg;
+    }
+
+    /// <summary>Garde une copie du config.json illisible avant que les défauts ne l'écrasent (la première
+    /// sauvegarde venue, ex. les statistiques après la dictée suivante, effacerait sinon styles, vocabulaire et
+    /// règles). Si la copie échoue aussi (fichier verrouillé), les sauvegardes sont suspendues jusqu'au
+    /// redémarrage : l'original ne doit jamais être écrasé par des défauts.</summary>
+    private void KeepUnreadableCopy()
+    {
+        RecoveryBackupPath = null;
+        SavesSuspended = false;
+        try
+        {
+            if (!File.Exists(ConfigPath)) return;
+            var copy = Path.Combine(_dir,
+                "config.illisible-" + DateTime.Now.ToString("yyyyMMdd-HHmmss", System.Globalization.CultureInfo.InvariantCulture) + ".json");
+            File.Copy(ConfigPath, copy, overwrite: true);
+            RecoveryBackupPath = copy;
+        }
+        catch { SavesSuspended = true; }
     }
 
     /// <summary>Remplace les modèles retirés par leur fournisseur (404 constaté) par leur successeur : réglage
@@ -126,6 +153,8 @@ public class ConfigService
 
     public void Save(AppConfig config)
     {
+        // Le fichier d'origine, illisible et non copié, ne doit jamais être écrasé par des défauts.
+        if (SavesSuspended) return;
         lock (_saveLock)
         {
             Directory.CreateDirectory(_dir);
