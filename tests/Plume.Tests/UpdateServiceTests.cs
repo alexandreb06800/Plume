@@ -146,6 +146,15 @@ public class UpdateServiceTests : IDisposable
     public void ResolveToken_JetonDesReglages_Prioritaire()
         => Assert.Equal("ghp_abc", UpdateService.ResolveToken("  ghp_abc  "));
 
+    [Theory]
+    [InlineData("protocol=https\nhost=github.com\nusername=x\npassword=gho_abc\n", "gho_abc")]
+    [InlineData("password=  gho_abc  \r\n", "gho_abc")]
+    [InlineData("protocol=https\nhost=github.com\n", null)]
+    [InlineData("password=\n", null)]
+    [InlineData("", null)]
+    public void ParseCredentialPassword_LitLeJeton(string sortie, string? attendu)
+        => Assert.Equal(attendu, UpdateService.ParseCredentialPassword(sortie));
+
     private static string Sha256Hex(string s)
         => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(s))).ToLowerInvariant();
 

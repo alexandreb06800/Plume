@@ -255,18 +255,30 @@ public static partial class UpdateService
             psi.Environment["GCM_INTERACTIVE"] = "never";
             using var p = Process.Start(psi);
             if (p is null) return null;
+            // Lectures lancées AVANT d'écrire : sinon un Git bloqué rend le délai ci-dessous inopérant.
+            var sortie = p.StandardOutput.ReadToEndAsync();
+            _ = p.StandardError.ReadToEndAsync();
             p.StandardInput.Write("protocol=https\nhost=github.com\n\n");
             p.StandardInput.Close();
-            var output = p.StandardOutput.ReadToEnd();
-            if (!p.WaitForExit(8000)) { try { p.Kill(); } catch { } return null; }
-            foreach (var line in output.Split('\n'))
-                if (line.StartsWith("password=", StringComparison.Ordinal))
-                {
-                    var token = line["password=".Length..].Trim();
-                    return token.Length > 0 ? token : null;
-                }
-            return null;
+            if (!p.WaitForExit(8000) || !sortie.Wait(1000))
+            {
+                try { p.Kill(entireProcessTree: true); } catch { }
+                return null;
+            }
+            return ParseCredentialPassword(sortie.Result);
         }
         catch { return null; } // Git absent du poste : pas de jeton par ce moyen
+    }
+
+    /// <summary>Jeton lu sur la ligne « password=… » de la sortie de « git credential fill » ; null s'il manque ou est vide.</summary>
+    public static string? ParseCredentialPassword(string output)
+    {
+        foreach (var line in output.Split('\n'))
+            if (line.StartsWith("password=", StringComparison.Ordinal))
+            {
+                var token = line["password=".Length..].Trim();
+                return token.Length > 0 ? token : null;
+            }
+        return null;
     }
 }
