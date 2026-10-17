@@ -61,4 +61,22 @@ public class StartupServiceTests
     [Fact]
     public void ResolveRunPath_ProcessusInconnu_RabatSurLExeInstalle()
         => Assert.Equal(Installe, StartupService.ResolveRunPath(null, Installe, _ => true));
+
+    [Theory]
+    [InlineData(@"C:\Projets\Plume\src\Plume\bin\Debug\net10.0-windows\Plume.exe", true)]
+    [InlineData(@"C:\Projets\Plume\src\Plume\bin\Release\net10.0-windows\win-x64\publish\Plume.exe", true)]
+    [InlineData(@"C:\Users\x\AppData\Local\Plume\Plume.exe", false)]
+    [InlineData(null, false)]
+    public void IsDevBuildPath_DetecteLesDossiersDeCompilation(string? exe, bool attendu)
+        => Assert.Equal(attendu, StartupService.IsDevBuildPath(exe));
+
+    [Fact]
+    public void ResolveRunPath_ExeDeDeveloppement_PrefereLExeInstalle()
+        => Assert.Equal(Installe, StartupService.ResolveRunPath(
+            @"C:\Projets\Plume\src\Plume\bin\Debug\net10.0-windows\Plume.exe", Installe, _ => true));
+
+    [Fact]
+    public void ResolveRunPath_ExeDeDeveloppementSansExeInstalle_GardeLeProcessus()
+        => Assert.Equal(@"C:\Projets\Plume\src\Plume\bin\Debug\net10.0-windows\Plume.exe", StartupService.ResolveRunPath(
+            @"C:\Projets\Plume\src\Plume\bin\Debug\net10.0-windows\Plume.exe", Installe, _ => false));
 }

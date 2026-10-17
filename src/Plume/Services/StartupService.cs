@@ -24,8 +24,9 @@ public static class StartupService
     }
 
     /// <summary>Chemin à inscrire dans la clé Run. L'exe installé (%LOCALAPPDATA%\Plume\Plume.exe) est
-    /// préféré quand l'instance courante tourne depuis OneDrive (dev/dossier de build) : une entrée Run
-    /// pointant dans OneDrive peut être retirée par la synchro/sécurité — le démarrage auto se perdait.</summary>
+    /// préféré quand l'instance courante tourne depuis OneDrive ou depuis un dossier de compilation
+    /// (<c>bin\Debug</c>, <c>bin\Release</c>) : une entrée Run pointant dans OneDrive peut être retirée par la
+    /// synchro/sécurité, et un « dotnet run » de développement ne doit jamais remplacer l'exe installé.</summary>
     public static string ResolveRunPath(string? processPath)
     {
         var installed = Path.Combine(
@@ -36,10 +37,18 @@ public static class StartupService
     /// <summary>Variante testable : chemin installé et test d'existence fournis.</summary>
     public static string ResolveRunPath(string? processPath, string installedExe, Func<string, bool> installedExists)
     {
-        bool processUtilisable = !string.IsNullOrEmpty(processPath) && !IsRunningFromOneDrive(processPath);
+        bool processUtilisable = !string.IsNullOrEmpty(processPath)
+            && !IsRunningFromOneDrive(processPath) && !IsDevBuildPath(processPath);
         if (processUtilisable) return processPath!;
         return installedExists(installedExe) ? installedExe : (processPath ?? installedExe);
     }
+
+    /// <summary>Vrai si le chemin est celui d'un exe de développement (<c>\bin\Debug\</c> ou <c>\bin\Release\</c>,
+    /// insensible à la casse).</summary>
+    public static bool IsDevBuildPath(string? exe)
+        => !string.IsNullOrEmpty(exe)
+           && (exe.Contains(@"\bin\Debug\", StringComparison.OrdinalIgnoreCase)
+               || exe.Contains(@"\bin\Release\", StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     /// Vrai si l'exe est lancé depuis un dossier OneDrive. Dans ce cas le
